@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "4.0.18"
+
+metadata:
+  id: "sonarr"
+  name: "Sonarr"
+  description: "Smart PVR for your TV series"
+  icon: "tv"
+  category: "media"
+  website: "https://sonarr.tv"
+  developer: "Team Sonarr"
+  license: "GPL-3.0"
+  sourceCode: "https://github.com/Sonarr/Sonarr"
+  support: "https://wiki.servarr.com/sonarr"
+  docs: "https://wiki.servarr.com/sonarr"
+  tagline: "Your TV library, automated"
+  tags: ["media", "tv", "pvr", "automation", "arr"]
+  defaultSubdomain: "sonarr"
+
+detail:
+  longDescription: |
+    Sonarr is a PVR for Usenet and BitTorrent users. It monitors your indexers (via Prowlarr)
+    for new episodes of the shows you follow, grabs them through your download client, then
+    renames and organises them into your library — automatically. Quality profiles, season
+    packs, failed-download handling, and calendar tracking are all built in.
+  screenshots: []
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/linuxserver/sonarr:4.0.18.2971-ls315"
+    port: 8989
+    network: internet
+    volumes:
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/config"
+        type: config
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: media
+        storageGroup: media   # shared with qBittorrent + Radarr for instant hardlink imports
+    healthCheck:
+      type: "http"
+      path: "/ping"
+      timeout: 120000
+
+# How the wire-runner reads this app's API key (for connection wiring).
+apiKey:
+  file: "/config/config.xml"
+  pattern: "<ApiKey>([a-f0-9]+)</ApiKey>"
+
+provides:
+  - type: pvr
+    description: "TV series PVR (Sonarr)"
+    port: 8989
+    scope: service
+
+wants:
+  - appId: prowlarr
+    name: "Prowlarr"
+    description: "Manage indexers for Sonarr in Prowlarr"
+    scope: service
+    # On approval, register Sonarr as an Application in Prowlarr (${wire.to}) so Prowlarr
+    # syncs indexers to Sonarr (${wire.from}). API-key only; idempotent (delete-then-add).
+    wire:
+      api:
+        steps:
+          - method: GET
+            url: "http://${wire.to.host}:9696/api/v1/applications"
+            headers: { X-Api-Key: "${wire.to.apiKey}" }
+            forEach: "app"
+            condition: "app.name equals 'Sonarr'"
+            action:
+              method: DELETE
+              url: "http://${wire.to.host}:9696/api/v1/applications/${app.id}"
+              headers: { X-Api-Key: "${wire.to.apiKey}" }
+          - method: POST
+            url: "http://${wire.to.host}:9696/api/v1/applications"
+            headers: { X-Api-Key: "${wire.to.apiKey}", Content-Type: "application/json" }
+            body:
+              name: "Sonarr"
+              implementation: "Sonarr"
+              configContract: "SonarrSettings"
+              syncLevel: "fullSync"
+              tags: []
+              fields:
+                - { name: "prowlarrUrl", value: "http://${wire.to.host}:9696" }
+                - { name: "baseUrl", value: "http://${wire.from.host}:8989" }
+                - { name: "apiKey", value: "${wire.from.apiKey}" }
+                - { name: "syncCategories", value: [5000, 5010, 5020, 5030, 5040, 5045, 5050] }
+            ignoreError: true
+  - appId: qbittorrent
+    name: "qBittorrent"
+    description: "Send TV downloads to qBittorrent"
+    scope: service
+    # On approval: (cli) configure qBittorrent (${wire.to}) for local-subnet API access +
+    # shared /data/torrents save path (idempotent, guarded — qBittorrent has no API key, so
+    # its config is edited in-container); then (api) register qBittorrent as Sonarr's
+    # (${wire.from}) download client + add the TV root folder. API-key only on the Sonarr side.
+    wire:
+      cli:
+        steps:
+          - timeout: 60000
+            exec: |
+              CONF=/config/qBittorrent/qBittorrent.conf
+              if [ -f "$CONF" ] && ! grep -q AuthSubnetWhitelistEnabled "$CONF"; then
+                s6-svc -d /run/service/svc-qbittorrent 2>/dev/null; sleep 3
+                sed -i 's#^Session.DefaultSavePath=.*#Session\\DefaultSavePath=/data/torrents/#' "$CONF"
+                sed -i 's#^Session.TempPath=.*#Session\\TempPath=/data/torrents/incomplete/#' "$CONF"
+                sed -i 's#^Downloads.SavePath=.*#Downloads\\SavePath=/data/torrents/#' "$CONF"
+                sed -i 's#^Downloads.TempPath=.*#Downloads\\TempPath=/data/torrents/incomplete/#' "$CONF"
+                printf '%s\n' 'WebUI\LocalHostAuth=false' 'WebUI\AuthSubnetWhitelistEnabled=true' 'WebUI\AuthSubnetWhitelist=10.0.0.0/8' >> "$CONF"
+                s6-svc -u /run/service/svc-qbittorrent 2>/dev/null; sleep 8
+              fi
+              mkdir -p /data/torrents /data/torrents/incomplete /data/media/tv /data/media/movies
+      api:
+        steps:
+          - method: GET
+            url: "http://${wire.from.host}:8989/api/v3/downloadclient"
+            headers: { X-Api-Key: "${wire.from.apiKey}" }
+            forEach: "client"
+            condition: "client.name equals 'qBittorrent'"
+            action:
+              method: DELETE
+              url: "http://${wire.from.host}:8989/api/v3/downloadclient/${client.id}"
+              headers: { X-Api-Key: "${wire.from.apiKey}" }
+          - method: POST
+            url: "http://${wire.from.host}:8989/api/v3/downloadclient"
+            headers: { X-Api-Key: "${wire.from.apiKey}", Content-Type: "application/json" }
+            body:
+              enable: true
+              protocol: "torrent"
+              priority: 1
+              name: "qBittorrent"
+              implementation: "QBittorrent"
+              configContract: "QBittorrentSettings"
+              tags: []
+              fields:
+                - { name: "host", value: "${wire.to.host}" }
+                - { name: "port", value: 8080 }
+                - { name: "tvCategory", value: "tv-sonarr" }
+            ignoreError: true
+          - method: POST
+            url: "http://${wire.from.host}:8989/api/v3/rootfolder"
+            headers: { X-Api-Key: "${wire.from.apiKey}", Content-Type: "application/json" }
+            body: { path: "/data/media/tv" }
+            ignoreError: true
+
+env_mapping:
+  PUID: "0"
+  PGID: "0"
+  TZ: "Etc/UTC"

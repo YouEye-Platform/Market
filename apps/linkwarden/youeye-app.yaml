@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "v2.14.1"
+
+metadata:
+  id: "linkwarden"
+  name: "Linkwarden"
+  description: "Collaborative bookmark manager with web archiving"
+  icon: "link"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://linkwarden.app"
+  tags: ["bookmarks", "links", "archive", "collections"]
+  defaultSubdomain: "links"
+
+detail:
+  longDescription: |
+    Linkwarden is a collaborative bookmark manager that lets you collect, organize, and
+    preserve web links. Features include automatic web page archiving (screenshots + PDFs),
+    tag-based organization, collections, full-text search, and multi-user collaboration.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/linkwarden/linkwarden/main/assets/dashboard.png"
+      caption: "Linkwarden bookmark dashboard"
+
+database:
+  mode: shared
+  name: "linkwarden"
+  user: "linkwarden"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "secret_key"
+    file: ".secret_key"
+    generator: "secretKey"
+    length: 32
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/linkwarden/linkwarden:v2.14.1"
+    port: 3000
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/v1/health"
+      timeout: 180000
+
+sso:
+  type: oauth2
+  callback_path: /api/v1/auth/callback/authentik
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/api/v1/auth/callback/authentik"
+
+env_mapping:
+  NEXTAUTH_URL: "${app.url}"
+  NEXTAUTH_SECRET: "${secrets.secret_key}"
+  DATABASE_URL: "${database.dsn}"
+  NEXT_PUBLIC_AUTHENTIK_ENABLED: "true"
+  AUTHENTIK_ISSUER: "${sso.issuer}"
+  AUTHENTIK_CLIENT_ID: "${sso.client_id}"
+  AUTHENTIK_CLIENT_SECRET: "${sso.client_secret}"
+
+uninstall:
+  dropSharedDatabase: true

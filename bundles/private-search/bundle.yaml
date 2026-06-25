@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: bundle
+id: private-search
+name: Private Search
+description: A private metasearch stack — the Search app backed by your own SearXNG engine.
+icon: search
+category: search
+setupSummary: >-
+  Installs SearXNG (a private metasearch engine) and connects the Search app to it, so your
+  searches run on your own server with no tracking or profiling.
+# Ordered: provider (searxng) before consumer (search).
+members:
+  - searxng
+  - search
+connections:
+  - { from: search, to: searxng, scope: user }
+storageGroups: []

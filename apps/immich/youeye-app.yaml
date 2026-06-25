@@ -1,0 +1,128 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.7.5"
+
+metadata:
+  id: "immich"
+  name: "Immich"
+  description: "Self-hosted photo and video management"
+  icon: "camera"
+  iconUrl: "icon.svg"
+  category: "media"
+  website: "https://immich.app"
+  developer: "Immich"
+  license: "AGPL-3.0"
+  sourceCode: "https://github.com/immich-app/immich"
+  support: "https://discord.immich.app"
+  docs: "https://immich.app/docs"
+  tagline: "Self-hosted photo and video backup"
+  tags: ["photos", "videos", "gallery", "machine-learning"]
+  defaultSubdomain: "photos"
+
+detail:
+  longDescription: |
+    High performance self-hosted photo and video management solution with automatic backup,
+    intelligent search, facial recognition, and shared albums.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/immich-app/immich/main/design/immich-screenshots.png"
+      caption: "Immich web and mobile interface"
+
+database:
+  mode: own
+  container: "postgres"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin@youeye.local"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "postgres"
+    type: oci
+    # Immich migrated its vector backend from pgvecto.rs (tensorchord) to
+    # VectorChord (server v1.133+). This purpose-built image (Postgres 14)
+    # bundles VectorChord + a pgvecto.rs compat layer. On a FRESH install
+    # VectorChord is auto-selected, so DB_VECTOR_EXTENSION is intentionally unset.
+    image: "ghcr.io/immich-app/postgres:14-vectorchord0.4.3-pgvectors0.2.0"
+    environment:
+      POSTGRES_PASSWORD: "${secrets.db_password}"
+      POSTGRES_USER: "immich"
+      POSTGRES_DB: "immich"
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - name: pgdata
+        host: "/var/lib/youeye/app-${app.id}-postgres/data"
+        container: "/var/lib/postgresql/data"
+        type: data
+    healthCheck:
+      type: "postgres"
+      user: "immich"
+      timeout: 60000
+
+  - name: "valkey"
+    type: oci
+    image: "docker.io/valkey/valkey:9"
+
+  - name: "server"
+    type: oci
+    primary: true
+    image: "ghcr.io/immich-app/immich-server:v2.7.5"
+    port: 2283
+    network: internet
+    environment:
+      DB_HOSTNAME: "app-${app.id}-postgres.youeye"
+      DB_PORT: "5432"
+      DB_USERNAME: "immich"
+      DB_PASSWORD: "${secrets.db_password}"
+      DB_DATABASE_NAME: "immich"
+      REDIS_HOSTNAME: "app-${app.id}-valkey.youeye"
+      REDIS_PORT: "6379"
+      IMMICH_MACHINE_LEARNING_URL: "http://app-${app.id}-ml.youeye:3003"
+      IMMICH_HOST: "0.0.0.0"
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
+    volumes:
+      - name: upload
+        host: "/var/lib/youeye/app-${app.id}-server/upload"
+        container: "/usr/src/app/upload"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/server/ping"
+      timeout: 180000
+
+  - name: "ml"
+    type: oci
+    image: "ghcr.io/immich-app/immich-machine-learning:v2.7.5"
+    volumes:
+      - name: mlcache
+        host: "/var/lib/youeye/app-${app.id}-ml/cache"
+        container: "/cache"
+        type: cache
+
+backup:
+  strategy: "stop-dump-export"
+  stopOrder:
+    - "server"
+    - "ml"
+  startOrder:
+    - "ml"
+    - "server"
+  ownPostgres:
+    container: "app-${app.id}-postgres"
+    database: "immich"
+  volumes:
+    - "/usr/src/app/upload"
+  exclude:
+    - "/usr/src/app/upload/thumbs"
+    - "/usr/src/app/upload/encoded-video"

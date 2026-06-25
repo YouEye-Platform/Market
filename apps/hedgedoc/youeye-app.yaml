@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "1.10.5"
+
+metadata:
+  id: "hedgedoc"
+  name: "HedgeDoc"
+  description: "Collaborative real-time markdown editor"
+  icon: "file-edit"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://hedgedoc.org"
+  tags: ["markdown", "collaboration", "notes", "documents"]
+  defaultSubdomain: "hedgedoc"
+
+detail:
+  longDescription: |
+    HedgeDoc is a collaborative, real-time markdown editor. Write documents together with
+    your team in real-time, see changes instantly, and present slides directly from your
+    notes. Features include syntax highlighting, math equations, diagrams, multiple
+    export formats, and collaborative writing workflows.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/hedgedoc/hedgedoc/master/docs/content/images/screenshot.png"
+      caption: "HedgeDoc collaborative editor"
+
+database:
+  mode: shared
+  name: "hedgedoc"
+  user: "hedgedoc"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "session_secret"
+    file: ".session_secret"
+    generator: "secretKey"
+    length: 32
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/linuxserver/hedgedoc:1.10.5"
+    port: 3000
+    network: internet
+    volumes:
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/config"
+        type: config
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /auth/oauth2/callback
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/auth/oauth2/callback"
+
+env_mapping:
+  CMD_DOMAIN: "${app.fqdn}"
+  CMD_PROTOCOL_USESSL: "true"
+  CMD_URL_ADDPORT: "false"
+  CMD_DB_URL: "${database.dsn}"
+  CMD_SESSION_SECRET: "${secrets.session_secret}"
+  CMD_ALLOW_ANONYMOUS: "false"
+  CMD_ALLOW_ANONYMOUS_EDITS: "true"
+  CMD_OAUTH2_PROVIDERNAME: "${identity.name}"
+  CMD_OAUTH2_CLIENT_ID: "${sso.client_id}"
+  CMD_OAUTH2_CLIENT_SECRET: "${sso.client_secret}"
+  CMD_OAUTH2_AUTHORIZATION_URL: "${identity.externalUrl}/application/o/authorize/"
+  CMD_OAUTH2_TOKEN_URL: "${identity.internalUrl}/application/o/token"
+  CMD_OAUTH2_USER_PROFILE_URL: "${identity.internalUrl}/application/o/userinfo"
+  CMD_OAUTH2_SCOPE: "openid email profile"
+  CMD_OAUTH2_USER_PROFILE_USERNAME_ATTR: "preferred_username"
+  CMD_OAUTH2_USER_PROFILE_DISPLAY_NAME_ATTR: "name"
+  CMD_OAUTH2_USER_PROFILE_EMAIL_ATTR: "email"
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "${platform.timezone}"
+
+uninstall:
+  dropSharedDatabase: true

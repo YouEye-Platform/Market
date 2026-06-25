@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "1.35.4"
+
+metadata:
+  id: "vaultwarden"
+  name: "Vaultwarden"
+  description: "Lightweight Bitwarden-compatible password manager"
+  icon: "lock"
+  iconUrl: "icon.svg"
+  category: "utilities"
+  website: "https://github.com/dani-garcia/vaultwarden"
+  developer: "Daniel García"
+  license: "AGPL-3.0"
+  sourceCode: "https://github.com/dani-garcia/vaultwarden"
+  support: "https://vaultwarden.discourse.group"
+  docs: "https://github.com/dani-garcia/vaultwarden/wiki"
+  tagline: "Lightweight Bitwarden-compatible server"
+  tags: ["passwords", "security", "bitwarden"]
+  defaultSubdomain: "vault"
+
+detail:
+  longDescription: |
+    Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
+    Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/resources/vaultwarden-icon.svg"
+      caption: "Vaultwarden password vault"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: shared
+  name: "vaultwarden"
+  user: "vaultwarden"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "admin_token"
+    file: ".admin_token"
+    generator: "secretKey"
+    length: 48
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/vaultwarden/server:1.35.4"
+    port: 80
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/alive"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /identity/connect/oidc-signin
+  setup:
+    method: env
+
+env_mapping:
+  DOMAIN: "${app.url}"
+  DATABASE_URL: "${database.dsn}"
+  ADMIN_TOKEN: "${secrets.admin_token}"
+  ROCKET_PORT: "80"
+  ROCKET_ADDRESS: "0.0.0.0"
+  SIGNUPS_ALLOWED: "true"
+  INVITATIONS_ALLOWED: "true"
+  SHOW_PASSWORD_HINT: "false"
+  SSO_ENABLED: "true"
+  SSO_ONLY: "false"
+  # Split-channel: SSO authority/discovery over the INTERNAL identity DNAT (${sso.issuer}
+  # = http://<app-gw>:3002/application/o/youeye-app-vaultwarden/). Vaultwarden's Rust
+  # openidconnect crate is STRICT: it discovers from SSO_AUTHORITY and requires the
+  # id_token `iss` to equal it. The CP discovery doc + id_token both emit this exact
+  # clientId-derived internal authority, so it validates — even under full isolation.
+  SSO_AUTHORITY: "${sso.issuer}"
+  SSO_CLIENT_ID: "${sso.client_id}"
+  SSO_CLIENT_SECRET: "${sso.client_secret}"
+  SSO_PKCE: "true"
+  SSO_SCOPES: "openid email profile"
+  SMTP_HOST: "${smtp.host}"
+  SMTP_PORT: "${smtp.port}"
+  SMTP_USERNAME: "${smtp.user}"
+  SMTP_PASSWORD: "${smtp.password}"
+  SMTP_FROM: "${smtp.from}"
+  SMTP_SECURITY: "starttls"
+
+uninstall:
+  dropSharedDatabase: true

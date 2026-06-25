@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "0.9.0.2"
+
+metadata:
+  id: "kavita"
+  name: "Kavita"
+  description: "Reading server for manga, comics, and ebooks"
+  icon: "book-open"
+  iconUrl: "icon.svg"
+  category: "media"
+  website: "https://www.kavitareader.com"
+  tags: ["reading", "manga", "comics", "ebooks", "library"]
+  defaultSubdomain: "kavita"
+
+detail:
+  longDescription: |
+    Kavita is a fast, feature-rich, cross-platform reading server. Supports manga, comics,
+    and ebooks in multiple formats (CBZ, CBR, ZIP, EPUB, PDF). Features include reading
+    progress tracking, library management, metadata handling, OPDS support, and a responsive
+    web reader for personal reading libraries.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/Kareadita/Kavita/develop/Logo/kavita.svg"
+      caption: "Kavita reading server"
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/jvmilazz0/kavita:0.9.0.2"
+    port: 5000
+    network: internet
+    volumes:
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/kavita/config"
+        type: config
+      - name: library
+        host: "/var/lib/youeye/app-${app.id}/library"
+        container: "/manga"
+        type: media
+    healthCheck:
+      type: "http"
+      path: "/api/health"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /api/account/oidc-callback
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/api/account/oidc-callback"
+
+# Bumped to 0.9.0.2 (CVE-2026-47202). Kavita reads OIDC settings from
+# config/appsettings.json; we supply them via ASP.NET Core env overrides
+# (OpenIdConnectSettings__*), which the engine resolves AFTER the OAuth client is created
+# (configFiles are written too early to carry ${sso.*}). ProvisionAccounts auto-creates
+# users; SyncUserSettings is off so login isn't gated on a 'login' role (YouEye-ID doesn't
+# emit one). First user = admin. NOTE: if this Kavita build reads OIDC strictly from disk
+# and ignores env overrides, the values must instead be rendered into appsettings.json
+# after OAuth-client creation (an engine change) — validate during testing.
+env_mapping:
+  OpenIdConnectSettings__Authority: "${sso.issuer}"
+  OpenIdConnectSettings__ClientId: "${sso.client_id}"
+  OpenIdConnectSettings__Secret: "${sso.client_secret}"
+  OpenIdConnectSettings__ProvisionAccounts: "true"
+  OpenIdConnectSettings__SyncUserSettings: "false"
+  OpenIdConnectSettings__RequireVerifiedEmail: "false"

@@ -1,0 +1,194 @@
+apiVersion: v1
+kind: integration
+version: "0.1.6"
+type: identity
+recommended: true
+installByDefault: true
+
+metadata:
+  id: "jellyfin-youeye-id"
+  name: "Jellyfin Identity Sign-In"
+  description: "Configures Jellyfin to use the configured identity provider through the Jellyfin SSO Authentication plugin."
+  icon: "plug"
+  category: "media"
+  website: "https://jellyfin.org"
+  tags: ["jellyfin", "youeye-id", "oauth2", "identity", "plugin"]
+
+target:
+  appId: "jellyfin"
+  appName: "Jellyfin"
+  version: "10.11.x"
+
+permissions:
+  - "identity:oauth-client:create"
+  - "app:jellyfin:api:configure-identity"
+  - "app:jellyfin:plugin:install"
+
+detail:
+  longDescription: |
+    Adds identity sign-in to Jellyfin by creating an identity OAuth client,
+    installing the Jellyfin SSO Authentication plugin, restarting Jellyfin, and
+    writing the identity provider configuration through Jellyfin's API.
+
+sso:
+  type: oauth2
+  callback_path: /sso/OID/redirect/${sso.slug}
+  entry_url: /sso/OID/start/${sso.slug}
+  adminMapping:
+    type: groups
+    groupName: "admin"
+  setup:
+    method: api
+    api:
+      steps:
+        - delay: 10000
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Startup/Configuration"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            UICulture: "en-US"
+            MetadataCountryCode: "US"
+            PreferredMetadataLanguage: "en"
+          ignoreError: true
+        - method: GET
+          url: "http://${container.ip}:${container.port}/Startup/User"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Startup/User"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            Name: "admin"
+            password: "${secrets.admin_password}"
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Startup/RemoteAccess"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            EnableRemoteAccess: true
+            EnableAutomaticPortMapping: false
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Startup/Complete"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Users/AuthenticateByName"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            Username: "admin"
+            Pw: "${secrets.admin_password}"
+          extractToken:
+            from: "response.AccessToken"
+            as: "jellyfinToken"
+        - method: GET
+          url: "http://${container.ip}:${container.port}/Repositories"
+          headers:
+            Authorization: 'MediaBrowser Token="${jellyfinToken}"'
+          saveAs: "currentRepos"
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Repositories"
+          headers:
+            Authorization: 'MediaBrowser Token="${jellyfinToken}"'
+          body:
+            - Name: "Jellyfin Stable"
+              Url: "https://repo.jellyfin.org/files/plugin/manifest.json"
+              Enabled: true
+            - Name: "SSO Authentication"
+              Url: "https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json"
+              Enabled: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Packages/Installed/SSO%20Authentication?assemblyGuid=505ce9d1-d916-42fa-86ca-673ef241d7df&repositoryUrl=https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json"
+          headers:
+            Authorization: 'MediaBrowser Token="${jellyfinToken}"'
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/System/Restart"
+          headers:
+            Authorization: 'MediaBrowser Token="${jellyfinToken}"'
+          ignoreError: true
+        - delay: 15000
+        - method: POST
+          url: "http://${container.ip}:${container.port}/Users/AuthenticateByName"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            Username: "admin"
+            Pw: "${secrets.admin_password}"
+          extractToken:
+            from: "response.AccessToken"
+            as: "jellyfinToken"
+        - method: GET
+          url: "http://${container.ip}:${container.port}/sso/OID/Del/${sso.slug}?api_key=${jellyfinToken}"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/sso/OID/Add/${sso.slug}?api_key=${jellyfinToken}"
+          headers:
+            X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+          body:
+            oidEndpoint: "${sso.issuer}"
+            oidClientId: "${sso.client_id}"
+            oidSecret: "${sso.client_secret}"
+            enabled: true
+            enableAuthorization: true
+            enableAllFolders: true
+            enabledFolders: []
+            adminRoles:
+              - "admin"
+            roles: []
+            enableFolderRoles: false
+            folderRoleMapping: []
+            enableLiveTvRoles: false
+            liveTvRoles: []
+            liveTvManagementRoles: []
+            enableLiveTv: false
+            enableLiveTvManagement: false
+            roleClaim: "groups"
+            oidScopes:
+              - "openid"
+              - "email"
+              - "profile"
+            defaultProvider: ""
+            defaultUsernameClaim: "preferred_username"
+            # Split-channel OIDC over an internal HTTP back-channel. The OIDC discovery
+            # document (issuer/token/userinfo/jwks) is served on the internal app-gateway
+            # http://<gw>:3002 (no internal TLS), while the authorization_endpoint is on the
+            # external browser host https://id.<domain>. The Jellyfin SSO plugin uses Duende
+            # IdentityModel, which (a) requires HTTPS for the discovery fetch and (b) validates
+            # that every endpoint shares the issuer host. Both reject this split-channel setup,
+            # so the OIDC client throws while loading discovery and /sso/OID/start returns 500.
+            # All three flags are required and safe here: the issuer is a trusted first-party
+            # YouEye ID provider on the isolated internal network; token signature/audience/
+            # expiry validation is unaffected.
+            disableHttps: true             # allow the http://<gw>:3002 discovery fetch (else "HTTPS required")
+            doNotValidateEndpoints: true   # authorize host (id.<domain>) != issuer host (<gw>:3002)
+            doNotValidateIssuerName: true  # issuer name differs from the external browser host
+            doNotLoadProfile: false
+            schemeOverride: "https"
+
+uninstall:
+  method: api
+  api:
+    steps:
+      - method: POST
+        url: "http://${container.ip}:${container.port}/Users/AuthenticateByName"
+        headers:
+          X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'
+        body:
+          Username: "admin"
+          Pw: "${secrets.admin_password}"
+        extractToken:
+          from: "response.AccessToken"
+          as: "jellyfinToken"
+      - method: GET
+        url: "http://${container.ip}:${container.port}/sso/OID/Del/${sso.slug}?api_key=${jellyfinToken}"
+        headers:
+          X-Emby-Authorization: 'MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"'

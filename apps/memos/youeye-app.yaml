@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "0.29.1"
+
+metadata:
+  id: "memos"
+  name: "Memos"
+  description: "Lightweight self-hosted memo hub"
+  icon: "sticky-note"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://usememos.com"
+  tags: ["notes", "memo", "markdown"]
+  defaultSubdomain: "memos"
+
+detail:
+  longDescription: |
+    A privacy-first, lightweight note-taking service. Easily capture and share your great thoughts.
+    Built with Go and React.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/demo.png"
+      caption: "Memos timeline and editor"
+
+capabilities:
+  smtp: true
+
+surfaces:
+  - id: "memo-alert"
+    kind: "notification"
+    placement: "notification-center"
+    name: "Memos notification"
+    description: "Render a Memos notification embed inside YouEye notifications."
+    embedPath: "/embed/notification/memo-alert"
+    permissions:
+      - "notifications:send"
+
+database:
+  mode: shared
+  name: "memos"
+  user: "memos"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/neosmemo/memos:0.29.1"
+    port: 5230
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/var/opt/memos"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/healthz"
+      timeout: 120000
+
+env_mapping:
+  MEMOS_DRIVER: "postgres"
+  MEMOS_DSN: "${database.dsn}"
+
+uninstall:
+  dropSharedDatabase: true

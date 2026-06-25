@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: integration
+version: "0.1.4"
+type: identity
+recommended: true
+installByDefault: true
+
+metadata:
+  id: "memos-youeye-id"
+  name: "Memos Identity Sign-In"
+  description: "Configures Memos to use the configured identity provider as an OAuth2 identity provider."
+  icon: "plug"
+  category: "productivity"
+  website: "https://usememos.com"
+  tags: ["memos", "youeye-id", "oauth2", "identity"]
+
+target:
+  appId: "memos"
+  appName: "Memos"
+  version: "0.29.x"
+
+permissions:
+  - "identity:oauth-client:create"
+  - "app:memos:api:configure-identity"
+
+detail:
+  longDescription: |
+    Adds identity sign-in to Memos by creating an identity OAuth client, creating
+    or signing into the local Memos admin account, removing stale OAuth providers,
+    and writing the active identity OAuth provider through the Memos API.
+
+# Memos v0.29 API notes (changed from the pre-0.24 API this integration first targeted):
+#   - the first/admin user is created via POST /api/v1/users (the old /auth/signup is gone)
+#   - signin is POST /api/v1/auth/signin with body {passwordCredentials:{username,password}};
+#     the access token is returned in the RESPONSE BODY (accessToken), not a cookie
+#   - identity providers live at /api/v1/identity-providers (hyphenated); the resource
+#     `name` is `identity-providers/<id>`, so DELETE /api/v1/${provider.name} resolves correctly
+#   - split-channel OIDC: authUrl (browser) stays external; token/userinfo are called
+#     server-side and now go through the internal identity DNAT (${identity.internalUrl}
+#     = http://<app-gw>:3002), which is domain-free, CA-free, and survives full network
+#     isolation. Memos does no id_token `iss` validation, so the external/internal split is safe.
+sso:
+  type: oauth2
+  callback_path: /auth/callback
+  setup:
+    method: api
+    api:
+      steps:
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/v1/auth/signin"
+          body:
+            passwordCredentials:
+              username: "admin"
+              password: "${secrets.admin_password}"
+            neverExpire: true
+          extractToken:
+            from: "response.accessToken"
+            as: "bearerToken"
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/v1/users"
+          condition: "!bearerToken"
+          body:
+            username: "admin"
+            password: "${secrets.admin_password}"
+            role: "HOST"
+          ignoreError: true
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/v1/auth/signin"
+          condition: "!bearerToken"
+          body:
+            passwordCredentials:
+              username: "admin"
+              password: "${secrets.admin_password}"
+            neverExpire: true
+          extractToken:
+            from: "response.accessToken"
+            as: "bearerToken"
+        - method: GET
+          url: "http://${container.ip}:${container.port}/api/v1/identity-providers"
+          auth: "${bearerToken}"
+          forEach: "provider"
+          condition: "provider.type equals 'OAUTH2'"
+          action:
+            method: DELETE
+            url: "http://${container.ip}:${container.port}/api/v1/${provider.name}"
+            auth: "${bearerToken}"
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/v1/identity-providers"
+          auth: "${bearerToken}"
+          body:
+            title: "${identity.name}"
+            type: "OAUTH2"
+            identifierFilter: ""
+            config:
+              oauth2Config:
+                clientId: "${sso.client_id}"
+                clientSecret: "${sso.client_secret}"
+                authUrl: "${identity.externalUrl}/application/o/authorize/"
+                tokenUrl: "${identity.internalUrl}/application/o/token"
+                userInfoUrl: "${identity.internalUrl}/application/o/userinfo"
+                scopes:
+                  - "openid"
+                  - "profile"
+                  - "email"
+                fieldMapping:
+                  identifier: "preferred_username"
+                  displayName: "name"
+                  email: "email"
+
+uninstall:
+  method: api
+  api:
+    steps:
+      - method: POST
+        url: "http://${container.ip}:${container.port}/api/v1/auth/signin"
+        body:
+          passwordCredentials:
+            username: "admin"
+            password: "${secrets.admin_password}"
+          neverExpire: true
+        extractToken:
+          from: "response.accessToken"
+          as: "bearerToken"
+      - method: GET
+        url: "http://${container.ip}:${container.port}/api/v1/identity-providers"
+        auth: "${bearerToken}"
+        forEach: "provider"
+        condition: "provider.title equals '${identity.name}'"
+        action:
+          method: DELETE
+          url: "http://${container.ip}:${container.port}/api/v1/${provider.name}"
+          auth: "${bearerToken}"

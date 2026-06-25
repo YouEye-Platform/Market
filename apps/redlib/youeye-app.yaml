@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "sha-a4d36e9"
+
+metadata:
+  id: "redlib"
+  name: "Redlib"
+  description: "Privacy-respecting Reddit frontend"
+  icon: "message-circle"
+  iconUrl: "icon.svg"
+  category: "social"
+  website: "https://github.com/redlib-org/redlib"
+  tags: ["reddit", "privacy", "social"]
+  defaultSubdomain: "reddit"
+
+detail:
+  longDescription: |
+    An alternative private front-end to Reddit. Browse Reddit content without tracking,
+    ads, or JavaScript requirements.
+  screenshots:
+    - path: "https://i.ibb.co/18vrdxk/redlib-rust.png"
+      caption: "Redlib browsing Reddit"
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "quay.io/redlib/redlib:sha-a4d36e9"
+    port: 8080
+    network: internet
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 120000
+
+env_mapping:
+  REDLIB_DEFAULT_THEME: "dark"

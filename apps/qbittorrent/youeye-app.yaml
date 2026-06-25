@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "5.2.2"
+
+metadata:
+  id: "qbittorrent"
+  name: "qBittorrent"
+  description: "Free and open-source BitTorrent client"
+  icon: "download"
+  category: "downloaders"
+  website: "https://www.qbittorrent.org"
+  developer: "The qBittorrent project"
+  license: "GPL-2.0"
+  sourceCode: "https://github.com/qbittorrent/qBittorrent"
+  support: "https://github.com/qbittorrent/qBittorrent/wiki"
+  docs: "https://github.com/qbittorrent/qBittorrent/wiki"
+  tagline: "A fast, lightweight BitTorrent client"
+  tags: ["downloader", "torrent", "bittorrent", "arr"]
+  defaultSubdomain: "qbittorrent"
+
+detail:
+  longDescription: |
+    qBittorrent is a free, open-source BitTorrent client with no ads. It ships a built-in
+    search engine, RSS downloading, bandwidth scheduling, and a polished web UI. As the
+    download client for the *arr stack it receives grabs from Sonarr and Radarr and saves
+    them into shared storage, so your media apps can import finished downloads with instant
+    hardlinks. The first-run web UI password is printed in the app's container logs.
+  screenshots: []
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/linuxserver/qbittorrent:5.2.2_v2.0.13-ls463"
+    port: 8080
+    network: internet
+    volumes:
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/config"
+        type: config
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: media
+        storageGroup: media   # shared with Sonarr + Radarr for instant hardlink imports
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 120000
+
+provides:
+  - type: download-client
+    description: "BitTorrent download client (qBittorrent)"
+    port: 8080
+    scope: service
+
+env_mapping:
+  PUID: "0"
+  PGID: "0"
+  TZ: "Etc/UTC"
+  WEBUI_PORT: "8080"

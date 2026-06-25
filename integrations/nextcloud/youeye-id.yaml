@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: integration
+version: "0.1.3"
+type: identity
+recommended: true
+installByDefault: true
+
+metadata:
+  id: "nextcloud-youeye-id"
+  name: "Nextcloud Identity Sign-In"
+  description: "Configures Nextcloud to use the configured identity provider through the OpenID Connect user backend app."
+  icon: "plug"
+  category: "productivity"
+  website: "https://nextcloud.com"
+  tags: ["nextcloud", "youeye-id", "oauth2", "identity", "files"]
+
+target:
+  appId: "nextcloud"
+  appName: "Nextcloud"
+  version: "34.0.x"
+
+permissions:
+  - "identity:oauth-client:create"
+  - "app:nextcloud:cli:configure-identity"
+  - "app:nextcloud:app:install"
+
+detail:
+  longDescription: |
+    Adds identity sign-in to Nextcloud by creating an identity OAuth client,
+    installing/enabling Nextcloud's OpenID Connect user backend app, and writing
+    the identity provider configuration through Nextcloud's occ CLI.
+
+sso:
+  type: oauth2
+  callback_path: /apps/user_oidc/code
+  # Drawer/header launch the user_oidc SSO login directly (Nextcloud's root shows a local
+  # login form). Provider id 1 = the single youeye-id provider on a fresh install.
+  entry_url: /apps/user_oidc/login/1
+  adminMapping:
+    type: groups
+    groupName: "admin"
+  setup:
+    method: cli
+    cli:
+      steps:
+        - exec: "su -s /bin/sh www-data -c 'php /var/www/html/occ config:system:set allow_local_remote_servers --value true --type boolean'"
+          timeout: 10000
+        - exec: "su -s /bin/sh www-data -c 'php /var/www/html/occ app:install user_oidc || true'"
+          timeout: 120000
+        - exec: "su -s /bin/sh www-data -c 'php /var/www/html/occ app:enable user_oidc'"
+          timeout: 30000
+        - exec: "su -s /bin/sh www-data -c \"php /var/www/html/occ user_oidc:provider '${identity.name}' --clientid='${sso.client_id}' --clientsecret='${sso.client_secret}' --discoveryuri='${sso.discovery_url}' --scope='openid email profile groups' --unique-uid=0 --mapping-uid=preferred_username --mapping-display-name=name --mapping-email=email --mapping-groups=groups --group-provisioning=1 --check-bearer=0\""
+          timeout: 30000
+
+uninstall:
+  method: cli
+  cli:
+    steps:
+      - exec: "su -s /bin/sh www-data -c \"php /var/www/html/occ user_oidc:provider:delete --force '${identity.name}'\""
+        timeout: 30000

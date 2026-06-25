@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: system-app
+version: "17.10"
+
+metadata:
+  id: "postgresql"
+  name: "PostgreSQL"
+  description: "Shared relational database used by YouEye and installed apps"
+  icon: "database"
+  category: "infrastructure"
+  website: "https://www.postgresql.org"
+  tags: ["database", "sql", "infrastructure"]
+
+image: "docker.io/library/postgres:17.10-alpine"
+containerName: "youeye-postgres"
+
+# System app manifests are the Market source of truth for infrastructure
+# version/image metadata. Control Panel owns infrastructure reconciliation.

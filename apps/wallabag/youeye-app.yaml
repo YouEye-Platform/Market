@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.6.14"
+
+metadata:
+  id: "wallabag"
+  name: "Wallabag"
+  description: "Read-it-later app to save and archive web articles"
+  icon: "bookmark"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://wallabag.org"
+  tags: ["bookmarks", "articles", "reading", "archive"]
+  defaultSubdomain: "wallabag"
+
+detail:
+  longDescription: |
+    Wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
+    organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
+    saving, full-text search, reading time estimates, and mobile apps.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/wallabag/wallabag/master/docs/en/img/wallabag.png"
+      caption: "Wallabag article reader"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+  - name: "secret_key"
+    file: ".secret_key"
+    generator: "secretKey"
+    length: 32
+
+credentials:
+  - label: "Admin Account"
+    username: "wallabag"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/wallabag/wallabag:2.6.14"
+    port: 80
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/var/www/wallabag/data"
+        type: data
+      - name: images
+        host: "/var/lib/youeye/app-${app.id}/images"
+        container: "/var/www/wallabag/web/assets/images"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/version"
+      timeout: 180000
+
+# NOTE: Wallabag has NO external OIDC/SAML login in the OSS build (FOSUserBundle local
+# accounts only; its OAuth2 server only ISSUES API tokens). Users keep a local Wallabag
+# login (admin user "wallabag"). Outbound email (2FA, password reset) goes through the
+# platform SMTP relay. The MAILER_DSN credential values must be URL-safe.
+env_mapping:
+  SYMFONY__ENV__DOMAIN_NAME: "${app.url}"
+  SYMFONY__ENV__SERVER_NAME: "Wallabag"
+  SYMFONY__ENV__FOSUSER_REGISTRATION: "false"
+  SYMFONY__ENV__SECRET: "${secrets.secret_key}"
+  POPULATE_DATABASE: "true"
+  SYMFONY__ENV__MAILER_DSN: "smtp://${smtp.user}:${smtp.password}@${smtp.host}:${smtp.port}"
+  SYMFONY__ENV__FROM_EMAIL: "${smtp.from}"
+  SYMFONY__ENV__TWOFACTOR_SENDER: "${smtp.from}"

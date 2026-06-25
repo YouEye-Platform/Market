@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "1.29.1"
+
+metadata:
+  id: "freshrss"
+  name: "FreshRSS"
+  description: "Self-hosted RSS feed aggregator with extension support"
+  icon: "rss"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://freshrss.org"
+  tags: ["rss", "news", "feeds", "reader"]
+  defaultSubdomain: "freshrss"
+
+detail:
+  longDescription: |
+    FreshRSS is a self-hosted RSS and Atom feed aggregator. Lightweight, easy to set up,
+    and packed with features: multi-user support, OPML import/export, full-text search,
+    keyboard shortcuts, mobile-friendly responsive design, and a rich extension system.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/FreshRSS/FreshRSS/edge/docs/img/FreshRSS-logo.png"
+      caption: "FreshRSS feed reader interface"
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+  - name: "oidc_crypto_key"
+    file: ".oidc_crypto_key"
+    generator: "secretKey"
+    length: 32
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/freshrss/freshrss:1.29.1"
+    port: 80
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/var/www/FreshRSS/data"
+        type: data
+      - name: extensions
+        host: "/var/lib/youeye/app-${app.id}/extensions"
+        container: "/var/www/FreshRSS/extensions"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/i/"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /i/oidc/
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/i/oidc/"
+
+# FreshRSS OIDC runs on the Debian image only (Alpine lacks mod_auth_openidc) and
+# does NOT auto-create users: the signing-in user's preferred_username must match an
+# existing FreshRSS account. The bootstrap account below is "admin", so the YouEye
+# user whose preferred_username is "admin" maps to it; other users must be created in
+# FreshRSS first. Role (admin vs normal) is a FreshRSS-side setting, not an OIDC claim.
+env_mapping:
+  CRON_MIN: "2,32"
+  TZ: "${platform.timezone}"
+  FRESHRSS_INSTALL: "--default-user admin --api-enabled --base-url ${app.url}"
+  FRESHRSS_USER: "--user admin --password ${secrets.admin_password} --language ${platform.locale}"
+  OIDC_ENABLED: "1"
+  OIDC_PROVIDER_METADATA_URL: "${sso.discovery_url}"
+  OIDC_CLIENT_ID: "${sso.client_id}"
+  OIDC_CLIENT_SECRET: "${sso.client_secret}"
+  OIDC_CLIENT_CRYPTO_KEY: "${secrets.oidc_crypto_key}"
+  OIDC_REMOTE_USER_CLAIM: "preferred_username"
+  OIDC_SCOPES: "openid email profile"
+  OIDC_X_FORWARDED_HEADERS: "X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto"

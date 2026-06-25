@@ -1,0 +1,8 @@
+{
+  "name": "youeye-market",
+  "private": true,
+  "description": "YouEye Market catalog and per-app manifests. Tests are dependency-free (node:test).",
+  "scripts": {
+    "test": "node --test tests/*.spec.mjs"
+  }
+}

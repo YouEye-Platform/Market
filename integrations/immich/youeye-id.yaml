@@ -1,0 +1,118 @@
+apiVersion: v1
+kind: integration
+version: "0.1.4"
+type: identity
+recommended: true
+installByDefault: true
+
+metadata:
+  id: "immich-youeye-id"
+  name: "Immich Identity Sign-In"
+  description: "Configures Immich to use the configured identity provider as an OAuth2 identity provider."
+  icon: "plug"
+  category: "media"
+  website: "https://immich.app"
+  tags: ["immich", "youeye-id", "oauth2", "identity", "photos"]
+
+target:
+  appId: "immich"
+  appName: "Immich"
+  version: "2.7.x"
+
+permissions:
+  - "identity:oauth-client:create"
+  - "app:immich:api:configure-identity"
+
+detail:
+  longDescription: |
+    Adds identity sign-in to Immich by creating an identity OAuth client,
+    creating or signing into the local Immich admin account, and writing the
+    OAuth settings through Immich's system configuration API.
+
+sso:
+  type: oauth2
+  callback_path: /auth/login
+  # Drawer/header launch Immich's OAuth directly: ?autoLaunch=1 makes the login page auto-start
+  # the youeye-id OAuth flow instead of showing the local login form.
+  entry_url: /auth/login?autoLaunch=1
+  additional_callbacks:
+    - "${app.url}/user-settings"
+    - "app.immich:///oauth-callback"
+  adminMapping:
+    type: roleClaim
+    claimName: "immich_role"
+    adminValue: "admin"
+    defaultValue: "user"
+  setup:
+    method: api
+    api:
+      steps:
+        - delay: 10000
+
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/auth/admin-sign-up"
+          body:
+            email: "admin@youeye.local"
+            password: "${secrets.admin_password}"
+            name: "YouEye Admin"
+          ignoreError: true
+
+        - method: POST
+          url: "http://${container.ip}:${container.port}/api/auth/login"
+          body:
+            email: "admin@youeye.local"
+            password: "${secrets.admin_password}"
+          extractToken:
+            from: "response.accessToken"
+            as: "bearerToken"
+
+        - method: GET
+          url: "http://${container.ip}:${container.port}/api/system-config"
+          auth: "${bearerToken}"
+          saveAs: "currentConfig"
+
+        - method: PUT
+          url: "http://${container.ip}:${container.port}/api/system-config"
+          auth: "${bearerToken}"
+          body:
+            merge: "${currentConfig}"
+            set:
+              oauth.enabled: true
+              oauth.issuerUrl: "${sso.issuer}"
+              oauth.clientId: "${sso.client_id}"
+              oauth.clientSecret: "${sso.client_secret}"
+              oauth.scope: "openid email profile immich_role"
+              oauth.signingAlgorithm: "RS256"
+              oauth.tokenEndpointAuthMethod: "client_secret_post"
+              oauth.buttonText: "Login with ${identity.name}"
+              oauth.autoRegister: true
+              oauth.autoLaunch: false
+              oauth.allowInsecureRequests: true
+              oauth.roleClaim: "immich_role"
+
+uninstall:
+  method: api
+  api:
+    steps:
+      - method: POST
+        url: "http://${container.ip}:${container.port}/api/auth/login"
+        body:
+          email: "admin@youeye.local"
+          password: "${secrets.admin_password}"
+        extractToken:
+          from: "response.accessToken"
+          as: "bearerToken"
+
+      - method: GET
+        url: "http://${container.ip}:${container.port}/api/system-config"
+        auth: "${bearerToken}"
+        saveAs: "currentConfig"
+
+      - method: PUT
+        url: "http://${container.ip}:${container.port}/api/system-config"
+        auth: "${bearerToken}"
+        condition: "currentConfig.oauth.clientId equals '${sso.client_id}'"
+        body:
+          merge: "${currentConfig}"
+          set:
+            oauth.enabled: false

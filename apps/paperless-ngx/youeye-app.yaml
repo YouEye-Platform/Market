@@ -1,0 +1,120 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.16.3"
+
+metadata:
+  id: "paperless-ngx"
+  name: "Paperless-NGX"
+  description: "Document management with OCR and auto-tagging"
+  icon: "file-text"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://docs.paperless-ngx.com"
+  developer: "Paperless-ngx community"
+  license: "GPL-3.0"
+  sourceCode: "https://github.com/paperless-ngx/paperless-ngx"
+  support: "https://github.com/paperless-ngx/paperless-ngx/discussions"
+  docs: "https://docs.paperless-ngx.com"
+  tagline: "Scan, OCR and organize your documents"
+  tags: ["documents", "ocr", "archival", "scanning"]
+  defaultSubdomain: "docs"
+
+detail:
+  longDescription: |
+    Paperless-NGX is a document management system that transforms your physical documents
+    into a searchable online archive. Features automatic OCR, smart tagging, full-text search,
+    and a modern web interface.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/dev/docs/assets/screenshots/documents-smallcards.png"
+      caption: "Paperless-NGX document dashboard"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: shared
+  name: "paperless"
+  user: "paperless"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "secret_key"
+    file: ".secret_key"
+    generator: "secretKey"
+    length: 50
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "valkey"
+    type: oci
+    image: "docker.io/valkey/valkey:8-alpine"
+
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/paperless-ngx/paperless-ngx:2.16.3"
+    port: 8000
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/usr/src/paperless/data"
+        type: data
+      - name: media
+        host: "/var/lib/youeye/app-${app.id}/media"
+        container: "/usr/src/paperless/media"
+        type: media
+      - name: consume
+        host: "/var/lib/youeye/app-${app.id}/consume"
+        container: "/usr/src/paperless/consume"
+        type: data
+      - name: export
+        host: "/var/lib/youeye/app-${app.id}/export"
+        container: "/usr/src/paperless/export"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 180000
+
+sso:
+  type: oauth2
+  callback_path: /accounts/oidc/authentik/login/callback/
+  setup:
+    method: env
+
+env_mapping:
+  PAPERLESS_REDIS: "redis://${containers.valkey.internal_host}:6379"
+  PAPERLESS_DBENGINE: "postgresql"
+  PAPERLESS_DBHOST: "youeye-postgres.youeye"
+  PAPERLESS_DBPORT: "5432"
+  PAPERLESS_DBNAME: "${database.name}"
+  PAPERLESS_DBUSER: "${database.user}"
+  PAPERLESS_DBPASS: "${database.password}"
+  PAPERLESS_SECRET_KEY: "${secrets.secret_key}"
+  PAPERLESS_URL: "${app.url}"
+  PAPERLESS_TIME_ZONE: "${platform.timezone}"
+  PAPERLESS_ADMIN_USER: "admin"
+  PAPERLESS_ADMIN_PASSWORD: "${secrets.admin_password}"
+  PAPERLESS_OCR_LANGUAGE: "eng"
+  PAPERLESS_CONSUMER_POLLING: "30"
+  PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
+  PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"${platform.site_name}","client_id":"${sso.client_id}","secret":"${sso.client_secret}","settings":{"server_url":"${identity.internalUrl}/application/o/youeye-app-paperless-ngx/.well-known/openid-configuration"}}],"SCOPE":["openid","profile","email"]}}'
+  PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
+  PAPERLESS_ACCOUNT_DEFAULT_HTTP_PROTOCOL: "https"
+  PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
+
+uninstall:
+  dropSharedDatabase: true

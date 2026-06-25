@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.3.0"
+
+metadata:
+  id: "vikunja"
+  name: "Vikunja"
+  description: "Full-featured task manager with lists, kanban, and gantt"
+  icon: "check-square"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://vikunja.io"
+  tags: ["tasks", "todo", "kanban", "project-management"]
+  defaultSubdomain: "tasks"
+
+detail:
+  longDescription: |
+    Vikunja is an open-source, self-hosted to-do app. Organize tasks with lists, kanban boards,
+    gantt charts, and table views. Features include labels, priorities, due dates, reminders,
+    assignees, comments, attachments, and CalDAV sync. Supports team collaboration with
+    shared projects.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/go-vikunja/vikunja/main/frontend/public/images/llama.svg"
+      caption: "Vikunja task manager"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/vikunja/vikunja:2.3.0"
+    port: 3456
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/app/vikunja/files"
+        type: data
+      - name: db
+        host: "/var/lib/youeye/app-${app.id}/db"
+        container: "/db"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/v1/info"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /auth/openid/authentik
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/auth/openid/authentik"
+
+env_mapping:
+  VIKUNJA_SERVICE_PUBLICURL: "${app.url}"
+  VIKUNJA_SERVICE_TIMEZONE: "${platform.timezone}"
+  VIKUNJA_AUTH_OPENID_ENABLED: "true"
+  VIKUNJA_AUTH_OPENID_PROVIDERS__0__NAME: "${identity.name}"
+  VIKUNJA_AUTH_OPENID_PROVIDERS__0__AUTHURL: "${identity.externalUrl}/application/o/authorize/"
+  VIKUNJA_AUTH_OPENID_PROVIDERS__0__CLIENTID: "${sso.client_id}"
+  VIKUNJA_AUTH_OPENID_PROVIDERS__0__CLIENTSECRET: "${sso.client_secret}"
+  VIKUNJA_AUTH_OPENID_PROVIDERS__0__OPENIDDISCOVERYURL: "${sso.discovery_url}"
+  VIKUNJA_MAILER_ENABLED: "true"
+  VIKUNJA_MAILER_HOST: "${smtp.host}"
+  VIKUNJA_MAILER_PORT: "${smtp.port}"
+  VIKUNJA_MAILER_USERNAME: "${smtp.user}"
+  VIKUNJA_MAILER_PASSWORD: "${smtp.password}"
+  VIKUNJA_MAILER_FROMEMAIL: "${smtp.from}"

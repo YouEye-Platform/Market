@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.2.19"
+
+metadata:
+  id: "miniflux"
+  name: "Miniflux"
+  description: "Minimalist and opinionated RSS reader"
+  icon: "rss"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://miniflux.app"
+  tags: ["rss", "news", "feeds", "minimalist"]
+  defaultSubdomain: "feeds"
+
+detail:
+  longDescription: |
+    Miniflux is a minimalist and opinionated feed reader. Built with Go, it's fast,
+    lightweight, and focused on simplicity. Features include keyboard shortcuts, automatic
+    HTTPS detection, content scraping for truncated feeds, legacy reader API compatibility,
+    integration with read-it-later services, and a clean dark mode.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/miniflux/logo/master/icon.svg"
+      caption: "Miniflux feed reader"
+
+database:
+  mode: shared
+  name: "miniflux"
+  user: "miniflux"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/miniflux/miniflux:2.2.19"
+    port: 8080
+    network: internet
+    healthCheck:
+      type: "http"
+      path: "/healthcheck"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /oauth2/oidc/callback
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/oauth2/oidc/callback"
+
+env_mapping:
+  DATABASE_URL: "${database.dsn}"
+  RUN_MIGRATIONS: "1"
+  CREATE_ADMIN: "1"
+  ADMIN_USERNAME: "admin"
+  ADMIN_PASSWORD: "${secrets.admin_password}"
+  BASE_URL: "${app.url}"
+  OAUTH2_PROVIDER: "oidc"
+  OAUTH2_CLIENT_ID: "${sso.client_id}"
+  OAUTH2_CLIENT_SECRET: "${sso.client_secret}"
+  OAUTH2_REDIRECT_URL: "${app.url}/oauth2/oidc/callback"
+  OAUTH2_OIDC_DISCOVERY_ENDPOINT: "${sso.discovery_url}"
+  OAUTH2_USER_CREATION: "1"
+
+uninstall:
+  dropSharedDatabase: true

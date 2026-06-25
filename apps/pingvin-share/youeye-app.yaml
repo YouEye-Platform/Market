@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "v1.13.0"
+
+metadata:
+  id: "pingvin-share"
+  name: "Pingvin Share"
+  description: "Lightweight file sharing with expiring links"
+  icon: "share-2"
+  iconUrl: "icon.svg"
+  category: "utilities"
+  website: "https://github.com/stonith404/pingvin-share"
+  tags: ["files", "sharing", "upload", "transfer"]
+  defaultSubdomain: "share"
+
+detail:
+  longDescription: |
+    Pingvin Share is a self-hosted file sharing platform. Create shareable links with
+    password protection, expiration dates, and visitor limits. Features include drag-and-drop
+    upload, QR code sharing, email notifications, and a clean mobile-friendly interface.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/stonith404/pingvin-share/main/docs/preview.png"
+      caption: "Pingvin Share upload interface"
+
+database:
+  mode: none
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/stonith404/pingvin-share:v1.13.0"
+    port: 3000
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/opt/app/backend/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/health"
+      timeout: 120000
+
+env_mapping:
+  APP_URL: "${app.url}"
+  DATABASE_URL: "file:./data/pingvin-share.db"

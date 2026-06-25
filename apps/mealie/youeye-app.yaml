@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "v3.16.0"
+
+metadata:
+  id: "mealie"
+  name: "Mealie"
+  description: "Recipe manager and meal planner with automatic import"
+  icon: "utensils"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://mealie.io"
+  tags: ["recipes", "cooking", "meal-planning", "food"]
+  defaultSubdomain: "recipes"
+
+detail:
+  longDescription: |
+    Mealie is a self-hosted recipe manager and meal planner. Automatically import recipes
+    from any URL, organize by category and tag, plan weekly meals with a drag-and-drop
+    calendar, and generate shopping lists. Features include nutritional info, multi-user
+    support, recipe sharing, and a mobile-friendly interface.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/mealie-recipes/mealie/mealie-next/docs/docs/assets/img/home_screenshot.png"
+      caption: "Mealie recipe collection"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "changeme@example.com"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/mealie-recipes/mealie:v3.16.0"
+    port: 9000
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/app/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/api/app/about"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /login
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/login"
+
+env_mapping:
+  BASE_URL: "${app.url}"
+  TZ: "${platform.timezone}"
+  DEFAULT_EMAIL: "changeme@example.com"
+  DEFAULT_PASSWORD: "${secrets.admin_password}"
+  OIDC_AUTH_ENABLED: "true"
+  OIDC_SIGNUP_ENABLED: "true"
+  # Split-channel: discovery over the INTERNAL identity DNAT (${sso.discovery_url} =
+  # http://<app-gw>:3002/...), so it works under full network isolation. The discovery
+  # doc returns the matching internal issuer + EXTERNAL authorize endpoint for the browser.
+  OIDC_CONFIGURATION_URL: "${sso.discovery_url}"
+  OIDC_CLIENT_ID: "${sso.client_id}"
+  OIDC_CLIENT_SECRET: "${sso.client_secret}"
+  OIDC_AUTO_REDIRECT: "false"
+  OIDC_PROVIDER_NAME: "${identity.name}"
+  OIDC_USER_CLAIM: "preferred_username"
+  OIDC_GROUPS_CLAIM: "groups"
+  OIDC_ADMIN_GROUP: "admin"
+  SMTP_HOST: "${smtp.host}"
+  SMTP_PORT: "${smtp.port}"
+  SMTP_FROM_NAME: "${platform.site_name}"
+  SMTP_FROM_EMAIL: "${smtp.from}"
+  SMTP_USER: "${smtp.user}"
+  SMTP_PASSWORD: "${smtp.password}"
+  SMTP_AUTH_STRATEGY: "TLS"

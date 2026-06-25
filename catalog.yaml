@@ -1,0 +1,253 @@
+apiVersion: v1
+kind: catalog
+
+# Market categories — drive the category pills, section headers, ordering, icons, and
+# fallback tile colours in the Market UI. Data-driven: adding/renaming a category is a
+# change here only (no Control Panel code change). `icon` is a Lucide icon name.
+categories:
+  - id: productivity
+    label: Productivity
+    icon: briefcase
+    order: 1
+    tile: { bg: "#eff6ff", fg: "#2563eb" }
+  - id: media
+    label: Media
+    icon: clapperboard
+    order: 2
+    tile: { bg: "#fdf2f8", fg: "#db2777" }
+  - id: search
+    label: Search
+    icon: search
+    order: 3
+    tile: { bg: "#f5f3ff", fg: "#7c3aed" }
+  - id: social
+    label: Social
+    icon: users
+    order: 4
+    tile: { bg: "#ecfeff", fg: "#0891b2" }
+  - id: utilities
+    label: Utilities
+    icon: wrench
+    order: 5
+    tile: { bg: "#f0f9ff", fg: "#0284c7" }
+  - id: downloaders
+    label: Downloaders
+    icon: download
+    order: 6
+    tile: { bg: "#fff7ed", fg: "#ea580c" }
+  - id: other
+    label: Other
+    icon: package
+    order: 99
+    tile: { bg: "#f4f4f5", fg: "#52525b" }
+
+# Curation — editorial layout for the Market home (data-driven). `spotlight` is the
+# "Built for <server>" strip (ordered app ids); `collections` are extra labeled rows.
+# Apps listed here render in their curated strip instead of the generic category browse,
+# so they are never shown twice. Adding/reordering is a change here only.
+curation:
+  spotlight:
+    title: Built for your server
+    apps: [wiki, search, notes, cinema, weather, translate]
+  collections:
+    - id: private-search
+      label: Private search
+      apps: [searxng, whoogle, redlib, wikiless]
+    - id: media-and-files
+      label: Media & files
+      apps: [jellyfin, immich, nextcloud]
+
+# Bundles — curated install-and-wire recipes (a bundle installs its members together and
+# arrives pre-wired). Each entry references bundles/<id>/bundle.yaml. NOT a container/app.
+bundles:
+  - id: private-search
+    file: bundles/private-search/bundle.yaml
+    latestVersion: "0.1.0"
+  - id: media-automation
+    file: bundles/media-automation/bundle.yaml
+    latestVersion: "0.1.0"
+
+apps:
+  - id: wiki
+    repo: YouEye-Platform/Wiki
+    manifest: youeye-app.yaml
+    integration: native
+  - id: search
+    repo: YouEye-Platform/Search
+    manifest: youeye-app.yaml
+    integration: native
+  - id: notes
+    repo: YouEye-Platform/Notes
+    manifest: youeye-app.yaml
+    integration: native
+  - id: cinema
+    repo: YouEye-Platform/Cinema
+    manifest: youeye-app.yaml
+    integration: native
+  - id: weather
+    repo: YouEye-Platform/Weather
+    manifest: youeye-app.yaml
+    integration: native
+  - id: translate
+    repo: YouEye-Platform/Translate
+    manifest: youeye-app.yaml
+    integration: native
+  - id: whoogle
+    path: apps/whoogle
+    integration: basic
+    latestVersion: "0.9.0"
+  - id: searxng
+    path: apps/searxng
+    integration: basic
+    latestVersion: "2026.3.29"
+  - id: redlib
+    path: apps/redlib
+    integration: basic
+    latestVersion: "sha-a4d36e9"
+  - id: wikiless
+    path: apps/wikiless
+    integration: basic
+    latestVersion: "2.0.0"
+  - id: memos
+    path: apps/memos
+    integration: basic
+    latestVersion: "0.29.1"
+  - id: immich
+    path: apps/immich
+    integration: basic
+    latestVersion: "2.7.5"
+  - id: vaultwarden
+    path: apps/vaultwarden
+    integration: basic
+    latestVersion: "1.35.4"
+  - id: paperless-ngx
+    path: apps/paperless-ngx
+    integration: basic
+    latestVersion: "2.16.3"
+  - id: nextcloud
+    path: apps/nextcloud
+    integration: basic
+    latestVersion: "34.0.0"
+  - id: jellyfin
+    path: apps/jellyfin
+    integration: basic
+    latestVersion: "10.11.11"
+  - id: freshrss
+    path: apps/freshrss
+    integration: basic
+    latestVersion: "1.29.1"
+  - id: navidrome
+    path: apps/navidrome
+    integration: basic
+    latestVersion: "0.62.0"
+  - id: audiobookshelf
+    path: apps/audiobookshelf
+    integration: basic
+    latestVersion: "2.35.1"
+  - id: kavita
+    path: apps/kavita
+    integration: basic
+    latestVersion: "0.9.0.2"
+  - id: stirling-pdf
+    path: apps/stirling-pdf
+    integration: basic
+    latestVersion: "2.12.0"
+  - id: wallabag
+    path: apps/wallabag
+    integration: basic
+    latestVersion: "2.6.14"
+  - id: actual-budget
+    path: apps/actual-budget
+    integration: basic
+    latestVersion: "26.6.0"
+  - id: pingvin-share
+    path: apps/pingvin-share
+    integration: basic
+    latestVersion: "v1.13.0"
+  - id: docuseal
+    path: apps/docuseal
+    integration: basic
+    latestVersion: "3.1.0"
+  - id: vikunja
+    path: apps/vikunja
+    integration: basic
+    latestVersion: "2.3.0"
+  - id: miniflux
+    path: apps/miniflux
+    integration: basic
+    latestVersion: "2.2.19"
+  - id: linkwarden
+    path: apps/linkwarden
+    integration: basic
+    latestVersion: "v2.14.1"
+  - id: mealie
+    path: apps/mealie
+    integration: basic
+    latestVersion: "v3.16.0"
+  - id: planka
+    path: apps/planka
+    integration: basic
+    latestVersion: "2.1.1"
+  - id: hedgedoc
+    path: apps/hedgedoc
+    integration: basic
+    latestVersion: "1.10.5"
+  - id: prowlarr
+    path: apps/prowlarr
+    integration: basic
+    latestVersion: "2.4.0"
+  - id: sonarr
+    path: apps/sonarr
+    integration: basic
+    latestVersion: "4.0.18"
+  - id: radarr
+    path: apps/radarr
+    integration: basic
+    latestVersion: "6.2.1"
+  - id: qbittorrent
+    path: apps/qbittorrent
+    integration: basic
+    latestVersion: "5.2.2"
+  - id: jellyseerr
+    path: apps/jellyseerr
+    integration: basic
+    latestVersion: "2.7.3"
+
+integrations:
+  - id: memos-youeye-id
+    file: integrations/memos/youeye-id.yaml
+    targetAppId: memos
+    latestVersion: "0.1.4"
+  - id: jellyfin-youeye-id
+    file: integrations/jellyfin/youeye-id.yaml
+    targetAppId: jellyfin
+    latestVersion: "0.1.6"
+  - id: immich-youeye-id
+    file: integrations/immich/youeye-id.yaml
+    targetAppId: immich
+    latestVersion: "0.1.4"
+  - id: nextcloud-youeye-id
+    file: integrations/nextcloud/youeye-id.yaml
+    targetAppId: nextcloud
+    latestVersion: "0.1.3"
+  - id: audiobookshelf-youeye-id
+    file: integrations/audiobookshelf/youeye-id.yaml
+    targetAppId: audiobookshelf
+    latestVersion: "0.1.3"
+
+updatePlans:
+  - id: search-update-plan
+    appId: search
+    file: updates/search/update-plan.yaml
+    latestVersion: "0.1.0"
+
+system:
+  - id: postgresql
+    file: system/postgresql.yaml
+    latestVersion: "17.10"
+  - id: pihole
+    file: system/pihole.yaml
+    latestVersion: "2026.05.0"
+  - id: caddy
+    file: system/caddy.yaml
+    latestVersion: "2.11.4"

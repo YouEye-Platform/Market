@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: update-plan
+appId: search
+version: "0.1.0"
+
+# Durable migration gates for Search live here instead of only in the latest
+# app manifest. Most Search updates can still skip directly to the newest
+# version; add required migration gates only when a specific version edge needs
+# data repair or one-time container work.
+migrations: []

@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.1.1"
+
+metadata:
+  id: "planka"
+  name: "Planka"
+  description: "Elegant kanban board for project management"
+  icon: "layout-grid"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://planka.app"
+  tags: ["kanban", "projects", "boards", "collaboration"]
+  defaultSubdomain: "boards"
+
+detail:
+  longDescription: |
+    Planka is an elegant open-source project tracking tool built with React and Node.js.
+    Features include drag-and-drop kanban boards, task cards with checklists, labels,
+    due dates, attachments, and comments. Supports multiple projects and boards with
+    team collaboration for personal and team project management.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/plankanban/planka/master/demo.gif"
+      caption: "Planka kanban board"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: shared
+  name: "planka"
+  user: "planka"
+
+secrets:
+  - name: "db_password"
+    file: ".db_password"
+    generator: "password"
+    length: 32
+  - name: "secret_key"
+    file: ".secret_key"
+    generator: "secretKey"
+    length: 64
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin@youeye.local"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/plankanban/planka:2.1.1"
+    port: 1337
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/app/public/user-avatars"
+        type: data
+      - name: attachments
+        host: "/var/lib/youeye/app-${app.id}/attachments"
+        container: "/app/private/attachments"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /oidc-callback
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/oidc-callback"
+
+env_mapping:
+  BASE_URL: "${app.url}"
+  DATABASE_URL: "${database.dsn}"
+  SECRET_KEY: "${secrets.secret_key}"
+  DEFAULT_ADMIN_EMAIL: "admin@youeye.local"
+  DEFAULT_ADMIN_PASSWORD: "${secrets.admin_password}"
+  DEFAULT_ADMIN_NAME: "Admin"
+  DEFAULT_ADMIN_USERNAME: "admin"
+  OIDC_ISSUER: "${sso.discovery_url}"
+  OIDC_CLIENT_ID: "${sso.client_id}"
+  OIDC_CLIENT_SECRET: "${sso.client_secret}"
+  OIDC_SCOPES: "openid email profile"
+  OIDC_ADMIN_ROLES: "admin"
+  OIDC_ROLES_ATTRIBUTE: "groups"
+  OIDC_ENFORCED: "false"
+  SMTP_HOST: "${smtp.host}"
+  SMTP_PORT: "${smtp.port}"
+  SMTP_SECURE: "false"
+  SMTP_USER: "${smtp.user}"
+  SMTP_PASSWORD: "${smtp.password}"
+  SMTP_FROM: "${smtp.from}"
+
+uninstall:
+  dropSharedDatabase: true

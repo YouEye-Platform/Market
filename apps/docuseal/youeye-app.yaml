@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "3.1.0"
+
+metadata:
+  id: "docuseal"
+  name: "DocuSeal"
+  description: "Digital document signing and form filling platform"
+  icon: "pen-tool"
+  iconUrl: "icon.svg"
+  category: "productivity"
+  website: "https://www.docuseal.co"
+  tags: ["documents", "signing", "pdf", "forms"]
+  defaultSubdomain: "sign"
+
+detail:
+  longDescription: |
+    DocuSeal is an open-source platform for digital document signing. Create fillable PDF
+    forms, send them for signature, and track completion. Features include drag-and-drop
+    form builder, multiple signature types, email notifications, API access, and audit
+    trails.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/docusealco/docuseal/master/app/assets/images/logo.svg"
+      caption: "DocuSeal document signing"
+
+capabilities:
+  smtp: true
+
+database:
+  mode: none
+
+secrets:
+  - name: "secret_key"
+    file: ".secret_key"
+    generator: "secretKey"
+    length: 64
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/docuseal/docuseal:3.1.0"
+    port: 3000
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 300000
+
+# NOTE: DocuSeal SSO/SAML is a Pro/Enterprise feature — the OSS image has NO external
+# IdP login, so DocuSeal keeps local accounts (first registered user = admin). Outbound
+# email (signature requests, reminders, completion notices) is routed through the
+# platform SMTP relay below. Document-event webhooks can be added later via DocuSeal's
+# admin UI (they are stored in the DB, not configurable by env).
+env_mapping:
+  HOST: "${app.fqdn}"
+  FORCE_SSL: "true"
+  SECRET_KEY_BASE: "${secrets.secret_key}"
+  SMTP_ADDRESS: "${smtp.host}"
+  SMTP_PORT: "${smtp.port}"
+  SMTP_USERNAME: "${smtp.user}"
+  SMTP_PASSWORD: "${smtp.password}"
+  SMTP_AUTHENTICATION: "plain"
+  SMTP_ENABLE_STARTTLS: "true"

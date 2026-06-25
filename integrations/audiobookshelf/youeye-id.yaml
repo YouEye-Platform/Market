@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: integration
+version: "0.1.3"
+type: identity
+recommended: true
+installByDefault: true
+
+metadata:
+  id: "audiobookshelf-youeye-id"
+  name: "Audiobookshelf Identity Sign-In"
+  description: "Configures Audiobookshelf to use the configured identity provider for OpenID Connect sign-in."
+  icon: "plug"
+  category: "media"
+  website: "https://www.audiobookshelf.org"
+  tags: ["audiobookshelf", "youeye-id", "oauth2", "identity", "audiobooks"]
+
+target:
+  appId: "audiobookshelf"
+  appName: "Audiobookshelf"
+  version: "2.35.x"
+
+permissions:
+  - "identity:oauth-client:create"
+  - "app:audiobookshelf:api:configure-identity"
+
+detail:
+  longDescription: |
+    Adds identity sign-in to Audiobookshelf by creating an identity OAuth client,
+    initializing the local root admin account, signing in, and writing the OpenID
+    Connect configuration through Audiobookshelf's auth-settings API.
+
+    Audiobookshelf only recognizes the group values "admin", "user" and "guest" in a
+    configured group claim, and DENIES login when the claim is present but contains
+    none of them. Because YouEye-ID does not emit a "user" group for regular members,
+    group gating is left OFF (authOpenIDGroupClaim empty) so every identity user can
+    sign in; the local root admin (created below) is the administrator. Claim-based
+    admin elevation needs the YouEye-ID role-claim enhancement — see the wiki.
+
+sso:
+  type: oauth2
+  callback_path: /auth/openid/callback
+  additional_callbacks:
+    - "audiobookshelf://oauth"
+  setup:
+    method: api
+    api:
+      steps:
+        - delay: 10000
+
+        # Initialize the root admin on a fresh install (no-op if already set up).
+        - method: POST
+          url: "http://${container.ip}:${container.port}/init"
+          body:
+            newRoot:
+              username: "admin"
+              password: "${secrets.admin_password}"
+          ignoreError: true
+
+        - method: POST
+          url: "http://${container.ip}:${container.port}/login"
+          body:
+            username: "admin"
+            password: "${secrets.admin_password}"
+          extractToken:
+            from: "response.user.token"
+            as: "bearerToken"
+
+        - method: PATCH
+          url: "http://${container.ip}:${container.port}/api/auth-settings"
+          auth: "${bearerToken}"
+          body:
+            authActiveAuthMethods:
+              - "local"
+              - "openid"
+            # Split-channel OIDC. Front-channel (authorize/logout) stays EXTERNAL — the
+            # user's browser reaches Caddy on the public domain. Back-channel (issuer/
+            # token/userinfo/jwks) rides the INTERNAL identity DNAT ${identity.internalUrl}
+            # = http://<app-gw>:3002 → youeye-control:3001: domain-free, CA-free, survives
+            # full network isolation. ABS is a Node app and cannot resolve id.<domain>
+            # server-side (dual-stack dns.lookup ENOTFOUND), so the back-channel MUST be
+            # internal. ${sso.issuer} is the clientId-derived internal authority that the CP
+            # discovery doc + id_token `iss` both emit, so ABS's `iss === issuer` check passes
+            # even under full isolation (no network fetch — explicit endpoints, string compare).
+            authOpenIDIssuerURL: "${sso.issuer}"
+            authOpenIDAuthorizationURL: "${sso.authorize_url}"
+            # No trailing slash — the canonical CP routes are /token and /userinfo;
+            # a trailing slash 308-redirects (relative, internal) and adds a round-trip.
+            authOpenIDTokenURL: "${identity.internalUrl}/application/o/token"
+            authOpenIDUserInfoURL: "${identity.internalUrl}/application/o/userinfo"
+            authOpenIDJwksURL: "${identity.internalUrl}/oauth/jwks"
+            authOpenIDLogoutURL: "${identity.externalUrl}/application/o/youeye-app-audiobookshelf/end-session/"
+            # ABS builds the redirect_uri as `${authOpenIDSubfolderForRedirectURLs}/auth/openid/callback`
+            # (server/auth/OidcAuthStrategy.js). Unset => literal "undefined" segment => the IdP rejects
+            # the redirect_uri. Empty string yields the correct `/auth/openid/callback`.
+            authOpenIDSubfolderForRedirectURLs: ""
+            authOpenIDClientID: "${sso.client_id}"
+            authOpenIDClientSecret: "${sso.client_secret}"
+            authOpenIDButtonText: "Login with ${identity.name}"
+            authOpenIDAutoLaunch: false
+            authOpenIDAutoRegister: true
+            authOpenIDMatchExistingBy: "email"
+            authOpenIDGroupClaim: ""
+
+uninstall:
+  method: api
+  api:
+    steps:
+      - method: POST
+        url: "http://${container.ip}:${container.port}/login"
+        body:
+          username: "admin"
+          password: "${secrets.admin_password}"
+        extractToken:
+          from: "response.user.token"
+          as: "bearerToken"
+      - method: PATCH
+        url: "http://${container.ip}:${container.port}/api/auth-settings"
+        auth: "${bearerToken}"
+        body:
+          authActiveAuthMethods:
+            - "local"

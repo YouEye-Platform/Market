@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "0.62.0"
+forwardAuth: enabled
+
+metadata:
+  id: "navidrome"
+  name: "Navidrome"
+  description: "Personal music streaming server with Subsonic API"
+  icon: "music"
+  iconUrl: "icon.svg"
+  category: "media"
+  website: "https://www.navidrome.org"
+  tags: ["music", "streaming", "subsonic", "audio"]
+  defaultSubdomain: "navidrome"
+
+detail:
+  longDescription: |
+    Navidrome is an open-source music server and streamer. Stream your entire music collection
+    from anywhere using any Subsonic-compatible client. Features include multi-user support,
+    smart playlists, album art, lyrics, and fast transcoding. Works with DSub, Symfonium,
+    play:Sub, and many more clients for your personal library.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/navidrome/navidrome/master/resources/logo-192x192.png"
+      caption: "Navidrome music player"
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/deluan/navidrome:0.62.0"
+    port: 4533
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: data
+      - name: music
+        host: "/var/lib/youeye/app-${app.id}/music"
+        container: "/music"
+        type: media
+    healthCheck:
+      type: "http"
+      path: "/api/health"
+      timeout: 120000
+
+# Navidrome has NO native OIDC — it trusts a reverse-proxy auth header. With no `sso`
+# block and forwardAuth: enabled, the engine provisions a YouEye-ID forward-auth handler
+# and Caddy injects X-YouEye-Username; Navidrome reads that header and trusts the platform
+# proxy network. The FIRST user to arrive via the header becomes admin (owner should sign
+# in first); there is no OIDC group/role -> admin mapping. (v0.62 also exposes ND_EXTAUTH_*
+# aliases — switch if the ND_REVERSEPROXY* names are dropped in a future release.)
+env_mapping:
+  ND_BASEURL: ""
+  ND_DATAFOLDER: "/data"
+  ND_MUSICFOLDER: "/music"
+  ND_DEFAULTLANGUAGE: "${platform.locale}"
+  ND_REVERSEPROXYUSERHEADER: "X-YouEye-Username"
+  ND_REVERSEPROXYWHITELIST: "10.76.0.0/16"

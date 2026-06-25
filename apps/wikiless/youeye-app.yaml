@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.0.0"
+
+metadata:
+  id: "wikiless"
+  name: "Wikiless"
+  description: "Privacy-respecting Wikipedia frontend"
+  icon: "book-open"
+  iconUrl: "icon.svg"
+  category: "search"
+  website: "https://github.com/Metastem/wikiless"
+  tags: ["wikipedia", "privacy", "wiki"]
+  defaultSubdomain: "wikiless"
+
+detail:
+  longDescription: |
+    A free open source alternative Wikipedia front-end focused on privacy.
+    Browse Wikipedia without tracking.
+  screenshots: []
+
+database:
+  mode: none
+
+containers:
+  - name: "redis"
+    type: oci
+    image: "docker.io/valkey/valkey:8-alpine"
+
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/metastem/wikiless:main"
+    port: 8080
+    network: internet
+    healthCheck:
+      type: "http"
+      path: "/"
+      timeout: 120000
+
+env_mapping:
+  REDIS_URL: "redis://${containers.redis.internal_host}:6379"
+  PORT: "8080"

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: system-app
+version: "2026.05.0"
+
+metadata:
+  id: "pihole"
+  name: "Pi-hole"
+  description: "Network-wide DNS and ad blocking for the YouEye platform"
+  icon: "shield"
+  category: "infrastructure"
+  website: "https://pi-hole.net"
+  tags: ["dns", "adblock", "infrastructure"]
+
+image: "docker.io/pihole/pihole:2026.05.0"
+containerName: "youeye-pihole"
+
+# System app manifests are the Market source of truth for infrastructure
+# version/image metadata. Control Panel owns infrastructure reconciliation.

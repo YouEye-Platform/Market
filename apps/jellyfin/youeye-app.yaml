@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "10.11.11"
+
+metadata:
+  id: "jellyfin"
+  name: "Jellyfin"
+  description: "Free and open-source media streaming server"
+  icon: "film"
+  iconUrl: "icon.svg"
+  category: "media"
+  website: "https://jellyfin.org"
+  developer: "Jellyfin Project"
+  license: "GPL-2.0"
+  sourceCode: "https://github.com/jellyfin/jellyfin"
+  support: "https://forum.jellyfin.org"
+  docs: "https://jellyfin.org/docs"
+  tagline: "The free software media system"
+  tags: ["media", "streaming", "movies", "music", "tv", "video"]
+  defaultSubdomain: "jellyfin"
+
+detail:
+  releaseNotes: |
+    Runs the current Jellyfin 10.11 stable line. Detailed, per-version release notes are
+    published on the Jellyfin blog and GitHub releases — see Source code / Documentation below.
+  longDescription: |
+    Jellyfin is the free software media system that puts you in control of managing and
+    streaming your media. Stream movies, TV shows, music, and photos to any device from
+    your own server with no strings attached. No premium licenses, no tracking, fully
+    open source. Supports hardware-accelerated transcoding, live TV & DVR, and a rich
+    ecosystem of clients for every platform.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/jellyfin/jellyfin-ux/master/branding/SVG/banner-dark.svg"
+      caption: "Jellyfin media server banner"
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/jellyfin/jellyfin:10.11.11"
+    port: 8096
+    network: internet
+    volumes:
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/config"
+        type: data
+      - name: cache
+        host: "/var/lib/youeye/app-${app.id}/cache"
+        container: "/cache"
+        type: cache
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/data"
+        type: media
+        storageGroup: media   # shared with Sonarr/Radarr/qBittorrent — Jellyfin scans /data/media/{movies,tv} for finished downloads
+    healthCheck:
+      type: "http"
+      path: "/health"
+      timeout: 240000
+
+env_mapping:
+  JELLYFIN_PublishedServerUrl: "${app.url}"

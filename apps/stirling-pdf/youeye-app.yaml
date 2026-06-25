@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "2.12.0"
+
+metadata:
+  id: "stirling-pdf"
+  name: "Stirling-PDF"
+  description: "All-in-one PDF toolkit for merging, splitting, and converting"
+  icon: "file-text"
+  iconUrl: "icon.svg"
+  category: "utilities"
+  website: "https://stirlingpdf.io"
+  tags: ["pdf", "documents", "tools", "converter"]
+  defaultSubdomain: "pdf"
+
+detail:
+  longDescription: |
+    Stirling-PDF is a powerful, locally-hosted PDF manipulation tool. Merge, split, rotate,
+    convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
+    watermarking, page extraction, image-to-PDF, and many more operations.
+  screenshots:
+    - path: "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/stirling.png"
+      caption: "Stirling-PDF toolkit interface"
+
+database:
+  mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/stirlingtools/stirling-pdf:2.12.0"
+    port: 8080
+    network: internet
+    volumes:
+      - name: data
+        host: "/var/lib/youeye/app-${app.id}/data"
+        container: "/usr/share/tessdata"
+        type: data
+      - name: config
+        host: "/var/lib/youeye/app-${app.id}/config"
+        container: "/configs"
+        type: config
+    healthCheck:
+      type: "http"
+      path: "/api/v1/info/status"
+      timeout: 120000
+
+sso:
+  type: oauth2
+  callback_path: /login/oauth2/code/authentik
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/login/oauth2/code/authentik"
+
+# Stirling-PDF only has user accounts when security/login is enabled (below).
+# OAuth2 users are auto-created as REGULAR users — there is no claim->admin mapping,
+# so the bootstrap admin must elevate users manually in Admin Settings. Network is
+# 'internet' (was 'isolated') because the backend must reach the identity provider's
+# token/JWKS endpoints to complete the OAuth2 code exchange.
+env_mapping:
+  DOCKER_ENABLE_SECURITY: "true"
+  SECURITY_ENABLELOGIN: "true"
+  SYSTEM_DEFAULTLOCALE: "${platform.locale}"
+  SECURITY_INITIALLOGIN_USERNAME: "admin"
+  SECURITY_INITIALLOGIN_PASSWORD: "${secrets.admin_password}"
+  SECURITY_OAUTH2_ENABLED: "true"
+  SECURITY_OAUTH2_PROVIDER: "authentik"
+  SECURITY_OAUTH2_ISSUER: "${sso.issuer}"
+  SECURITY_OAUTH2_CLIENTID: "${sso.client_id}"
+  SECURITY_OAUTH2_CLIENTSECRET: "${sso.client_secret}"
+  SECURITY_OAUTH2_SCOPES: "openid profile email"
+  SECURITY_OAUTH2_USEASUSERNAME: "preferred_username"
+  SECURITY_OAUTH2_AUTOCREATEUSER: "true"

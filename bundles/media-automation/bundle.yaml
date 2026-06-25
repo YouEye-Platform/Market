@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: bundle
+id: media-automation
+name: Media Automation
+description: A complete self-hosted media stack — request, download, organise, and stream movies and TV.
+icon: clapperboard
+category: media
+setupSummary: >-
+  Installs Prowlarr, qBittorrent, Sonarr, Radarr and Jellyseerr, shares one media library
+  between them, and wires the connections so requests flow from Jellyseerr through Sonarr and
+  Radarr to your downloader and into Jellyfin for streaming.
+# Ordered by dependency: indexer + downloader first, then the PVRs, then the media server,
+# then the request front-end. Already-installed members (e.g. Jellyfin) are skipped and wired.
+members:
+  - prowlarr
+  - qbittorrent
+  - sonarr
+  - radarr
+  - jellyfin
+  - jellyseerr
+# Service-scoped (server-wide) connections — `scope` defaults to `service`.
+connections:
+  - { from: sonarr, to: prowlarr }
+  - { from: sonarr, to: qbittorrent }
+  - { from: radarr, to: prowlarr }
+  - { from: radarr, to: qbittorrent }
+  - { from: jellyseerr, to: sonarr }
+  - { from: jellyseerr, to: radarr }
+  - { from: jellyseerr, to: jellyfin }
+# Shared media library — qBittorrent/Sonarr/Radarr mount the `media` group at /data.
+storageGroups:
+  - media
