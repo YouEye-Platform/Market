@@ -63,9 +63,6 @@ bundles:
   - id: private-search
     file: bundles/private-search/bundle.yaml
     latestVersion: "0.1.0"
-  - id: media-automation
-    file: bundles/media-automation/bundle.yaml
-    latestVersion: "0.1.0"
 
 apps:
   - id: wiki
