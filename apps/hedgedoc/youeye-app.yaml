@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "1.10.5"
+version: "1.11.1"
 
 metadata:
   id: "hedgedoc"
@@ -11,18 +11,30 @@ metadata:
   iconUrl: "icon.svg"
   category: "productivity"
   website: "https://hedgedoc.org"
+  developer: "HedgeDoc contributors"
+  license: "AGPL-3.0"
+  sourceCode: "https://github.com/hedgedoc/hedgedoc"
+  support: "https://community.hedgedoc.org/"
+  docs: "https://docs.hedgedoc.org/"
+  tagline: "Ideas grow better together in real-time Markdown"
   tags: ["markdown", "collaboration", "notes", "documents"]
   defaultSubdomain: "hedgedoc"
 
 detail:
+  releaseNotes: |
+    HedgeDoc 1.11.1 validates note permission values to prevent corruption,
+    adds WebP uploads and configurable external-link warnings, fixes subpath
+    warnings and slide list rendering, and restores browser zoom shortcuts.
   longDescription: |
     HedgeDoc is a collaborative, real-time markdown editor. Write documents together with
     your team in real-time, see changes instantly, and present slides directly from your
     notes. Features include syntax highlighting, math equations, diagrams, multiple
     export formats, and collaborative writing workflows.
   screenshots:
-    - path: "https://raw.githubusercontent.com/hedgedoc/hedgedoc/master/docs/content/images/screenshot.png"
-      caption: "HedgeDoc collaborative editor"
+    - path: "screenshots/platform-admin-note-1.11.1.png"
+      caption: "Platform administrator editing a collaborative Markdown note"
+    - path: "screenshots/standard-user-note-1.11.1.png"
+      caption: "Standard user contributing to a shared Markdown document"
 
 database:
   mode: shared
@@ -43,14 +55,13 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/hedgedoc:1.10.5"
+    image: "quay.io/hedgedoc/hedgedoc@sha256:7b3f79667ad58c6419758547f10940638bcdc85ebee2a4e650318a704095975b"
     port: 3000
     network: internet
     volumes:
-      - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
-        container: "/config"
-        type: config
+      - name: uploads
+        container: "/hedgedoc/public/uploads"
+        type: data
     healthCheck:
       type: "http"
       path: "/"
@@ -82,9 +93,7 @@ env_mapping:
   CMD_OAUTH2_USER_PROFILE_USERNAME_ATTR: "preferred_username"
   CMD_OAUTH2_USER_PROFILE_DISPLAY_NAME_ATTR: "name"
   CMD_OAUTH2_USER_PROFILE_EMAIL_ATTR: "email"
-  PUID: "1000"
-  PGID: "1000"
-  TZ: "${platform.timezone}"
+  CMD_OAUTH2_USER_PROFILE_ID_ATTR: "sub"
 
 uninstall:
   dropSharedDatabase: true

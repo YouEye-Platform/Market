@@ -3,6 +3,9 @@
   "private": true,
   "description": "YouEye Market catalog and per-app manifests. Tests are dependency-free (node:test).",
   "scripts": {
-    "test": "node --test tests/*.spec.mjs"
+    "test": "node --test tests/*.spec.mjs && node scripts/test-release-profiles.mjs",
+    "catalog:generate": "node scripts/catalog-snapshot.mjs generate",
+    "catalog:validate": "node scripts/catalog-snapshot.mjs validate",
+    "catalog:validate-release": "node scripts/catalog-snapshot.mjs validate --release"
   }
 }

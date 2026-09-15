@@ -1,0 +1,427 @@
+{
+  "apiVersion": "youeye.market/asset-inventory/v1",
+  "identity": "YouEye-Platform/Market",
+  "purpose": "Inventory only; no ownership, licence, or redistribution right is asserted.",
+  "assets": [
+    {
+      "path": "apps/actual-budget/icon.svg",
+      "sha256": "sha256:6ec6621a8d0b69f622ff10d7f957a229f959d94d4bc8c5e3586aebe71c922407",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/actual-budget/screenshots/platform-admin-budget.png",
+      "sha256": "sha256:49025cabd0814cc402bd536fcfeabb7c8206b60dbe7b4d708b9a924173aa4501",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/actual-budget/screenshots/standard-user-budget.png",
+      "sha256": "sha256:755eb81872358d12f0a40c2ba0dc6d7241bc58a04745d80dfa645923ee04801b",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/audiobookshelf/icon.svg",
+      "sha256": "sha256:48a539c267b88e3898f8e127dacef04e6625a5e99f8d334c392a8aa65668a8e8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/audiobookshelf/screenshots/platform-admin-player-2.36.0.png",
+      "sha256": "sha256:0df68db7540892e1518a6c027867a5568e51ca8993178a970f25b62ece7aaec6",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/audiobookshelf/screenshots/standard-user-player-2.36.0.png",
+      "sha256": "sha256:ac26f64896446da97a4a971a5f1e55fddde8357a647cb200e7f1e13ec1b8eaea",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/docuseal/icon.svg",
+      "sha256": "sha256:7a34254195a8b1d44df18abff11ccd673e88055fb5491ac87e2d5ee35b56040c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/docuseal/screenshots/platform-admin-template-3.2.0.png",
+      "sha256": "sha256:bba6086ba621d86cd766f7c1dac08860d282b9007e01e1b631c63a6d84950345",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/docuseal/screenshots/standard-user-signing-3.2.0.png",
+      "sha256": "sha256:ee01c61b27053adcc8413997a79d27edfd149f90abc685929a98b5d00fc76f8f",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/freshrss/icon.svg",
+      "sha256": "sha256:c9fed1ab6f9e271538e041ff3f70117bf01cec9c162239534fb6a7b6bfa1c2b5",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/freshrss/screenshots/platform-admin-feed.png",
+      "sha256": "sha256:380dfedde79c97e7ae18101359994eaf95005b815b5205064705e2d1becd931b",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/freshrss/screenshots/standard-user-subscriptions.png",
+      "sha256": "sha256:36763177e83024462a7fc454c2589be4f95a7c8c8657bfe6dcaae5c91948fc8d",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/hedgedoc/icon.svg",
+      "sha256": "sha256:68d63299352beb7b44e0c9996ad3761762a981220d66ddd3e0044dd2118a7d4b",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/hedgedoc/screenshots/platform-admin-note-1.11.1.png",
+      "sha256": "sha256:a3f3f3154474d572b8d5b72523b92684b469de3c7975480e29ae4a87c83f58ba",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/hedgedoc/screenshots/standard-user-note-1.11.1.png",
+      "sha256": "sha256:0915f0fc7f056d5ca891e6632493991f23d1453a48ffc731856a49e2f51ed87a",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/immich/icon.svg",
+      "sha256": "sha256:a5d4a43899e63ffc7e97246034f7f63cdfdc410aa803c5713d545290601c4d89",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/immich/screenshots/admin-library.png",
+      "sha256": "sha256:0fb1f1f7edc8ee0781f7e6b0545226852b7551e0ff39bd044b6ad9fbc897c285",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/immich/screenshots/user-library.png",
+      "sha256": "sha256:4841d83f38ee48f51ed974ec22ebac256f4900f32cf9761b780edd023cd71938",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyfin/icon.svg",
+      "sha256": "sha256:817c25b47442b192250448fe48cd5f265fe9183bc75aa12030bbe335495255d1",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyfin/screenshots/platform-admin-player-10.11.11.png",
+      "sha256": "sha256:05b9dea11bf6f26a5adfa7fb1f103f92aedc92ee3480a8d2d512d0e073a150bb",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyfin/screenshots/standard-user-player-10.11.11.png",
+      "sha256": "sha256:0cef1c2563dfcff4d10471d700b9792f36b4f34396ecec94bc88883d5b5f93c5",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyseerr/icon.png",
+      "sha256": "sha256:ececf1ed2929003907b9a09fc88bedd8422a4bfaee5c212e0e25786bee204f25",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyseerr/screenshots/platform-admin-request-3.2.0.png",
+      "sha256": "sha256:f51df2a1f35db89799d66fad8fd2f33d01064e72dad60e4ccacccb473f0773e2",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/jellyseerr/screenshots/standard-user-request-3.2.0.png",
+      "sha256": "sha256:d069c58b622014bf0014b71bb528c388a3dbf7f2667e77cbdccd911f8b7eb16d",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/kavita/icon.svg",
+      "sha256": "sha256:f03ab7420b8b36ad6b43e88723f794d76c411f728fb020fbeee470f6e1e7696b",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/kavita/screenshots/platform-admin-reader-0.9.0.2.png",
+      "sha256": "sha256:213b6a7638073498eed51ccb441c7a667ea3f25a81505d71ce0a5e6c83694e19",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/kavita/screenshots/standard-user-reader-0.9.0.2.png",
+      "sha256": "sha256:213b6a7638073498eed51ccb441c7a667ea3f25a81505d71ce0a5e6c83694e19",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/linkwarden/icon.svg",
+      "sha256": "sha256:418f84aa9cf31c395a8f631e2ad8cb1036d1777e5089f563b7119710b1642cbf",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/linkwarden/screenshots/platform-admin-library-2.16.0.png",
+      "sha256": "sha256:b92f960b704d82dad1762fbd6a9383570565605fd3bd62b0ce1d9ab46fb85365",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/linkwarden/screenshots/standard-user-library-2.16.0.png",
+      "sha256": "sha256:45e4f98e452530b837aad23c67f0d9df30369c061f3f7e42b464c8b71ba98a4c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/mealie/icon.svg",
+      "sha256": "sha256:1c151eab85047a0d71f128606614419126af5c10e5ac09112cdc1033b61a833f",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/mealie/screenshots/platform-admin-recipes-3.22.0.png",
+      "sha256": "sha256:88a31fa58a516fd7b1c121cfb21bf6994984c88c4480161d30878303d7801d0d",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/mealie/screenshots/standard-user-recipes-3.22.0.png",
+      "sha256": "sha256:dadafa42c237543bb65c680761af7deb481c201c9ed160bc4d569a110069cf12",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/memos/icon.svg",
+      "sha256": "sha256:d598fd4e80b7fc54373f8387f248d0ef21b82629cebcdb5631bf923f15302143",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/memos/screenshots/platform-admin-memos.png",
+      "sha256": "sha256:734f1172f8c5111e993421d0fc2c7d4acf21266da10c25b3198bc8be805438a7",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/memos/screenshots/standard-user-memos.png",
+      "sha256": "sha256:54563661c76ad64ce72ad373063fff3615b1380fc8b94cfddd0079d06ef3a6bc",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/miniflux/icon.svg",
+      "sha256": "sha256:132032458a533a14451d8c3a108a2fc98305e804fc4ec721831be8677bd0a8b5",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/miniflux/screenshots/platform-admin-feed.png",
+      "sha256": "sha256:704e64ae98b1c82b922b0d5d930e06d721467e10e2dc844be48408c2014022b1",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/miniflux/screenshots/standard-user-subscriptions.png",
+      "sha256": "sha256:3a66fde2f2aec82ce5516e32363d719a5a87aaf8c7aff889c2e3ebc00fd7a74f",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/navidrome/icon.svg",
+      "sha256": "sha256:cd8911581c1173c0696dadaeb02f9bb2eb1ff3b6bdf5c64c49b90f7cb70274cf",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/navidrome/screenshots/platform-admin-library-0.63.2.png",
+      "sha256": "sha256:13cbc9baba989d72bd0c0837120533054523ae92c6b1d718c49b5ea9a7b6bdf4",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/navidrome/screenshots/standard-user-player-0.63.2.png",
+      "sha256": "sha256:5c6c8d885b3eb24e41d650c2910074a816b24090e69cbc4d996b08bb77bd80ca",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/nextcloud/icon.svg",
+      "sha256": "sha256:6cbd54c7833b3c1058378321760cf9bce2929233cebceac7934e53e71deec627",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/nextcloud/screenshots/admin-files.png",
+      "sha256": "sha256:c47d5c6ee1a1ac6913ab00f712d53aa5d1ce4ec81b2e84b3859ac1d04537bb4c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/nextcloud/screenshots/user-files.png",
+      "sha256": "sha256:31fbb11f530a8fca6cb64827bba7de2b330334919124f979d01d3cd4ca3cad08",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/open-webui/icon.svg",
+      "sha256": "sha256:8d21e448d752a763ac969c693940aa8782001a1c56217ed512676a1d50e23318",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/open-webui/screenshots/platform-admin-chat-0.11.0.png",
+      "sha256": "sha256:7fe12e66484a2c58241d81c9ce7906f03608e66a35c856898bb93ec44a7e86d1",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/open-webui/screenshots/standard-user-chat-0.11.0.png",
+      "sha256": "sha256:da97a3e7f1cdb2e28dbf5a56418ef2b8c92c119fa51d099e25d2794802adbd4a",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/paperless-ngx/icon.svg",
+      "sha256": "sha256:b135396c8e93196699d6e88f6663e018f20e71bf893febba0b735d7771b4710c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/paperless-ngx/screenshots/platform-admin-document-3.0.5.png",
+      "sha256": "sha256:8f3b985ff594d10ce6c78c0a23187b6709de86f99bc56924d8674c0d4b8d2fe3",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/paperless-ngx/screenshots/standard-user-document-3.0.5.png",
+      "sha256": "sha256:6203e7e7a58657bc7d6f5c2ec0791ee3f70337c97067d723493ed108296d07d8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/pingvin-share/icon.svg",
+      "sha256": "sha256:35c20a4411e5ccd344e83b0c4814e53de5e867cf30b5e2cb9cfbd38828165c21",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/pingvin-share/screenshots/platform-admin-share-1.22.1.png",
+      "sha256": "sha256:5e52b90aafe0fd5f729f66212e873aec6757228b96465b6312ad237938d56bb8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/pingvin-share/screenshots/standard-user-share-1.22.1.png",
+      "sha256": "sha256:8b7b929900a12816233e3b65aad9955b3bd77ae525bfb75d355fa60055a13bb1",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/prowlarr/icon.svg",
+      "sha256": "sha256:a8ed9073263696dcaec3c6dc477c82dae4fc83dd13914899def26388758784f0",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/prowlarr/screenshots/platform-admin-public-domain-search-2.5.2.5491.png",
+      "sha256": "sha256:3514a59c96c49d924416e7b2492a91afb972ef818d59ae30f23c95114df49ab8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/prowlarr/screenshots/standard-profile-public-domain-search-2.5.2.5491.png",
+      "sha256": "sha256:751fbd1aba3a480687453131b8ae515174fdfd4c7b09e88b763c97c4a66e8fed",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/qbittorrent/icon.png",
+      "sha256": "sha256:19f74839525b7848912ccfa653f9ede3f0d83ff9bff6dfc9685137e31912c5e8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/qbittorrent/screenshots/platform-admin-completed-download-5.2.3.png",
+      "sha256": "sha256:336330c818c6306b88747ac33a82666ed51eb024702fad5f2881dfdabfb5f438",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/qbittorrent/screenshots/standard-profile-completed-download-5.2.3.png",
+      "sha256": "sha256:d0341a8ed9f3f6141834e1a64d5b829dd689f4b3fac6ec45229d33262d650d63",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/radarr/icon.png",
+      "sha256": "sha256:3d564fbcfb2523d9c90671ec1743250902fe3c28277cc07b6dc72a1728864e4c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/radarr/screenshots/platform-admin-public-domain-movie-6.3.0.10514.png",
+      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/radarr/screenshots/standard-profile-public-domain-movie-6.3.0.10514.png",
+      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/searxng/icon.svg",
+      "sha256": "sha256:e0f4c72fe58055043d04446350e7d3e6a25105e507519b1ceacffd5b9aa89593",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/searxng/screenshots/admin-search-results.png",
+      "sha256": "sha256:d2b7b3f365884c31d95d4ed7e3e144b6fdd5ca2073f8e10d5fccfc87912602cd",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/searxng/screenshots/user-search-home.png",
+      "sha256": "sha256:0358d605c7a909949c1100fd4d5e1722e2bbe4128ae889a3a0c34e0725aea23f",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/sonarr/icon.svg",
+      "sha256": "sha256:e75b18bbf2f662788214437e47bacf6393676231ceddae32e6d02cffabc50c75",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/sonarr/screenshots/platform-admin-series-library-4.0.19.2979.png",
+      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/sonarr/screenshots/standard-profile-series-library-4.0.19.2979.png",
+      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/stirling-pdf/icon.svg",
+      "sha256": "sha256:09b653138e5d13b640ad94ca097b89200337dfb1c7b19dbea038853d12007bdb",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/stirling-pdf/screenshots/platform-admin-toolkit-2.14.3.png",
+      "sha256": "sha256:7ce469ebc8f2d08a9141b651cca85c00f983ba1a637eb5624b990d11d5fd8ab0",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/stirling-pdf/screenshots/standard-user-toolkit-2.14.3.png",
+      "sha256": "sha256:c765c57cc23591c93ffb0cd26a22986beaeb29d975fe3200e7390a793a714fd8",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vaultwarden/icon.svg",
+      "sha256": "sha256:385b85761c2acf8ecd1e863d67e583a48be09d9e66348a3d20411079f09da5d9",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vaultwarden/screenshots/admin-secure-note.png",
+      "sha256": "sha256:bf870168225c84c46be062374f72f612098c38b0d0c3313d30957371ba5faaf1",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vaultwarden/screenshots/user-vault.png",
+      "sha256": "sha256:d313d55d5d91bad01eaa8b11ffaf7396e12abd4fa46c777bc520ebb4dea976be",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vikunja/icon.svg",
+      "sha256": "sha256:1d360d3537390470b74763d4e444735956c968151e5ab6c4cd8d64dae9a9e5ab",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vikunja/screenshots/platform-admin-project.png",
+      "sha256": "sha256:ffd6f86e039066792e1a37d554f2df8e645425e991d491a447e63a52e67f0f6c",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/vikunja/screenshots/standard-user-project.png",
+      "sha256": "sha256:aea3703096630919f38f3b0adc3beb8e17674659c6cd01b683286f3700f699b4",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wallabag/icon.svg",
+      "sha256": "sha256:a433d3d12562afacf772b2b9ca1e5a985d5a8c638218a67710cf1ff66fba9231",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wallabag/screenshots/platform-admin-library-2.6.14.png",
+      "sha256": "sha256:d723cc4476f97eb2937c844edcae48ae2f995a18970da54df5e0c0268c04c5a4",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wallabag/screenshots/standard-user-library-2.6.14.png",
+      "sha256": "sha256:18393cbfa27f97f0d59a30139f05d3e4f7501cd8ab25b5eda89a9f6fbed1af57",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wikiless/icon.png",
+      "sha256": "sha256:c23caf37a71cdf4c86a14eeb370bcd0aad4d6416851a51af5f07730e3e07b5ab",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wikiless/screenshots/platform-admin-article-0.1.3.png",
+      "sha256": "sha256:124f5ddbefef850f0104f0dd11b9ac27d62a693db27f391cd186526e1e6b6bce",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/wikiless/screenshots/standard-user-article-0.1.3.png",
+      "sha256": "sha256:238c74e2214c19dfc777ac22aa6f5ad282d9da96055e8ef036faa7877e377110",
+      "ownershipStatus": "unverified"
+    }
+  ]
+}

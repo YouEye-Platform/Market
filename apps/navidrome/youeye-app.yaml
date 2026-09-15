@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "0.62.0"
+version: "0.63.2"
 forwardAuth: enabled
 
 metadata:
@@ -12,64 +12,64 @@ metadata:
   iconUrl: "icon.svg"
   category: "media"
   website: "https://www.navidrome.org"
+  developer: "Navidrome project and contributors"
+  license: "GPL-3.0"
+  sourceCode: "https://github.com/navidrome/navidrome"
+  support: "https://github.com/navidrome/navidrome/discussions"
+  docs: "https://www.navidrome.org/docs/"
+  tagline: "Your music, your server, everywhere"
   tags: ["music", "streaming", "subsonic", "audio"]
   defaultSubdomain: "navidrome"
 
 detail:
+  releaseNotes: |
+    Navidrome 0.63 adds richer synchronized lyrics, faster large-library
+    search and synchronization, stronger per-library access controls, and
+    smarter exact-match search. Version 0.63.2 fixes plugin error reporting,
+    symlink scanning, and invalid mixed smart-playlist conditions.
   longDescription: |
     Navidrome is an open-source music server and streamer. Stream your entire music collection
     from anywhere using any Subsonic-compatible client. Features include multi-user support,
     smart playlists, album art, lyrics, and fast transcoding. Works with DSub, Symfonium,
     play:Sub, and many more clients for your personal library.
   screenshots:
-    - path: "https://raw.githubusercontent.com/navidrome/navidrome/master/resources/logo-192x192.png"
-      caption: "Navidrome music player"
+    - path: "screenshots/platform-admin-library-0.63.2.png"
+      caption: "Platform administrator playing the accepted music fixture"
+    - path: "screenshots/standard-user-player-0.63.2.png"
+      caption: "Standard user playing the shared music library fixture"
 
 database:
   mode: none
-
-secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
-credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
 
 containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/deluan/navidrome:0.62.0"
+    image: "docker.io/deluan/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40"
     port: 4533
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: data
       - name: music
-        host: "/var/lib/youeye/app-${app.id}/music"
         container: "/music"
         type: media
     healthCheck:
       type: "http"
-      path: "/api/health"
+      path: "/ping"
       timeout: 120000
 
-# Navidrome has NO native OIDC — it trusts a reverse-proxy auth header. With no `sso`
-# block and forwardAuth: enabled, the engine provisions a YouEye-ID forward-auth handler
-# and Caddy injects X-YouEye-Username; Navidrome reads that header and trusts the platform
-# proxy network. The FIRST user to arrive via the header becomes admin (owner should sign
-# in first); there is no OIDC group/role -> admin mapping. (v0.62 also exposes ND_EXTAUTH_*
-# aliases — switch if the ND_REVERSEPROXY* names are dropped in a future release.)
+# Navidrome has no native OIDC. The platform forward-auth handler removes untrusted
+# identity headers and injects X-YouEye-Username after authentication; Navidrome's
+# current ExtAuth contract trusts only the platform proxy network. The first user to
+# arrive becomes the Navidrome administrator, and subsequent users are regular users.
 env_mapping:
   ND_BASEURL: ""
   ND_DATAFOLDER: "/data"
   ND_MUSICFOLDER: "/music"
   ND_DEFAULTLANGUAGE: "${platform.locale}"
-  ND_REVERSEPROXYUSERHEADER: "X-YouEye-Username"
-  ND_REVERSEPROXYWHITELIST: "10.76.0.0/16"
+  ND_EXTAUTH_USERHEADER: "X-YouEye-Username"
+  ND_EXTAUTH_TRUSTEDSOURCES: "10.76.0.0/16"
+  # Public share URLs cannot bypass YouEye forward-auth in this integration.
+  ND_ENABLESHARING: "false"

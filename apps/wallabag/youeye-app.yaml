@@ -11,17 +11,29 @@ metadata:
   iconUrl: "icon.svg"
   category: "productivity"
   website: "https://wallabag.org"
+  developer: "wallabag contributors"
+  license: "MIT"
+  sourceCode: "https://github.com/wallabag/wallabag"
+  support: "https://github.com/wallabag/wallabag/discussions"
+  docs: "https://doc.wallabag.org/"
+  tagline: "Save web pages now and read them later"
   tags: ["bookmarks", "articles", "reading", "archive"]
   defaultSubdomain: "wallabag"
 
 detail:
+  releaseNotes: |
+    wallabag 2.6.14 updates dependencies and its container base, adds an
+    annotations filter to the entries API, fixes short-article reading times,
+    and corrects multi-URL API saving.
   longDescription: |
     Wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
   screenshots:
-    - path: "https://raw.githubusercontent.com/wallabag/wallabag/master/docs/en/img/wallabag.png"
-      caption: "Wallabag article reader"
+    - path: "screenshots/platform-admin-library-2.6.14.png"
+      caption: "Platform administrator managing an accepted read-later library"
+    - path: "screenshots/standard-user-library-2.6.14.png"
+      caption: "Standard user using an independently provisioned local account"
 
 capabilities:
   smtp: true
@@ -48,16 +60,16 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/wallabag/wallabag:2.6.14"
+    image: "docker.io/wallabag/wallabag@sha256:4a527e027e0d59e87c14225ef11e005af3d4890374202ad319ce5e63dfc66709"
+    command: >-
+      /bin/sh -lc '(sleep 45; until php /var/www/wallabag/bin/console fos:user:change-password wallabag "$YOUEYE_ADMIN_PASSWORD" --env=prod --no-interaction >/dev/null 2>&1; do sleep 2; done) & exec /entrypoint.sh wallabag'
     port: 80
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/var/www/wallabag/data"
         type: data
       - name: images
-        host: "/var/lib/youeye/app-${app.id}/images"
         container: "/var/www/wallabag/web/assets/images"
         type: data
     healthCheck:
@@ -74,6 +86,7 @@ env_mapping:
   SYMFONY__ENV__SERVER_NAME: "Wallabag"
   SYMFONY__ENV__FOSUSER_REGISTRATION: "false"
   SYMFONY__ENV__SECRET: "${secrets.secret_key}"
+  YOUEYE_ADMIN_PASSWORD: "${secrets.admin_password}"
   POPULATE_DATABASE: "true"
   SYMFONY__ENV__MAILER_DSN: "smtp://${smtp.user}:${smtp.password}@${smtp.host}:${smtp.port}"
   SYMFONY__ENV__FROM_EMAIL: "${smtp.from}"

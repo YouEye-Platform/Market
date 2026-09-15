@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2026.3.29"
+version: "2026.8.12"
 
 metadata:
   id: "searxng"
@@ -11,14 +11,29 @@ metadata:
   iconUrl: "icon.svg"
   category: "search"
   website: "https://docs.searxng.org"
+  developer: "SearXNG contributors"
+  license: "AGPL-3.0"
+  sourceCode: "https://github.com/searxng/searxng"
+  support: "https://github.com/searxng/searxng/issues"
+  docs: "https://docs.searxng.org"
+  tagline: "Private metasearch across dozens of search engines"
   tags: ["search", "privacy", "metasearch"]
   defaultSubdomain: "searx"
 
 detail:
+  releaseNotes: |
+    SearXNG 2026.8.12 from upstream revision cdfdaa5a8, paired with the current
+    Valkey 8.1 maintenance image. Both multi-architecture OCI sources are
+    immutable and the JSON/RSS search formats remain enabled for integrations.
   longDescription: |
-    A free internet metasearch engine which aggregates results from more than 70 search services.
-    Users are neither tracked nor profiled.
-  screenshots: []
+    SearXNG is a free, privacy-respecting metasearch engine that aggregates
+    results from dozens of independent search services. It does not profile
+    users, and supports web, image, news, map, video, JSON, and RSS results.
+  screenshots:
+    - path: "screenshots/admin-search-results.png"
+      caption: "Administrator search results aggregated from multiple engines"
+    - path: "screenshots/user-search-home.png"
+      caption: "Standard-user private search home page"
 
 database:
   mode: none
@@ -32,17 +47,16 @@ secrets:
 containers:
   - name: "redis"
     type: oci
-    image: "docker.io/valkey/valkey:8-alpine"
+    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
 
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/searxng/searxng:2026.3.29-7ac4ff39f"
+    image: "docker.io/searxng/searxng@sha256:c2dc2d9e6b910653e8628361c23443222490e4cabbb9e02667b7847143db843b"
     port: 8080
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/etc/searxng"
         type: config
     healthCheck:
@@ -63,8 +77,9 @@ env_mapping:
   SEARXNG_DEFAULT_LANG: "${platform.locale}"
 
 configFiles:
-  - path: "/var/lib/youeye/app-${app.id}/config/settings.yml"
-    permission: "0o644"
+  - container: "main"
+    path: "/etc/searxng/settings.yml"
+    permission: "0o600"
     directoryPermission: "0o700"
     template: |
       use_default_settings: true

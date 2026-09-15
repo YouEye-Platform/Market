@@ -1,17 +1,18 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "5.2.2"
+version: "5.2.3"
 
 metadata:
   id: "qbittorrent"
   name: "qBittorrent"
   description: "Free and open-source BitTorrent client"
   icon: "download"
+  iconUrl: "icon.png"
   category: "downloaders"
   website: "https://www.qbittorrent.org"
   developer: "The qBittorrent project"
-  license: "GPL-2.0"
+  license: "GPL-2.0-or-later"
   sourceCode: "https://github.com/qbittorrent/qBittorrent"
   support: "https://github.com/qbittorrent/qBittorrent/wiki"
   docs: "https://github.com/qbittorrent/qBittorrent/wiki"
@@ -20,34 +21,56 @@ metadata:
   defaultSubdomain: "qbittorrent"
 
 detail:
+  releaseNotes: |
+    qBittorrent 5.2.3 fixes a potential deadlock after failed database
+    transactions, invalid migration handling, tracker and Web Seed conversion,
+    WebUI selector escaping, RSS refresh intervals, and stricter peer-address
+    parsing. This package includes libtorrent 2.0.14.
   longDescription: |
     qBittorrent is a free, open-source BitTorrent client with no ads. It ships a built-in
     search engine, RSS downloading, bandwidth scheduling, and a polished web UI. As the
     download client for the *arr stack it receives grabs from Sonarr and Radarr and saves
     them into shared storage, so your media apps can import finished downloads with instant
-    hardlinks. The first-run web UI password is printed in the app's container logs.
-  screenshots: []
+    hardlinks. YouEye generates the first WebUI administrator password and writes
+    only qBittorrent's supported salted PBKDF2 hash before the service starts.
+  screenshots:
+    - path: "screenshots/platform-admin-completed-download-5.2.3.png"
+      caption: "Platform administrator verifying a completed public-domain torrent"
+    - path: "screenshots/standard-profile-completed-download-5.2.3.png"
+      caption: "Separate standard platform profile viewing the completed download"
 
 database:
   mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "WebUI Administrator"
+    username: "admin"
+    passwordSecret: "admin_password"
 
 containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/qbittorrent:5.2.2_v2.0.13-ls463"
+    image: "docker.io/linuxserver/qbittorrent@sha256:6816d2b144b1eb97665f886e41e18a14d026ba78c9d0953fc68a1211ea819433"
     port: 8080
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/config"
         type: config
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: media
         storageGroup: media   # shared with Sonarr + Radarr for instant hardlink imports
+      - name: bootstrap
+        container: "/custom-cont-init.d"
+        type: config
     healthCheck:
       type: "http"
       path: "/"
@@ -64,3 +87,80 @@ env_mapping:
   PGID: "0"
   TZ: "Etc/UTC"
   WEBUI_PORT: "8080"
+  TORRENTING_PORT: "6881"
+  YOUEYE_QBITTORRENT_PASSWORD: "${secrets.admin_password}"
+  YOUEYE_QBITTORRENT_URL: "${app.url}"
+
+configFiles:
+  - container: "main"
+    path: "/custom-cont-init.d/10-youeye-webui-credential"
+    permission: "0o700"
+    directoryPermission: "0o700"
+    template: |
+      #!/usr/bin/with-contenv bash
+      set -euo pipefail
+
+      python3 - <<'PY'
+      import base64
+      import hashlib
+      import os
+      from pathlib import Path
+      import secrets
+      from urllib.parse import urlparse
+
+      config_dir = Path("/config/qBittorrent")
+      config_path = config_dir / "qBittorrent.conf"
+      marker_path = config_dir / ".youeye-credential-ready"
+      password = os.environ["YOUEYE_QBITTORRENT_PASSWORD"]
+      hostname = urlparse(os.environ["YOUEYE_QBITTORRENT_URL"]).hostname
+
+      if len(password) < 6:
+          raise RuntimeError("generated qBittorrent password is too short")
+      if not hostname:
+          raise RuntimeError("qBittorrent public hostname is unavailable")
+
+      if not marker_path.exists():
+          salt = secrets.token_bytes(16)
+          key = hashlib.pbkdf2_hmac("sha512", password.encode(), salt, 100000, 64)
+          encoded = f"{base64.b64encode(salt).decode()}:{base64.b64encode(key).decode()}"
+          lines = [
+              "[AutoRun]",
+              "enabled=false",
+              "program=",
+              "",
+              "[LegalNotice]",
+              "Accepted=true",
+              "",
+              "[Preferences]",
+              r"Connection\UPnP=false",
+              r"Connection\PortRangeMin=6881",
+              r"Downloads\SavePath=/data/torrents/",
+              r"Downloads\TempPath=/data/torrents/incomplete/",
+              r"Downloads\TempPathEnabled=true",
+              r"Session\DefaultSavePath=/data/torrents/",
+              r"Session\TempPath=/data/torrents/incomplete/",
+              r"Session\TempPathEnabled=true",
+              r"WebUI\Address=*",
+              r"WebUI\LocalHostAuth=true",
+              f'WebUI\\Password_PBKDF2="@ByteArray({encoded})"',
+              r"WebUI\Port=8080",
+              f"WebUI\\ServerDomains={hostname}",
+              r"WebUI\Username=admin",
+              "",
+          ]
+          config_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
+          temporary = config_path.with_suffix(".tmp")
+          temporary.write_text("\n".join(lines))
+          temporary.chmod(0o600)
+          temporary.replace(config_path)
+          marker_path.write_text("ready\n")
+          marker_path.chmod(0o600)
+
+      for path in (
+          Path("/data/torrents"),
+          Path("/data/torrents/incomplete"),
+          Path("/data/media/tv"),
+          Path("/data/media/movies"),
+      ):
+          path.mkdir(mode=0o775, parents=True, exist_ok=True)
+      PY

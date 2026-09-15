@@ -1,0 +1,195 @@
+{
+  "apiVersion": "youeye.market/catalog-snapshot/v1",
+  "assetInventorySha256": "sha256:39f6a9c2c1953becada5e947c9385b7c2031d78d41c4d91dd040f355eacc9a23",
+  "catalog": {
+    "appCount": 34,
+    "sha256": "sha256:4b69551005f3c82e48fc99460b7d4e4e668dceeae65dd3025020816f3d85b458"
+  },
+  "content": {
+    "algorithm": "sha256",
+    "canonicalInputs": "catalog.yaml, store.yaml, RETIRED.md, asset-provenance.json, and every YAML file under apps/, bundles/, integrations/, system/, and updates/, sorted by repository path; raw file bytes are hashed without network access",
+    "files": [
+      {
+        "path": "RETIRED.md",
+        "sha256": "sha256:71e02518496531e585028424c5d00a3f7bad7d0c09e443173e04337eb1d9d02a"
+      },
+      {
+        "path": "apps/actual-budget/youeye-app.yaml",
+        "sha256": "sha256:a9e1b9037d8617b9af80144c6a7658f05d86b5b8645462bb610e52adc3124d09"
+      },
+      {
+        "path": "apps/audiobookshelf/youeye-app.yaml",
+        "sha256": "sha256:eb3038f2a41110b823d25d285ce485d0f46815e3cfad1e2d6b09056e3c64eea8"
+      },
+      {
+        "path": "apps/docuseal/youeye-app.yaml",
+        "sha256": "sha256:d2cdbc12e032b81394068cace48c4c10a6ad9aa9df39a22441fd5ed191e0190e"
+      },
+      {
+        "path": "apps/freshrss/youeye-app.yaml",
+        "sha256": "sha256:cb64e9a087838cf4b22c69fc781fdeb970c8afa19c8a9bd6ace252ed6bbeb6cd"
+      },
+      {
+        "path": "apps/hedgedoc/youeye-app.yaml",
+        "sha256": "sha256:b900b515a9097151d0aa7c736da0a4dc93528a8e5e303a47f4c535e843ca4b94"
+      },
+      {
+        "path": "apps/immich/youeye-app.yaml",
+        "sha256": "sha256:a452b82d63c348a288043221a1a700ba9e3198aadb118d87a9a20d66476085db"
+      },
+      {
+        "path": "apps/jellyfin/youeye-app.yaml",
+        "sha256": "sha256:a824852cf7bb2dd36202103a9286dea2422887fc277e36863f4a8017ac4e9fd7"
+      },
+      {
+        "path": "apps/jellyseerr/youeye-app.yaml",
+        "sha256": "sha256:ad8f5b3e63d624486269c7b21d9582b921af4492b502112897e8110bcbc7b9b1"
+      },
+      {
+        "path": "apps/kavita/youeye-app.yaml",
+        "sha256": "sha256:9198b672ee7d601014a494bf78117007509dcb8d3fd0dd96926dc5ab9cd2cc42"
+      },
+      {
+        "path": "apps/linkwarden/youeye-app.yaml",
+        "sha256": "sha256:f3654187abd64c79419ee319bd991cdde482605b95c9b1f39385e4d5f1579056"
+      },
+      {
+        "path": "apps/mealie/youeye-app.yaml",
+        "sha256": "sha256:db2fd48f03c918bc9a3e0f2c7096cdd4da01695816bda1750ab09816fa3f5f6c"
+      },
+      {
+        "path": "apps/memos/youeye-app.yaml",
+        "sha256": "sha256:b4388db49e0db6c182c1b00d49acf43249ef66b3e4bfc6e501724e163872cff6"
+      },
+      {
+        "path": "apps/miniflux/youeye-app.yaml",
+        "sha256": "sha256:5043b12ee3dfec8902e9870f804bef2598de1650be4ad63997283aef6f40b23f"
+      },
+      {
+        "path": "apps/navidrome/youeye-app.yaml",
+        "sha256": "sha256:4ab594ec4c8b92f1f610cd85dec567bfb8bbdedccdd53a8183443d8a76fcf375"
+      },
+      {
+        "path": "apps/nextcloud/youeye-app.yaml",
+        "sha256": "sha256:f02514e00f2e6c38b7d6f43b2276e38869197e01918fc1319bf229e24fd35fb0"
+      },
+      {
+        "path": "apps/open-webui/youeye-app.yaml",
+        "sha256": "sha256:1c470f9cd64ab7593c403714eccdd18e713f8f6530c24ed93246fc9ad833e6fb"
+      },
+      {
+        "path": "apps/paperless-ngx/youeye-app.yaml",
+        "sha256": "sha256:422b74456c777bee6a2e878fe4084ccad32c8c43a5567b36ce3fc708a2a3de3e"
+      },
+      {
+        "path": "apps/pingvin-share/youeye-app.yaml",
+        "sha256": "sha256:e74ca905608807fbe4859f75f01408416413255d692369e3224605b3b5838a69"
+      },
+      {
+        "path": "apps/prowlarr/youeye-app.yaml",
+        "sha256": "sha256:1fc967b0359c91c562b9aa5c75ac75c56e1c93893411c5ecf5cc46941a0a73fd"
+      },
+      {
+        "path": "apps/qbittorrent/youeye-app.yaml",
+        "sha256": "sha256:68ed5f31282555d46a8f8d4dc523fba82cc3715ed19dc55ff7b2d78aa969851a"
+      },
+      {
+        "path": "apps/radarr/youeye-app.yaml",
+        "sha256": "sha256:169ab2da1f4cc1f48fad25e4b8be1ece43f8b24aa2b8598fa2c4cef66ecf5caf"
+      },
+      {
+        "path": "apps/searxng/youeye-app.yaml",
+        "sha256": "sha256:68acf30492149ea5835b8798d093e569c1ce5c63cf0659557a819ab49caef393"
+      },
+      {
+        "path": "apps/sonarr/youeye-app.yaml",
+        "sha256": "sha256:ba80d0b88f1e18e069988cde20389ee51e573ecb9a6811ff06bfef0be9be9563"
+      },
+      {
+        "path": "apps/stirling-pdf/youeye-app.yaml",
+        "sha256": "sha256:db06a3a66acfc334c73459eb5ed50be41d7357ec18517dcc3724af57df6f9ac3"
+      },
+      {
+        "path": "apps/vaultwarden/youeye-app.yaml",
+        "sha256": "sha256:61a9543025dc094c215bd2fce54596af95e250733645b501a6b57ad083ca3cb8"
+      },
+      {
+        "path": "apps/vikunja/youeye-app.yaml",
+        "sha256": "sha256:94583020f36224f5c8378b9de2b087b5577841a1f333bd5e96f3fdb0f7db1624"
+      },
+      {
+        "path": "apps/wallabag/youeye-app.yaml",
+        "sha256": "sha256:12953ccb10d979d9aa89f4a906b02db4b9d7cef97e79b65b93758285db2dc32f"
+      },
+      {
+        "path": "apps/wikiless/youeye-app.yaml",
+        "sha256": "sha256:3beb3020f05b0ee4a47fb17237c27d9bb2352cac8f0bdf115126d9e67efe593f"
+      },
+      {
+        "path": "asset-provenance.json",
+        "sha256": "sha256:fa1281f427d42bf4558f566d07a286a2c3c327ee8687ee6880e89acc391763fa"
+      },
+      {
+        "path": "bundles/media-automation/bundle.yaml",
+        "sha256": "sha256:56d546846588453448024467d51c8a71a2d20d14e158d000bf65dd7c2ca67043"
+      },
+      {
+        "path": "bundles/private-search/bundle.yaml",
+        "sha256": "sha256:6dbec416c7badbee311a4c97e08e0bb932cadcf593080d9bb7310c0e0c442e28"
+      },
+      {
+        "path": "catalog.yaml",
+        "sha256": "sha256:4b69551005f3c82e48fc99460b7d4e4e668dceeae65dd3025020816f3d85b458"
+      },
+      {
+        "path": "integrations/audiobookshelf/youeye-id.yaml",
+        "sha256": "sha256:cabd00762f0d8d9cde2222a6fad53abfa535890afde79d794edf99ac6767989b"
+      },
+      {
+        "path": "integrations/immich/youeye-id.yaml",
+        "sha256": "sha256:9a9b5838710c5f2c70f96125a0e2d2b7292872d90f2a19da36f0a7d024b83b85"
+      },
+      {
+        "path": "integrations/jellyfin/youeye-id.yaml",
+        "sha256": "sha256:267cf1d1594f7a61be87118286334742a1f03cde105862c593e134e96c5da2aa"
+      },
+      {
+        "path": "integrations/memos/youeye-id.yaml",
+        "sha256": "sha256:0281d88f89a79843dd8163eefc7317959948d1de5e94af819be522a4426d641f"
+      },
+      {
+        "path": "integrations/nextcloud/youeye-id.yaml",
+        "sha256": "sha256:3b58781cd9fa09e12305c9eeb3b8dbdb1c6724142f823c833fa4bfe785a702f1"
+      },
+      {
+        "path": "store.yaml",
+        "sha256": "sha256:904d38f3513fd6df01dd3257e1b20c02c448fe102b8348adb0c492a97a489bf2"
+      },
+      {
+        "path": "system/caddy.yaml",
+        "sha256": "sha256:994f90839742ed455e7432fe6fedcdfea02a4c8bb0953a12d96e92ad26336406"
+      },
+      {
+        "path": "system/pihole.yaml",
+        "sha256": "sha256:d6506ddce975110f99013482cdcb6b1d33192a143212757d502c7207987e6651"
+      },
+      {
+        "path": "system/postgresql.yaml",
+        "sha256": "sha256:b2fe4af51213b3ee52df4651563a4468776a3df340605ec23e413c8b0a873378"
+      },
+      {
+        "path": "updates/search/update-plan.yaml",
+        "sha256": "sha256:d1bfa6f37566601739d878738af62e4e023a35e25665bb28641e0b341bcdbafa"
+      }
+    ],
+    "sha256": "sha256:d5bd5e57056487842bae48a88e4b669e771b3f47bd1f86f3cfa99895ab44bd24"
+  },
+  "identity": "YouEye-Platform/Market",
+  "provenance": {
+    "destination": "catalog.yaml",
+    "releaseBranch": "beta",
+    "releaseTag": "catalog-beta-v0.5.0.1",
+    "repository": "YouEye-Platform/Market"
+  },
+  "version": "0.5.0.1"
+}

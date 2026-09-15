@@ -1,17 +1,19 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "6.2.1"
+version: "6.3.0.10514"
+forwardAuth: enabled
 
 metadata:
   id: "radarr"
   name: "Radarr"
   description: "Smart PVR for your movie collection"
   icon: "film"
+  iconUrl: "icon.png"
   category: "media"
   website: "https://radarr.video"
   developer: "Team Radarr"
-  license: "GPL-3.0"
+  license: "GPL-3.0-only"
   sourceCode: "https://github.com/Radarr/Radarr"
   support: "https://wiki.servarr.com/radarr"
   docs: "https://wiki.servarr.com/radarr"
@@ -20,33 +22,48 @@ metadata:
   defaultSubdomain: "radarr"
 
 detail:
+  releaseNotes: |
+    Radarr 6.3.0.10514 fixes imports from Simkl lists, updates FFProbe,
+    corrects custom formats that use a year for imported files, and refreshes
+    translations and build dependencies.
   longDescription: |
     Radarr is a movie collection manager for Usenet and BitTorrent users. It watches your
     indexers (via Prowlarr) for the films on your wanted list, grabs them through your
     download client, then renames and organises them into your library — automatically.
     Quality profiles, custom formats, and release-upgrade handling are all built in.
-  screenshots: []
+  screenshots:
+    - path: "screenshots/platform-admin-public-domain-movie-6.3.0.10514.png"
+      caption: "Platform administrator reviewing the accepted public-domain movie and file"
+    - path: "screenshots/standard-profile-public-domain-movie-6.3.0.10514.png"
+      caption: "Separate standard platform profile reviewing the persisted movie library"
 
 database:
   mode: none
+
+secrets:
+  - name: "api_key"
+    file: ".api_key"
+    generator: "secretKey"
+    length: 32
 
 containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/radarr:6.2.1.10461-ls307"
+    image: "docker.io/linuxserver/radarr@sha256:a45b5ab0f850f39edb4cc9c95bbd967b52ddc3d4574a4dfb45561177db6c88f4"
     port: 7878
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/config"
         type: config
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: media
         storageGroup: media   # shared with qBittorrent + Sonarr for instant hardlink imports
+      - name: bootstrap
+        container: "/custom-cont-init.d"
+        type: config
     healthCheck:
       type: "http"
       path: "/ping"
@@ -55,7 +72,7 @@ containers:
 # How the wire-runner reads this app's API key (for connection wiring).
 apiKey:
   file: "/config/config.xml"
-  pattern: "<ApiKey>([a-f0-9]+)</ApiKey>"
+  pattern: "<ApiKey>([^<]+)</ApiKey>"
 
 provides:
   - type: pvr
@@ -158,3 +175,32 @@ env_mapping:
   PUID: "0"
   PGID: "0"
   TZ: "Etc/UTC"
+
+configFiles:
+  - container: "main"
+    path: "/config/config.xml"
+    permission: "0o600"
+    directoryPermission: "0o700"
+    template: |
+      <Config>
+        <BindAddress>*</BindAddress>
+        <Port>7878</Port>
+        <SslPort>9898</SslPort>
+        <EnableSsl>False</EnableSsl>
+        <LaunchBrowser>False</LaunchBrowser>
+        <ApiKey>${secrets.api_key}</ApiKey>
+        <AuthenticationMethod>External</AuthenticationMethod>
+        <AuthenticationRequired>Enabled</AuthenticationRequired>
+        <Branch>master</Branch>
+        <LogLevel>info</LogLevel>
+        <UrlBase></UrlBase>
+        <InstanceName>Radarr</InstanceName>
+      </Config>
+  - container: "main"
+    path: "/custom-cont-init.d/10-youeye-media-paths"
+    permission: "0o700"
+    directoryPermission: "0o700"
+    template: |
+      #!/usr/bin/with-contenv bash
+      set -euo pipefail
+      install -d -m 0775 /data/torrents /data/torrents/incomplete /data/media/tv /data/media/movies

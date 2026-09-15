@@ -1,24 +1,43 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.0.0"
+version: "0.1.3"
+forwardAuth: enabled
 
 metadata:
   id: "wikiless"
   name: "Wikiless"
   description: "Privacy-respecting Wikipedia frontend"
   icon: "book-open"
-  iconUrl: "icon.svg"
+  iconUrl: "icon.png"
   category: "search"
-  website: "https://github.com/Metastem/wikiless"
-  tags: ["wikipedia", "privacy", "wiki"]
+  website: "https://wikiless.tiekoetter.com"
+  developer: "Wikiless contributors; maintained by tiekoetter"
+  license: "AGPL-3.0-only"
+  sourceCode: "https://github.com/tiekoetter/Wikiless"
+  support: "https://github.com/tiekoetter/Wikiless/issues"
+  docs: "https://github.com/tiekoetter/Wikiless/wiki"
+  tagline: "Read Wikipedia through a private, JavaScript-free frontend"
+  tags: ["wikipedia", "privacy", "wiki", "knowledge", "no-javascript"]
   defaultSubdomain: "wikiless"
 
 detail:
+  releaseNotes: |
+    This fresh-install definition adopts the actively maintained Wikiless fork at
+    source revision e31ca6d. The 0.1.3 application now runs on Node.js 26.7, Redis
+    client 6.2, Express 5.2, current request and HTML-processing dependencies, and
+    includes recent CSRF, redirect, proxy, media, rate-limit, and static-asset fixes.
   longDescription: |
-    A free open source alternative Wikipedia front-end focused on privacy.
-    Browse Wikipedia without tracking.
-  screenshots: []
+    Wikiless is a free, open-source alternative frontend for Wikipedia. It proxies
+    article pages and media through your own server, strips tracking-oriented browser
+    behavior, requires no client-side JavaScript, and provides a lightweight reading
+    experience with language and theme preferences. It can also offer a useful route
+    to Wikipedia content where the original site is blocked.
+  screenshots:
+    - path: "screenshots/platform-admin-article-0.1.3.png"
+      caption: "Platform administrator reading the Open-source software article through Wikiless"
+    - path: "screenshots/standard-user-article-0.1.3.png"
+      caption: "Standard platform user independently reading the same proxied Wikipedia article"
 
 database:
   mode: none
@@ -26,19 +45,31 @@ database:
 containers:
   - name: "redis"
     type: oci
-    image: "docker.io/valkey/valkey:8-alpine"
+    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
+    volumes:
+      - name: cache
+        container: "/data"
+        type: cache
 
   - name: "main"
     type: oci
     primary: true
-    image: "ghcr.io/metastem/wikiless:main"
+    image: "ghcr.io/tiekoetter/wikiless@sha256:c791def71a566e1ab7bc67c8cbfb5d5385036e1f5228ae4a6eba62d818245af3"
     port: 8080
     network: internet
+    volumes:
+      - name: media-cache
+        container: "/wikiless/media"
+        type: cache
     healthCheck:
       type: "http"
-      path: "/"
+      path: "/health"
       timeout: 120000
 
 env_mapping:
   REDIS_URL: "redis://${containers.redis.internal_host}:6379"
-  PORT: "8080"
+  DOMAIN: "${app.fqdn}"
+  DEFAULT_LANG: "en"
+  THEME: "dark"
+  NONSSL_PORT: "8080"
+  wikimedia_useragent: "Wikiless/0.1.3 (https://github.com/tiekoetter/Wikiless)"

@@ -25,3 +25,19 @@ test('external apps do not advertise dashboard widgets without a YouEye embed im
 
   assert.deepEqual(offenders, []);
 });
+
+test('Open WebUI auto-activates OIDC users without granting administrator access', () => {
+  const manifest = readFileSync(join(appsDir, 'open-webui', 'youeye-app.yaml'), 'utf8');
+
+  assert.match(manifest, /^\s*ENABLE_OAUTH_SIGNUP:\s*["']true["']\s*$/m);
+  assert.match(manifest, /^\s*DEFAULT_USER_ROLE:\s*["']user["']\s*$/m);
+  assert.doesNotMatch(manifest, /^\s*DEFAULT_USER_ROLE:\s*["']admin["']\s*$/m);
+});
+
+test('Open WebUI delegates its shared model boundary to the selected Pointer group', () => {
+  const manifest = readFileSync(join(appsDir, 'open-webui', 'youeye-app.yaml'), 'utf8');
+
+  assert.match(manifest, /^\s*BYPASS_MODEL_ACCESS_CONTROL:\s*["']true["']\s*$/m);
+  assert.match(manifest, /^\s*OPENAI_API_BASE_URL:\s*["']\$\{ai\.openaiBaseUrl\}["']\s*$/m);
+  assert.match(manifest, /^\s*OPENAI_API_KEY:\s*["']\$\{ai\.apiKey\}["']\s*$/m);
+});

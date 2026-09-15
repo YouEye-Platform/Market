@@ -35,6 +35,11 @@ categories:
     icon: download
     order: 6
     tile: { bg: "#fff7ed", fg: "#ea580c" }
+  - id: ai
+    label: AI
+    icon: bot
+    order: 7
+    tile: { bg: "#eef2ff", fg: "#4f46e5" }
   - id: other
     label: Other
     icon: package
@@ -52,7 +57,7 @@ curation:
   collections:
     - id: private-search
       label: Private search
-      apps: [searxng, whoogle, redlib, wikiless]
+      apps: [searxng, wikiless]
     - id: media-and-files
       label: Media & files
       apps: [jellyfin, immich, nextcloud]
@@ -65,66 +70,70 @@ bundles:
     latestVersion: "0.1.0"
 
 apps:
+  # Native source references are public YouEye-Platform identities. They are source
+  # metadata only: Market does not manufacture or distribute native-app binaries.
   - id: wiki
-    repo: YouEye-Platform/Wiki
+    repo: YouEye-Platform/YE-App-Wiki
+    branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: search
-    repo: YouEye-Platform/Search
+    repo: YouEye-Platform/YE-App-Search
+    branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: notes
-    repo: YouEye-Platform/Notes
+    repo: YouEye-Platform/YE-App-Notes
+    branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: cinema
-    repo: YouEye-Platform/Cinema
+    repo: YouEye-Platform/YE-App-Cinema
+    branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: weather
-    repo: YouEye-Platform/Weather
+    repo: YouEye-Platform/YE-App-Weather
+    branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: translate
-    repo: YouEye-Platform/Translate
+    repo: YouEye-Platform/YE-App-Translate
+    branch: main
     manifest: youeye-app.yaml
     integration: native
-  - id: whoogle
-    path: apps/whoogle
-    integration: basic
-    latestVersion: "0.9.0"
   - id: searxng
     path: apps/searxng
     integration: basic
-    latestVersion: "2026.3.29"
-  - id: redlib
-    path: apps/redlib
-    integration: basic
-    latestVersion: "sha-a4d36e9"
+    latestVersion: "2026.8.12"
   - id: wikiless
     path: apps/wikiless
     integration: basic
-    latestVersion: "2.0.0"
+    latestVersion: "0.1.3"
   - id: memos
     path: apps/memos
     integration: basic
-    latestVersion: "0.29.1"
+    latestVersion: "0.30.0"
+  - id: open-webui
+    path: apps/open-webui
+    integration: basic
+    latestVersion: "0.11.0"
   - id: immich
     path: apps/immich
     integration: basic
-    latestVersion: "2.7.5"
+    latestVersion: "3.1.0"
   - id: vaultwarden
     path: apps/vaultwarden
     integration: basic
-    latestVersion: "1.35.4"
+    latestVersion: "1.37.1"
   - id: paperless-ngx
     path: apps/paperless-ngx
     integration: basic
-    latestVersion: "2.16.3"
+    latestVersion: "3.0.5"
   - id: nextcloud
     path: apps/nextcloud
     integration: basic
-    latestVersion: "34.0.0"
+    latestVersion: "34.0.2"
   - id: jellyfin
     path: apps/jellyfin
     integration: basic
@@ -136,11 +145,11 @@ apps:
   - id: navidrome
     path: apps/navidrome
     integration: basic
-    latestVersion: "0.62.0"
+    latestVersion: "0.63.2"
   - id: audiobookshelf
     path: apps/audiobookshelf
     integration: basic
-    latestVersion: "2.35.1"
+    latestVersion: "2.36.0"
   - id: kavita
     path: apps/kavita
     integration: basic
@@ -148,7 +157,7 @@ apps:
   - id: stirling-pdf
     path: apps/stirling-pdf
     integration: basic
-    latestVersion: "2.12.0"
+    latestVersion: "2.14.3"
   - id: wallabag
     path: apps/wallabag
     integration: basic
@@ -156,65 +165,61 @@ apps:
   - id: actual-budget
     path: apps/actual-budget
     integration: basic
-    latestVersion: "26.6.0"
+    latestVersion: "26.8.1"
   - id: pingvin-share
     path: apps/pingvin-share
     integration: basic
-    latestVersion: "v1.13.0"
+    latestVersion: "1.22.1"
   - id: docuseal
     path: apps/docuseal
     integration: basic
-    latestVersion: "3.1.0"
+    latestVersion: "3.2.0"
   - id: vikunja
     path: apps/vikunja
     integration: basic
-    latestVersion: "2.3.0"
+    latestVersion: "2.5.0"
   - id: miniflux
     path: apps/miniflux
     integration: basic
-    latestVersion: "2.2.19"
+    latestVersion: "2.3.3"
   - id: linkwarden
     path: apps/linkwarden
     integration: basic
-    latestVersion: "v2.14.1"
+    latestVersion: "2.16.0"
   - id: mealie
     path: apps/mealie
     integration: basic
-    latestVersion: "v3.16.0"
-  - id: planka
-    path: apps/planka
-    integration: basic
-    latestVersion: "2.1.1"
+    latestVersion: "3.22.0"
   - id: hedgedoc
     path: apps/hedgedoc
     integration: basic
-    latestVersion: "1.10.5"
+    latestVersion: "1.11.1"
   - id: prowlarr
     path: apps/prowlarr
     integration: basic
-    latestVersion: "2.4.0"
+    latestVersion: "2.5.2.5491"
   - id: sonarr
     path: apps/sonarr
     integration: basic
-    latestVersion: "4.0.18"
+    latestVersion: "4.0.19.2979"
   - id: radarr
     path: apps/radarr
     integration: basic
-    latestVersion: "6.2.1"
+    latestVersion: "6.3.0.10514"
   - id: qbittorrent
     path: apps/qbittorrent
     integration: basic
-    latestVersion: "5.2.2"
+    latestVersion: "5.2.3"
   - id: jellyseerr
     path: apps/jellyseerr
     integration: basic
-    latestVersion: "2.7.3"
+    latestVersion: "3.2.0"
 
 integrations:
   - id: memos-youeye-id
     file: integrations/memos/youeye-id.yaml
     targetAppId: memos
-    latestVersion: "0.1.4"
+    latestVersion: "0.1.5"
   - id: jellyfin-youeye-id
     file: integrations/jellyfin/youeye-id.yaml
     targetAppId: jellyfin
@@ -230,7 +235,7 @@ integrations:
   - id: audiobookshelf-youeye-id
     file: integrations/audiobookshelf/youeye-id.yaml
     targetAppId: audiobookshelf
-    latestVersion: "0.1.3"
+    latestVersion: "0.1.4"
 
 updatePlans:
   - id: search-update-plan

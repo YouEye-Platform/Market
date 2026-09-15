@@ -60,3 +60,164 @@ test('catalog path: entries and apps/ folders are in sync (no orphans)', () => {
   assert.deepEqual(inCatalogNotOnDisk, [], `catalog path: entries with no apps/ folder: ${inCatalogNotOnDisk.join(', ')}`);
   assert.deepEqual(onDiskNotInCatalog, [], `apps/ folders not referenced by a catalog path: entry: ${onDiskNotInCatalog.join(', ')}`);
 });
+
+test('catalog latestVersion values match their app manifests', () => {
+  const problems = [];
+  for (const id of pathEntries) {
+    const manifest = readFileSync(join(appsDir, id, 'youeye-app.yaml'), 'utf8');
+    const manifestVersion = manifest.match(/^version:\s*["']?([^"'\s]+)["']?\s*$/m)?.[1];
+    const catalogVersion = catalog.match(
+      new RegExp(`^  - id: ${id}\\n(?:^    .*\\n)*?^    latestVersion: ["']?([^"'\\s]+)["']?\\s*$`, 'm'),
+    )?.[1];
+    if (!manifestVersion) problems.push(`${id}: manifest version missing`);
+    else if (!catalogVersion) problems.push(`${id}: catalog latestVersion missing`);
+    else if (catalogVersion !== manifestVersion) {
+      problems.push(`${id}: catalog ${catalogVersion} != manifest ${manifestVersion}`);
+    }
+  }
+  assert.deepEqual(problems, [], problems.join('; '));
+});
+
+function parseConfigStorage(text) {
+  const containers = new Map();
+  let logicalContainer = null;
+  let volume = null;
+  let inContainers = false;
+  let inVolumes = false;
+  let inConfigFiles = false;
+  let configFile = null;
+  const configFiles = [];
+
+  const finishConfigFile = () => {
+    if (configFile) configFiles.push(configFile);
+    configFile = null;
+  };
+
+  for (const line of text.split('\n')) {
+    if (/^containers:\s*$/.test(line)) {
+      inContainers = true;
+      inConfigFiles = false;
+      continue;
+    }
+    if (/^configFiles:\s*$/.test(line)) {
+      finishConfigFile();
+      inContainers = false;
+      inVolumes = false;
+      inConfigFiles = true;
+      continue;
+    }
+    if (/^[a-zA-Z]/.test(line) && !/^containers:|^configFiles:/.test(line)) {
+      finishConfigFile();
+      inContainers = false;
+      inVolumes = false;
+      inConfigFiles = false;
+    }
+
+    if (inContainers) {
+      const container = line.match(/^  - name:\s*["']?([a-z0-9-]+)["']?\s*$/)?.[1];
+      if (container) {
+        logicalContainer = container;
+        containers.set(container, []);
+        volume = null;
+        inVolumes = false;
+        continue;
+      }
+      if (/^    volumes:\s*$/.test(line)) {
+        inVolumes = true;
+        continue;
+      }
+      const volumeName = inVolumes && line.match(/^      - name:\s*["']?([a-z0-9-]+)["']?\s*$/)?.[1];
+      if (volumeName && logicalContainer) {
+        volume = { name: volumeName };
+        containers.get(logicalContainer).push(volume);
+        continue;
+      }
+      const mount = inVolumes && line.match(/^        container:\s*["']?([^"']+)["']?\s*$/)?.[1];
+      if (mount && volume) volume.path = mount;
+      const type = inVolumes && line.match(/^        type:\s*([a-z]+)\s*$/)?.[1];
+      if (type && volume) volume.type = type;
+    }
+
+    if (inConfigFiles) {
+      const firstField = line.match(/^  - (container|path):\s*["']?([^"']+)["']?\s*$/);
+      if (firstField) {
+        finishConfigFile();
+        configFile = { [firstField[1]]: firstField[2] };
+        continue;
+      }
+      const field = line.match(/^    (container|path):\s*["']?([^"']+)["']?\s*$/);
+      if (field && configFile) configFile[field[1]] = field[2];
+    }
+  }
+  finishConfigFile();
+  return { containers, configFiles };
+}
+
+test('generated config files target declared container storage', () => {
+  const problems = [];
+  for (const id of appFolders) {
+    const text = readFileSync(join(appsDir, id, 'youeye-app.yaml'), 'utf8');
+    if (!/^configFiles:\s*$/m.test(text)) continue;
+    const { containers, configFiles } = parseConfigStorage(text);
+    if (configFiles.length === 0) problems.push(`${id}: configFiles has no entries`);
+    for (const configFile of configFiles) {
+      const volumes = containers.get(configFile.container);
+      if (!volumes) {
+        problems.push(`${id}: config file targets unknown container ${configFile.container}`);
+        continue;
+      }
+      if (!configFile.path?.startsWith('/')) {
+        problems.push(`${id}: config file path is not absolute`);
+        continue;
+      }
+      if (configFile.path.startsWith('/var/lib/youeye/app-')) {
+        problems.push(`${id}: config file uses legacy host path ${configFile.path}`);
+      }
+      const volume = volumes.find(({ path: mount }) =>
+        configFile.path === mount || configFile.path.startsWith(`${mount?.replace(/\/$/, '')}/`),
+      );
+      if (!volume) {
+        problems.push(`${id}: ${configFile.container}:${configFile.path} is outside ${volumes.map(({ path }) => path).join(', ')}`);
+      } else if (volume.type === 'cache') {
+        problems.push(`${id}: config file targets unprovisioned cache volume ${volume.name}`);
+      }
+    }
+    if (/^\s+host:\s*["']?\/var\/lib\/youeye\/app-/m.test(text)) {
+      problems.push(`${id}: config-bearing manifest retains a legacy volume host path`);
+    }
+  }
+  assert.deepEqual(problems, [], problems.join('; '));
+});
+
+test('native app repos use public YouEye-Platform source identities and pinned source destinations', () => {
+  const expected = new Map([
+    ['wiki', 'YouEye-Platform/YE-App-Wiki'],
+    ['search', 'YouEye-Platform/YE-App-Search'],
+    ['notes', 'YouEye-Platform/YE-App-Notes'],
+    ['cinema', 'YouEye-Platform/YE-App-Cinema'],
+    ['weather', 'YouEye-Platform/YE-App-Weather'],
+    ['translate', 'YouEye-Platform/YE-App-Translate'],
+  ]);
+  const entries = new Map();
+  let inApps = false;
+  let current = null;
+  for (const line of catalog.split('\n')) {
+    if (/^apps:\s*$/.test(line)) { inApps = true; continue; }
+    if (inApps && /^[a-zA-Z]/.test(line)) break;
+    if (!inApps) continue;
+    const id = line.match(/^  - id:\s*([a-z0-9-]+)\s*$/)?.[1];
+    if (id) { if (current) entries.set(current.id, current); current = { id }; continue; }
+    const field = line.match(/^    (repo|branch|manifest|integration):\s*([^\s]+)\s*$/);
+    if (field && current) current[field[1]] = field[2];
+  }
+  if (current) entries.set(current.id, current);
+  const problems = [];
+  for (const [id, repo] of expected) {
+    const entry = entries.get(id) ?? {};
+    if (entry.repo !== repo) problems.push(`${id}: repo is ${entry.repo || 'missing'}, expected ${repo}`);
+    if (entry.branch !== 'main') problems.push(`${id}: branch is ${entry.branch || 'missing'}, expected main`);
+    if (entry.manifest !== 'youeye-app.yaml') problems.push(`${id}: manifest is ${entry.manifest || 'missing'}, expected youeye-app.yaml`);
+    if (entry.integration !== 'native') problems.push(`${id}: integration is ${entry.integration || 'missing'}, expected native`);
+  }
+  assert.deepEqual(problems, [], problems.join('; '));
+});

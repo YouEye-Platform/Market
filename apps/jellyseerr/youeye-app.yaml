@@ -1,32 +1,43 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.7.3"
+version: "3.2.0"
+forwardAuth: enabled
 
 metadata:
   id: "jellyseerr"
-  name: "Jellyseerr"
-  description: "Media request and discovery manager for Jellyfin"
+  name: "Seerr"
+  description: "Media request and discovery manager for Jellyfin, Plex, and Emby"
   icon: "popcorn"
+  iconUrl: "icon.png"
   category: "media"
-  website: "https://docs.jellyseerr.dev"
-  developer: "Fallenbagel & contributors"
+  website: "https://docs.seerr.dev"
+  developer: "Seerr Team & contributors"
   license: "MIT"
-  sourceCode: "https://github.com/fallenbagel/jellyseerr"
-  support: "https://github.com/fallenbagel/jellyseerr/discussions"
-  docs: "https://docs.jellyseerr.dev"
+  sourceCode: "https://github.com/seerr-team/seerr"
+  support: "https://github.com/seerr-team/seerr/discussions"
+  docs: "https://docs.seerr.dev"
   tagline: "Let your users request the media they want"
-  tags: ["media", "requests", "discovery", "jellyfin", "arr"]
+  tags: ["media", "requests", "discovery", "jellyfin", "plex", "emby", "arr"]
   defaultSubdomain: "jellyseerr"
 
 detail:
+  releaseNotes: |
+    Seerr 3.2.0 is the supported successor to Jellyseerr. It adds collection
+    blocklists, more resilient discovery, additional languages, improved
+    Jellyfin imports and scans, safer request failure handling, and extensive
+    authentication, settings, request, proxy, and migration fixes.
   longDescription: |
-    Jellyseerr is a free, open-source request-management and media-discovery tool built to
-    work with Jellyfin. Users browse movies and TV shows, request what they want to watch,
-    and Jellyseerr hands the request to Sonarr or Radarr to download and add it to the
-    library automatically. Admins get approval workflows, per-user quotas, and a single
-    place to see what everyone is asking for.
-  screenshots: []
+    Seerr is the maintained successor to Jellyseerr and Overseerr: a free, open-source
+    request-management and media-discovery tool for Jellyfin, Plex, and Emby. Users browse
+    movies and TV shows, request what they want to watch, and Seerr hands approved requests
+    to Sonarr or Radarr. Administrators get approval workflows, granular permissions,
+    quotas, availability scans, and one place to manage every request.
+  screenshots:
+    - path: "screenshots/platform-admin-request-3.2.0.png"
+      caption: "Platform administrator reviewing an approved public-domain movie request"
+    - path: "screenshots/standard-user-request-3.2.0.png"
+      caption: "Standard user independently requesting a public-domain movie"
 
 database:
   mode: none
@@ -35,17 +46,16 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/fallenbagel/jellyseerr:2.7.3"
+    image: "ghcr.io/seerr-team/seerr@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad"
     port: 5055
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/app/config"
-        type: config
+        type: data
     healthCheck:
       type: "http"
-      path: "/api/v1/status"
+      path: "/api/v1/settings/public"
       timeout: 120000
 
 wants:
@@ -63,4 +73,21 @@ wants:
     scope: service
 
 env_mapping:
+  LOG_LEVEL: "info"
+  # The platform's scoped service-network helper configures split DNS with
+  # resolvectl after DHCP. Alpine uses udhcpc without systemd-resolved, so put
+  # the compatibility shim below ahead of the image PATH.
+  PATH: "/app/config/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  PORT: "5055"
   TZ: "Etc/UTC"
+
+configFiles:
+  - container: "main"
+    path: "/app/config/bin/resolvectl"
+    permission: "0o755"
+    directoryPermission: "0o755"
+    template: |
+      #!/bin/sh
+      # Alpine's udhcpc already updates the container resolver. This command
+      # exists only so YouEye's systemd-resolved integration hook is portable.
+      exit 0

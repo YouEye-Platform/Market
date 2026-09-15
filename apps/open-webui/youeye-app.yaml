@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: app
+integration: basic
+version: "0.11.0"
+
+metadata:
+  id: "open-webui"
+  name: "Open WebUI"
+  description: "A polished chat workspace for your YouEye AI models"
+  icon: "message-circle"
+  iconUrl: "icon.svg"
+  category: "ai"
+  website: "https://openwebui.com"
+  developer: "Open WebUI contributors"
+  # The selected v0.11.0 release uses the Open WebUI License, including branding conditions.
+  # https://github.com/open-webui/open-webui/blob/v0.11.0/LICENSE
+  license: "Open WebUI License"
+  sourceCode: "https://github.com/open-webui/open-webui"
+  support: "https://github.com/open-webui/open-webui/discussions"
+  docs: "https://docs.openwebui.com"
+  tagline: "Chat with the model group selected in YouEye AI Settings"
+  tags: ["ai", "chat", "openai-compatible", "models"]
+  defaultSubdomain: "chat"
+
+detail:
+  screenshots:
+    - path: "screenshots/platform-admin-chat-0.11.0.png"
+      caption: "Open WebUI chat ready for a YouEye platform administrator"
+    - path: "screenshots/standard-user-chat-0.11.0.png"
+      caption: "Open WebUI chat ready for a standard YouEye ID user"
+  releaseNotes: |
+    Open WebUI 0.11.0 is integrated with YouEye AI Settings and YouEye ID.
+    Each installation can receive its own Pointer instance and selected model
+    group while Open WebUI's own provider controls remain available.
+  longDescription: |
+    Open WebUI is a private, self-hosted AI chat workspace. When Use AI Settings is enabled,
+    YouEye creates a dedicated Pointer connection for this installation and makes the selected
+    model group's aliases and models available immediately. Open WebUI's own provider controls
+    remain available for any additional providers you choose to configure later.
+
+capabilities:
+  ai_api: true
+
+database:
+  mode: none
+
+secrets:
+  - name: "webui_secret_key"
+    file: ".webui_secret_key"
+    generator: "secretKey"
+    length: 64
+
+containers:
+  - name: "main"
+    type: oci
+    primary: true
+    image: "ghcr.io/open-webui/open-webui@sha256:72c0ba641ba75e7aa52655cb242570906ececd09b1140fb736483038a22b3228"
+    port: 8080
+    network: internet
+    volumes:
+      - name: data
+        container: "/app/backend/data"
+        type: data
+    healthCheck:
+      type: "http"
+      path: "/health"
+      timeout: 300000
+
+sso:
+  type: oauth2
+  callback_path: /oauth/oidc/callback
+  setup:
+    method: env
+  redirectUris:
+    - url: "${install.url}/oauth/oidc/callback"
+
+env_mapping:
+  WEBUI_URL: "${app.url}"
+  WEBUI_SECRET_KEY: "${secrets.webui_secret_key}"
+  ENABLE_SIGNUP: "false"
+  ENABLE_OAUTH_SIGNUP: "true"
+  DEFAULT_USER_ROLE: "user"
+  BYPASS_MODEL_ACCESS_CONTROL: "true"
+  OAUTH_PROVIDER_NAME: "${identity.name}"
+  OAUTH_CLIENT_ID: "${sso.client_id}"
+  OAUTH_CLIENT_SECRET: "${sso.client_secret}"
+  OPENID_PROVIDER_URL: "${sso.discovery_url}"
+  OPENID_REDIRECT_URI: "${app.url}/oauth/oidc/callback"
+  OAUTH_SCOPES: "openid email profile"
+  ENABLE_OLLAMA_API: "false"
+  ENABLE_OPENAI_API: "true"
+  OPENAI_API_BASE_URL: "${ai.openaiBaseUrl}"
+  OPENAI_API_KEY: "${ai.apiKey}"
+  DEFAULT_MODELS: "${ai.defaultModel}"
+  TASK_MODEL_EXTERNAL: "${ai.defaultModel}"
+  SCARF_NO_ANALYTICS: "true"
+  DO_NOT_TRACK: "true"
+  ANONYMIZED_TELEMETRY: "false"
