@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "3.1.0"
+version: "3.2.0"
 
 metadata:
   id: "docuseal"
@@ -10,19 +10,30 @@ metadata:
   icon: "pen-tool"
   iconUrl: "icon.svg"
   category: "productivity"
-  website: "https://www.docuseal.co"
+  website: "https://www.docuseal.com"
+  developer: "DocuSeal LLC and contributors"
+  license: "AGPL-3.0-only"
+  sourceCode: "https://github.com/docusealco/docuseal"
+  support: "https://github.com/docusealco/docuseal/issues"
+  docs: "https://www.docuseal.com/docs"
+  tagline: "Create, fill, and sign documents on your own server"
   tags: ["documents", "signing", "pdf", "forms"]
   defaultSubdomain: "sign"
 
 detail:
+  releaseNotes: |
+    DocuSeal 3.2.0 improves date and time formats, fixes MySQL migrations,
+    and includes bug fixes, performance work, and security improvements.
   longDescription: |
     DocuSeal is an open-source platform for digital document signing. Create fillable PDF
     forms, send them for signature, and track completion. Features include drag-and-drop
     form builder, multiple signature types, email notifications, API access, and audit
     trails.
   screenshots:
-    - path: "https://raw.githubusercontent.com/docusealco/docuseal/master/app/assets/images/logo.svg"
-      caption: "DocuSeal document signing"
+    - path: "screenshots/platform-admin-template-3.2.0.png"
+      caption: "Platform administrator creating an accepted signing template"
+    - path: "screenshots/standard-user-signing-3.2.0.png"
+      caption: "Standard platform user completing an independent signing journey"
 
 capabilities:
   smtp: true
@@ -40,24 +51,23 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/docuseal/docuseal:3.1.0"
+    image: "docker.io/docuseal/docuseal@sha256:50ed54743542a86c7bb97bea06fbddae619cbd3273df9589af44cac318f0f774"
     port: 3000
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: data
     healthCheck:
       type: "http"
-      path: "/"
+      path: "/up"
       timeout: 300000
 
 # NOTE: DocuSeal SSO/SAML is a Pro/Enterprise feature — the OSS image has NO external
-# IdP login, so DocuSeal keeps local accounts (first registered user = admin). Outbound
-# email (signature requests, reminders, completion notices) is routed through the
-# platform SMTP relay below. Document-event webhooks can be added later via DocuSeal's
-# admin UI (they are stored in the DB, not configurable by env).
+# IdP login and its self-hosted user model exposes only the administrator role. Platform
+# forward-auth still restricts access to YouEye accounts, while DocuSeal keeps a separate
+# local login for each app user. Outbound email is routed through the platform SMTP relay.
+# Document-event webhooks can be added later in DocuSeal's admin UI.
 env_mapping:
   HOST: "${app.fqdn}"
   FORCE_SSL: "true"
@@ -66,5 +76,6 @@ env_mapping:
   SMTP_PORT: "${smtp.port}"
   SMTP_USERNAME: "${smtp.user}"
   SMTP_PASSWORD: "${smtp.password}"
+  SMTP_FROM: "${smtp.from}"
   SMTP_AUTHENTICATION: "plain"
   SMTP_ENABLE_STARTTLS: "true"

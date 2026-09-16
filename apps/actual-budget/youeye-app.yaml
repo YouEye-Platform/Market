@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "26.6.0"
+version: "26.8.1"
 
 metadata:
   id: "actual-budget"
@@ -11,18 +11,30 @@ metadata:
   iconUrl: "icon.svg"
   category: "productivity"
   website: "https://actualbudget.org"
+  developer: "Actual Budget contributors"
+  license: "MIT"
+  sourceCode: "https://github.com/actualbudget/actual"
+  support: "https://github.com/actualbudget/actual/issues"
+  docs: "https://actualbudget.org/docs/"
+  tagline: "A private, local-first envelope budget for every device"
   tags: ["budget", "finance", "money", "personal-finance"]
   defaultSubdomain: "budget"
 
 detail:
+  releaseNotes: |
+    Actual Budget 26.8.1 is the current hotfix release. It resolves performance
+    regressions reported in 26.8.0 and includes additional reliability fixes
+    across the server and responsive budgeting client.
   longDescription: |
     Actual Budget is a super fast, privacy-focused app for managing your finances. Uses
     envelope-style budgeting to help you track spending, plan ahead, and stay on top of
     your money. Features include bank sync, powerful reports, custom rules, and a responsive
     interface.
   screenshots:
-    - path: "https://raw.githubusercontent.com/actualbudget/actual/master/packages/desktop-client/public/static/app-preview.png"
-      caption: "Actual Budget overview"
+    - path: "screenshots/platform-admin-budget.png"
+      caption: "Platform administrator creating and reviewing an envelope budget"
+    - path: "screenshots/standard-user-budget.png"
+      caption: "Standard user working in an independently isolated budget file"
 
 database:
   mode: none
@@ -31,12 +43,11 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/actualbudget/actual-server:26.6.0"
+    image: "docker.io/actualbudget/actual-server@sha256:6478d9ddfc0924479c09e6699c205e354c6f2216dfe7de3c0fb7b590d6edcdc5"
     port: 5006
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: data
     healthCheck:

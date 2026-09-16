@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "34.0.0"
+version: "34.0.2"
 
 metadata:
   id: "nextcloud"
@@ -21,13 +21,19 @@ metadata:
   defaultSubdomain: "cloud"
 
 detail:
+  releaseNotes: |
+    Nextcloud 34.0.2 fresh-install manifest with immutable Nextcloud and Valkey
+    images. The official entrypoint owns first-install configuration while
+    YouEye supplies trusted-domain, public URL, SMTP, and identity settings.
   longDescription: |
     Nextcloud is a suite of client-server software for creating and using file hosting services.
     Features file sync, calendars, contacts, mail, talk, office document editing, and hundreds
     of community apps.
   screenshots:
-    - path: "https://raw.githubusercontent.com/nextcloud/screenshots/master/files-tab.png"
-      caption: "Nextcloud file manager"
+    - path: "screenshots/admin-files.png"
+      caption: "Administrator file workspace with representative acceptance data"
+    - path: "screenshots/user-files.png"
+      caption: "A separate standard user's isolated Nextcloud file workspace"
 
 capabilities:
   smtp: true
@@ -55,17 +61,16 @@ credentials:
 containers:
   - name: "valkey"
     type: oci
-    image: "docker.io/valkey/valkey:8-alpine"
+    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
 
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/library/nextcloud:34.0.0-apache"
+    image: "docker.io/library/nextcloud@sha256:3323e178371b1b0d03f9b3fdbe1831ff78335f07f25116d0d598048ce459e329"
     port: 80
     network: internet
     volumes:
       - name: html
-        host: "/var/lib/youeye/app-${app.id}/html"
         container: "/var/www/html"
         type: data
     healthCheck:
@@ -84,6 +89,7 @@ env_mapping:
   NEXTCLOUD_TRUSTED_PROXIES: "10.76.0.0/16"
   OVERWRITEPROTOCOL: "https"
   OVERWRITEHOST: "${app.fqdn}"
+  OVERWRITECLIURL: "https://${app.fqdn}"
   REDIS_HOST: "${containers.valkey.internal_host}"
   REDIS_PORT: "6379"
   SMTP_HOST: "${smtp.host}"
@@ -92,6 +98,25 @@ env_mapping:
   SMTP_PASSWORD: "${smtp.password}"
   MAIL_FROM_ADDRESS: "${smtp.from}"
   SMTP_SECURE: "tls"
+
+# The official entrypoint consumes the domain env mapping on first install.
+# After a server URL change, keep config.php aligned through occ without
+# pre-creating /var/www/html/config (which blocks Nextcloud's bootstrap), then
+# flush Valkey's persisted OIDC discovery cache.
+reconfigure:
+  commands:
+    - container: main
+      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set trusted_domains 0 --value=localhost"'
+    - container: main
+      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set trusted_domains 1 --value=''$OVERWRITEHOST''"'
+    - container: main
+      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwritehost --value=''$OVERWRITEHOST''"'
+    - container: main
+      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwriteprotocol --value=https"'
+    - container: main
+      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwrite.cli.url --value=''https://$OVERWRITEHOST''"'
+    - container: valkey
+      command: "valkey-cli FLUSHALL"
 
 uninstall:
   dropSharedDatabase: true

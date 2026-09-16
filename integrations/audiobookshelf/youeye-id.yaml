@@ -1,6 +1,6 @@
 apiVersion: v1
 kind: integration
-version: "0.1.3"
+version: "0.1.4"
 type: identity
 recommended: true
 installByDefault: true
@@ -17,7 +17,7 @@ metadata:
 target:
   appId: "audiobookshelf"
   appName: "Audiobookshelf"
-  version: "2.35.x"
+  version: "2.36.x"
 
 permissions:
   - "identity:oauth-client:create"

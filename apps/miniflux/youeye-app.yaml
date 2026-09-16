@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.2.19"
+version: "2.3.3"
 
 metadata:
   id: "miniflux"
@@ -11,18 +11,30 @@ metadata:
   iconUrl: "icon.svg"
   category: "productivity"
   website: "https://miniflux.app"
+  developer: "Frédéric Guillot and contributors"
+  license: "Apache-2.0"
+  sourceCode: "https://github.com/miniflux/v2"
+  support: "https://github.com/miniflux/v2/issues"
+  docs: "https://miniflux.app/docs/"
+  tagline: "A fast, focused feed reader without distractions"
   tags: ["rss", "news", "feeds", "minimalist"]
   defaultSubdomain: "feeds"
 
 detail:
+  releaseNotes: |
+    Miniflux 2.3.3 adds feed and entry language detection, improves screen-reader
+    semantics, discovers feeds offered by GitHub pages, reloads renewed TLS
+    certificates on SIGHUP, and improves response-compression compatibility.
   longDescription: |
     Miniflux is a minimalist and opinionated feed reader. Built with Go, it's fast,
     lightweight, and focused on simplicity. Features include keyboard shortcuts, automatic
     HTTPS detection, content scraping for truncated feeds, legacy reader API compatibility,
     integration with read-it-later services, and a clean dark mode.
   screenshots:
-    - path: "https://raw.githubusercontent.com/miniflux/logo/master/icon.svg"
-      caption: "Miniflux feed reader"
+    - path: "screenshots/platform-admin-feed.png"
+      caption: "Platform administrator reading the current Miniflux release feed"
+    - path: "screenshots/standard-user-subscriptions.png"
+      caption: "Standard user managing an independently subscribed release feed"
 
 database:
   mode: shared
@@ -48,7 +60,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/miniflux/miniflux:2.2.19"
+    image: "docker.io/miniflux/miniflux@sha256:49d7b60987616387c306a8023087b31f2c9b7b21288b523026cb04058e8b6dbb"
     port: 8080
     network: internet
     healthCheck:
@@ -75,7 +87,9 @@ env_mapping:
   OAUTH2_CLIENT_ID: "${sso.client_id}"
   OAUTH2_CLIENT_SECRET: "${sso.client_secret}"
   OAUTH2_REDIRECT_URL: "${app.url}/oauth2/oidc/callback"
-  OAUTH2_OIDC_DISCOVERY_ENDPOINT: "${sso.discovery_url}"
+  # Miniflux passes this value to go-oidc NewProvider(), which expects an
+  # issuer and performs discovery itself despite the environment key's name.
+  OAUTH2_OIDC_DISCOVERY_ENDPOINT: "${sso.issuer}"
   OAUTH2_USER_CREATION: "1"
 
 uninstall:

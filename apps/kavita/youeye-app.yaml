@@ -11,36 +11,57 @@ metadata:
   iconUrl: "icon.svg"
   category: "media"
   website: "https://www.kavitareader.com"
+  developer: "Kavita project and contributors"
+  license: "GPL-3.0"
+  sourceCode: "https://github.com/Kareadita/Kavita"
+  support: "https://github.com/Kareadita/Kavita/issues"
+  docs: "https://wiki.kavitareader.com"
+  tagline: "Your digital reading library, on every device"
   tags: ["reading", "manga", "comics", "ebooks", "library"]
   defaultSubdomain: "kavita"
 
 detail:
+  releaseNotes: |
+    Kavita 0.9.0.2 is a critical security hotfix for CVE-2026-47202,
+    which affects every earlier release. It also strengthens OpenID Connect
+    validation and includes the fixes delivered throughout the 0.9 release.
   longDescription: |
     Kavita is a fast, feature-rich, cross-platform reading server. Supports manga, comics,
     and ebooks in multiple formats (CBZ, CBR, ZIP, EPUB, PDF). Features include reading
     progress tracking, library management, metadata handling, OPDS support, and a responsive
     web reader for personal reading libraries.
   screenshots:
-    - path: "https://raw.githubusercontent.com/Kareadita/Kavita/develop/Logo/kavita.svg"
-      caption: "Kavita reading server"
+    - path: "screenshots/platform-admin-reader-0.9.0.2.png"
+      caption: "Platform administrator reading the accepted public-domain ebook"
+    - path: "screenshots/standard-user-reader-0.9.0.2.png"
+      caption: "Standard user reading the shared public-domain library"
 
 database:
   mode: none
 
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin"
+    passwordSecret: "admin_password"
+
 containers:
-  - name: "main"
+  - name: "kavita"
     type: oci
-    primary: true
-    image: "docker.io/jvmilazz0/kavita:0.9.0.2"
+    image: "docker.io/jvmilazz0/kavita@sha256:ca6af7a18d7124d014702983c2364e485294f808c1552e9555f2595b7cda7982"
+    command: "/bin/bash /kavita/config/youeye-entrypoint.sh"
     port: 5000
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/kavita/config"
         type: config
       - name: library
-        host: "/var/lib/youeye/app-${app.id}/library"
         container: "/manga"
         type: media
     healthCheck:
@@ -48,26 +69,153 @@ containers:
       path: "/api/health"
       timeout: 120000
 
+  # Keep the primary gateway after Kavita so its install-time health check also
+  # proves the reverse-proxy path, rather than only proving static metadata.
+  - name: "main"
+    type: oci
+    primary: true
+    image: "docker.io/library/caddy@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648"
+    port: 5000
+    network: internet
+    environment:
+      # This is intentionally container-local rather than global env_mapping.
+      # The platform reserves global containers.* mappings for inter-app bridges.
+      YOUEYE_KAVITA_HOST: "${containers.kavita.internal_host}"
+    volumes:
+      - name: gateway-config
+        container: "/etc/caddy"
+        type: config
+    healthCheck:
+      type: "http"
+      path: "/api/health"
+      timeout: 180000
+
 sso:
   type: oauth2
-  callback_path: /api/account/oidc-callback
+  callback_path: /signin-oidc
   setup:
     method: env
   redirectUris:
-    - url: "${install.url}/api/account/oidc-callback"
+    - url: "${install.url}/signin-oidc"
 
-# Bumped to 0.9.0.2 (CVE-2026-47202). Kavita reads OIDC settings from
-# config/appsettings.json; we supply them via ASP.NET Core env overrides
-# (OpenIdConnectSettings__*), which the engine resolves AFTER the OAuth client is created
-# (configFiles are written too early to carry ${sso.*}). ProvisionAccounts auto-creates
-# users; SyncUserSettings is off so login isn't gated on a 'login' role (YouEye-ID doesn't
-# emit one). First user = admin. NOTE: if this Kavita build reads OIDC strictly from disk
-# and ignores env overrides, the values must instead be rendered into appsettings.json
-# after OAuth-client creation (an engine change) — validate during testing.
+# Kavita reads these values directly from config/appsettings.json during startup,
+# rather than through ASP.NET environment overrides. Its .NET OIDC client also
+# rejects the platform's internal HTTP token and key endpoints when they appear in
+# discovery. The app-owned Caddy gateway therefore serves an HTTPS metadata URL
+# with public back-channel endpoints while retaining the platform's internal issuer
+# for exact token validation. It proxies every application request to Kavita.
 env_mapping:
-  OpenIdConnectSettings__Authority: "${sso.issuer}"
-  OpenIdConnectSettings__ClientId: "${sso.client_id}"
-  OpenIdConnectSettings__Secret: "${sso.client_secret}"
-  OpenIdConnectSettings__ProvisionAccounts: "true"
-  OpenIdConnectSettings__SyncUserSettings: "false"
-  OpenIdConnectSettings__RequireVerifiedEmail: "false"
+  YOUEYE_ADMIN_PASSWORD: "${secrets.admin_password}"
+  YOUEYE_OIDC_AUTHORITY: "${app.url}/youeye-oidc/"
+  YOUEYE_OIDC_CLIENT_ID: "${sso.client_id}"
+  YOUEYE_OIDC_CLIENT_SECRET: "${sso.client_secret}"
+  YOUEYE_OIDC_ISSUER: "${sso.issuer}"
+  YOUEYE_IDENTITY_EXTERNAL_URL: "${identity.externalUrl}"
+  YOUEYE_SSO_SLUG: "${sso.slug}"
+
+configFiles:
+  - container: "main"
+    path: "/etc/caddy/Caddyfile"
+    permission: "0o600"
+    directoryPermission: "0o700"
+    template: |
+      {
+        admin off
+        auto_https off
+      }
+
+      :5000 {
+        @oidc_metadata path /youeye-oidc/.well-known/openid-configuration
+        header @oidc_metadata Content-Type application/json
+        respond @oidc_metadata `{"issuer":"{$YOUEYE_OIDC_ISSUER}","authorization_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/authorize/","token_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/token","userinfo_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/userinfo","end_session_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/{$YOUEYE_SSO_SLUG}/end-session/","introspection_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/introspect/","revocation_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/revoke/","jwks_uri":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/oauth/jwks","response_types_supported":["code"],"id_token_signing_alg_values_supported":["RS256"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post"],"subject_types_supported":["public"],"scopes_supported":["openid","profile","email","groups"]}` 200
+
+        reverse_proxy {$YOUEYE_KAVITA_HOST}:5000
+      }
+
+  - container: "kavita"
+    path: "/kavita/config/youeye-entrypoint.sh"
+    permission: "0o700"
+    directoryPermission: "0o700"
+    template: |
+      #!/bin/bash
+      set -euo pipefail
+
+      settings=/kavita/config/appsettings.json
+      if [ ! -f "$settings" ]; then
+        cp /tmp/config/appsettings.json "$settings"
+      fi
+
+      perl -e '
+        sub json_quote {
+          my $value = shift // "";
+          $value =~ s/\\/\\\\/g;
+          $value =~ s/"/\\"/g;
+          $value =~ s/\x08/\\b/g;
+          $value =~ s/\x0c/\\f/g;
+          $value =~ s/\n/\\n/g;
+          $value =~ s/\r/\\r/g;
+          $value =~ s/\t/\\t/g;
+          $value =~ s/([\x00-\x07\x0b\x0e-\x1f])/sprintf("\\u%04x", ord($1))/eg;
+          return "\"$value\"";
+        }
+        my $path = shift;
+        local $/;
+        open my $input, "<", $path or die "unable to read appsettings";
+        my $settings = <$input>;
+        close $input;
+        $settings =~ s/,\s*"OpenIdConnectSettings"\s*:\s*\{.*?\}\s*(?=\})//s;
+        $settings =~ s/\s*\}\s*$// or die "invalid appsettings";
+        $settings .= ",\n  \"OpenIdConnectSettings\": {\n";
+        $settings .= "    \"Authority\": " . json_quote($ENV{YOUEYE_OIDC_AUTHORITY}) . ",\n";
+        $settings .= "    \"ClientId\": " . json_quote($ENV{YOUEYE_OIDC_CLIENT_ID}) . ",\n";
+        $settings .= "    \"Secret\": " . json_quote($ENV{YOUEYE_OIDC_CLIENT_SECRET}) . ",\n";
+        $settings .= "    \"CustomScopes\": []\n  }\n}\n";
+        my $temporary = "$path.tmp";
+        open my $output, ">", $temporary or die "unable to write appsettings";
+        print {$output} $settings;
+        close $output;
+        rename $temporary, $path or die "unable to replace appsettings";
+      ' "$settings"
+      chmod 600 "$settings"
+
+      bootstrap_admin() {
+        local attempt=0
+        while [ "$attempt" -lt 120 ]; do
+          if curl --fail --silent --output /dev/null http://127.0.0.1:5000/api/health; then
+            local payload
+            local status
+            payload=$(mktemp)
+            chmod 600 "$payload"
+            perl -e '
+              sub json_quote {
+                my $value = shift // "";
+                $value =~ s/\\/\\\\/g;
+                $value =~ s/"/\\"/g;
+                $value =~ s/\x08/\\b/g;
+                $value =~ s/\x0c/\\f/g;
+                $value =~ s/\n/\\n/g;
+                $value =~ s/\r/\\r/g;
+                $value =~ s/\t/\\t/g;
+                $value =~ s/([\x00-\x07\x0b\x0e-\x1f])/sprintf("\\u%04x", ord($1))/eg;
+                return "\"$value\"";
+              }
+              print "{\"username\":\"admin\",\"email\":\"admin@example.invalid\",\"password\":";
+              print json_quote($ENV{YOUEYE_ADMIN_PASSWORD});
+              print "}";
+            ' > "$payload"
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              --header 'Content-Type: application/json' --data-binary @"$payload" \
+              http://127.0.0.1:5000/api/Account/register || true)
+            rm -f "$payload"
+            if [ "$status" = "200" ] || [ "$status" = "400" ]; then
+              return 0
+            fi
+          fi
+          attempt=$((attempt + 1))
+          sleep 1
+        done
+        return 1
+      }
+
+      bootstrap_admin &
+      exec ./Kavita

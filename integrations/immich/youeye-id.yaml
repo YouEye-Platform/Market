@@ -1,6 +1,6 @@
 apiVersion: v1
 kind: integration
-version: "0.1.4"
+version: "0.1.5"
 type: identity
 recommended: true
 installByDefault: true
@@ -17,7 +17,7 @@ metadata:
 target:
   appId: "immich"
   appName: "Immich"
-  version: "2.7.x"
+  version: "3.1.x"
 
 permissions:
   - "identity:oauth-client:create"
@@ -87,6 +87,10 @@ sso:
               oauth.buttonText: "Login with ${identity.name}"
               oauth.autoRegister: true
               oauth.autoLaunch: false
+              # ${sso.issuer} is the Control Panel's app-network-only HTTP authority.
+              # Immich 3 uses openid-client 6, which rejects HTTP discovery unless this
+              # app-scoped switch is enabled. The browser-facing authorize/callback URLs
+              # remain HTTPS through Caddy; no process-wide TLS override is used.
               oauth.allowInsecureRequests: true
               oauth.roleClaim: "immich_role"
 

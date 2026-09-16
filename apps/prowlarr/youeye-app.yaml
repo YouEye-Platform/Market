@@ -1,17 +1,19 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.4.0"
+version: "2.5.2.5491"
+forwardAuth: enabled
 
 metadata:
   id: "prowlarr"
   name: "Prowlarr"
   description: "Indexer manager and proxy for the *arr media stack"
   icon: "radar"
+  iconUrl: "icon.svg"
   category: "media"
   website: "https://prowlarr.com"
   developer: "Team Prowlarr"
-  license: "GPL-3.0"
+  license: "GPL-3.0-only"
   sourceCode: "https://github.com/Prowlarr/Prowlarr"
   support: "https://wiki.servarr.com/prowlarr"
   docs: "https://wiki.servarr.com/prowlarr"
@@ -20,26 +22,40 @@ metadata:
   defaultSubdomain: "prowlarr"
 
 detail:
+  releaseNotes: |
+    Prowlarr 2.5.2.5491 improves HTTP connection handling with Happy
+    Eyeballs, avoids unnecessary DNS lookups for IP addresses, improves
+    indexer size precision, updates indexer definitions and categories, and
+    refreshes translations and core dependencies.
   longDescription: |
     Prowlarr is an indexer manager and proxy built on the popular *arr base. It integrates
     with Sonarr and Radarr to manage all of your torrent and Usenet indexers in one place —
     add an indexer once in Prowlarr and it syncs automatically to every connected app. No
     more configuring the same trackers over and over in each application.
-  screenshots: []
+  screenshots:
+    - path: "screenshots/platform-admin-public-domain-search-2.5.2.5491.png"
+      caption: "Platform administrator verifying a public-domain Torznab search"
+    - path: "screenshots/standard-profile-public-domain-search-2.5.2.5491.png"
+      caption: "Separate standard platform profile verifying the same indexer search"
 
 database:
   mode: none
+
+secrets:
+  - name: "api_key"
+    file: ".api_key"
+    generator: "secretKey"
+    length: 32
 
 containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/prowlarr:2.4.0.5397-ls151"
+    image: "docker.io/linuxserver/prowlarr@sha256:2f3d31307beba3ba2dd226d191f5f5c14ee3b4d8b49277c64683f5ed97083179"
     port: 9696
     network: internet
     volumes:
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/config"
         type: config
     healthCheck:
@@ -50,7 +66,7 @@ containers:
 # How the wire-runner reads this app's API key (for connection wiring).
 apiKey:
   file: "/config/config.xml"
-  pattern: "<ApiKey>([a-f0-9]+)</ApiKey>"
+  pattern: "<ApiKey>([^<]+)</ApiKey>"
 
 provides:
   - type: indexer
@@ -62,3 +78,27 @@ env_mapping:
   PUID: "0"
   PGID: "0"
   TZ: "Etc/UTC"
+
+# Prowlarr's External authentication mode delegates interactive access to the
+# platform's forward-auth boundary while preserving its API-key authentication
+# for service wiring with Sonarr and Radarr.
+configFiles:
+  - container: "main"
+    path: "/config/config.xml"
+    permission: "0o600"
+    directoryPermission: "0o700"
+    template: |
+      <Config>
+        <BindAddress>*</BindAddress>
+        <Port>9696</Port>
+        <SslPort>9697</SslPort>
+        <EnableSsl>False</EnableSsl>
+        <LaunchBrowser>False</LaunchBrowser>
+        <ApiKey>${secrets.api_key}</ApiKey>
+        <AuthenticationMethod>External</AuthenticationMethod>
+        <AuthenticationRequired>Enabled</AuthenticationRequired>
+        <Branch>master</Branch>
+        <LogLevel>info</LogLevel>
+        <UrlBase></UrlBase>
+        <InstanceName>Prowlarr</InstanceName>
+      </Config>

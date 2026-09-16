@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "v2.14.1"
+version: "2.16.0"
 
 metadata:
   id: "linkwarden"
@@ -11,17 +11,29 @@ metadata:
   iconUrl: "icon.svg"
   category: "productivity"
   website: "https://linkwarden.app"
+  developer: "Linkwarden contributors"
+  license: "AGPL-3.0"
+  sourceCode: "https://github.com/linkwarden/linkwarden"
+  support: "https://github.com/linkwarden/linkwarden/discussions"
+  docs: "https://docs.linkwarden.app/"
+  tagline: "Bookmarks evolved, preserved, and shared"
   tags: ["bookmarks", "links", "archive", "collections"]
   defaultSubdomain: "links"
 
 detail:
+  releaseNotes: |
+    Linkwarden 2.16.0 refreshes the web interface and search experience, adds a
+    system theme, supports PNG link banners, and extends the mobile clients with
+    self-signed certificate, custom-header, and re-preservation capabilities.
   longDescription: |
     Linkwarden is a collaborative bookmark manager that lets you collect, organize, and
     preserve web links. Features include automatic web page archiving (screenshots + PDFs),
     tag-based organization, collections, full-text search, and multi-user collaboration.
   screenshots:
-    - path: "https://raw.githubusercontent.com/linkwarden/linkwarden/main/assets/dashboard.png"
-      caption: "Linkwarden bookmark dashboard"
+    - path: "screenshots/platform-admin-library-2.16.0.png"
+      caption: "Platform administrator organizing an accepted bookmark collection"
+    - path: "screenshots/standard-user-library-2.16.0.png"
+      caption: "Standard user viewing an independently accepted bookmark library"
 
 database:
   mode: shared
@@ -42,17 +54,16 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "ghcr.io/linkwarden/linkwarden:v2.14.1"
+    image: "ghcr.io/linkwarden/linkwarden@sha256:d805877fb707d160b809027c302f84cfba11a248d7fdc12de90b4791f98e6b55"
     port: 3000
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data/data"
         type: data
     healthCheck:
       type: "http"
-      path: "/api/v1/health"
+      path: "/"
       timeout: 180000
 
 sso:
@@ -64,11 +75,16 @@ sso:
     - url: "${install.url}/api/v1/auth/callback/authentik"
 
 env_mapping:
-  NEXTAUTH_URL: "${app.url}"
+  NEXTAUTH_URL: "${app.url}/api/v1/auth"
   NEXTAUTH_SECRET: "${secrets.secret_key}"
   DATABASE_URL: "${database.dsn}"
+  NEXT_PUBLIC_CREDENTIALS_ENABLED: "false"
+  NEXT_PUBLIC_DISABLE_REGISTRATION: "true"
   NEXT_PUBLIC_AUTHENTIK_ENABLED: "true"
-  AUTHENTIK_ISSUER: "${sso.issuer}"
+  AUTHENTIK_CUSTOM_NAME: "${identity.name}"
+  # Linkwarden's Authentik provider appends the discovery path itself and
+  # requires this issuer without a trailing slash.
+  AUTHENTIK_ISSUER: "${identity.internalUrl}/application/o/youeye-app-${app.id}"
   AUTHENTIK_CLIENT_ID: "${sso.client_id}"
   AUTHENTIK_CLIENT_SECRET: "${sso.client_secret}"
 

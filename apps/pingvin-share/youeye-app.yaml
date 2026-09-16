@@ -1,48 +1,106 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "v1.13.0"
+version: "1.22.1"
 
 metadata:
   id: "pingvin-share"
-  name: "Pingvin Share"
+  name: "Pingvin Share X"
   description: "Lightweight file sharing with expiring links"
   icon: "share-2"
   iconUrl: "icon.svg"
   category: "utilities"
-  website: "https://github.com/stonith404/pingvin-share"
+  website: "https://smp46.github.io/pingvin-share-x/"
+  developer: "Pingvin Share X contributors"
+  license: "BSD-2-Clause"
+  sourceCode: "https://github.com/smp46/pingvin-share-x"
+  support: "https://github.com/smp46/pingvin-share-x/issues"
+  docs: "https://smp46.github.io/pingvin-share-x/"
+  tagline: "Secure, expiring file transfers from your own server"
   tags: ["files", "sharing", "upload", "transfer"]
   defaultSubdomain: "share"
 
 detail:
+  releaseNotes: |
+    Pingvin Share X 1.22.1 adds managed user shares, folder uploads,
+    customizable reverse-share URLs, upload progress estimates, and fixes
+    Chromium file-picker handling. This Market release moves to the maintained
+    community fork recommended by the archived original project.
   longDescription: |
-    Pingvin Share is a self-hosted file sharing platform. Create shareable links with
+    Pingvin Share X is a self-hosted file sharing platform. Create shareable links with
     password protection, expiration dates, and visitor limits. Features include drag-and-drop
     upload, QR code sharing, email notifications, and a clean mobile-friendly interface.
   screenshots:
-    - path: "https://raw.githubusercontent.com/stonith404/pingvin-share/main/docs/preview.png"
-      caption: "Pingvin Share upload interface"
+    - path: "screenshots/platform-admin-share-1.22.1.png"
+      caption: "Platform administrator managing an accepted file share"
+    - path: "screenshots/standard-user-share-1.22.1.png"
+      caption: "Standard user creating a share from an independent account"
 
 database:
   mode: none
+
+secrets:
+  - name: "admin_password"
+    file: ".admin_password"
+    generator: "password"
+    length: 24
+
+credentials:
+  - label: "Admin Account"
+    username: "admin@example.invalid"
+    passwordSecret: "admin_password"
 
 containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/stonith404/pingvin-share:v1.13.0"
+    image: "docker.io/smp46/pingvin-share-x@sha256:38480232d3ec26858e0313e09584b662fde356a32aaf83f6270f26c5414065ec"
+    command: >-
+      /bin/sh -lc 'chown 100:1000 /opt/app/config/config.yaml && exec sh /opt/app/scripts/docker/create-user.sh sh /opt/app/scripts/docker/entrypoint.sh'
     port: 3000
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/opt/app/backend/data"
         type: data
+      - name: images
+        container: "/opt/app/frontend/public/img"
+        type: data
+      - name: config
+        container: "/opt/app/config"
+        type: config
     healthCheck:
       type: "http"
       path: "/api/health"
       timeout: 120000
 
 env_mapping:
-  APP_URL: "${app.url}"
-  DATABASE_URL: "file:./data/pingvin-share.db"
+  CONFIG_FILE: "/opt/app/config/config.yaml"
+  # Prisma resolves this path relative to backend/prisma/schema.prisma.
+  DATABASE_URL: "file:../data/pingvin-share.db?connection_limit=1"
+  TRUST_PROXY: "true"
+  # The upstream entrypoint's Alpine adduser invocation prompts for a password
+  # when an unmapped UID is used. Reuse the image's non-root caddy account so
+  # Incus startup remains non-interactive while the app keeps a dedicated GID.
+  PUID: "100"
+  PGID: "1000"
+
+configFiles:
+  - container: "main"
+    path: "/opt/app/config/config.yaml"
+    permission: "0o600"
+    directoryPermission: "0o700"
+    template: |
+      general:
+        appName: "Pingvin Share X"
+        appUrl: "${app.url}"
+        secureCookies: "true"
+      share:
+        allowRegistration: "true"
+      initUser:
+        enabled: true
+        username: "admin"
+        email: "admin@example.invalid"
+        password: "${secrets.admin_password}"
+        isAdmin: true
+        ldapDN: ""

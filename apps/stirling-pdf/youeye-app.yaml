@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.12.0"
+version: "2.14.3"
 
 metadata:
   id: "stirling-pdf"
@@ -11,17 +11,29 @@ metadata:
   iconUrl: "icon.svg"
   category: "utilities"
   website: "https://stirlingpdf.io"
+  developer: "Stirling PDF Inc. and contributors"
+  license: "MIT with upstream proprietary component carve-outs"
+  sourceCode: "https://github.com/Stirling-Tools/Stirling-PDF"
+  support: "https://github.com/Stirling-Tools/Stirling-PDF/issues"
+  docs: "https://docs.stirlingpdf.com/"
+  tagline: "A private, self-hosted toolkit for everyday PDF work"
   tags: ["pdf", "documents", "tools", "converter"]
   defaultSubdomain: "pdf"
 
 detail:
+  releaseNotes: |
+    Stirling-PDF 2.14.3 fixes failures in merge, split, signing, crop, rotate,
+    search, and large-file workflows. It also improves concurrent processing,
+    temporary-file cleanup, and memory handling for demanding PDF operations.
   longDescription: |
     Stirling-PDF is a powerful, locally-hosted PDF manipulation tool. Merge, split, rotate,
     convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
     watermarking, page extraction, image-to-PDF, and many more operations.
   screenshots:
-    - path: "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/main/docs/stirling.png"
-      caption: "Stirling-PDF toolkit interface"
+    - path: "screenshots/platform-admin-toolkit-2.14.3.png"
+      caption: "Platform administrator completing an accepted PDF workflow"
+    - path: "screenshots/standard-user-toolkit-2.14.3.png"
+      caption: "Standard platform user completing an independent PDF workflow"
 
 database:
   mode: none
@@ -41,47 +53,39 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/stirlingtools/stirling-pdf:2.12.0"
+    image: "docker.io/stirlingtools/stirling-pdf@sha256:3b3670fce70b396ec56ba380a3cc7858e0abf83fe13f31c88f7737847763a396"
     port: 8080
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/usr/share/tessdata"
         type: data
       - name: config
-        host: "/var/lib/youeye/app-${app.id}/config"
         container: "/configs"
         type: config
+      - name: custom-files
+        container: "/customFiles"
+        type: data
+      - name: pipeline
+        container: "/pipeline"
+        type: data
     healthCheck:
       type: "http"
       path: "/api/v1/info/status"
       timeout: 120000
 
-sso:
-  type: oauth2
-  callback_path: /login/oauth2/code/authentik
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/login/oauth2/code/authentik"
-
-# Stirling-PDF only has user accounts when security/login is enabled (below).
-# OAuth2 users are auto-created as REGULAR users — there is no claim->admin mapping,
-# so the bootstrap admin must elevate users manually in Admin Settings. Network is
-# 'internet' (was 'isolated') because the backend must reach the identity provider's
-# token/JWKS endpoints to complete the OAuth2 code exchange.
+# Stirling-PDF only has user accounts when security/login is enabled. OAuth2/OIDC is
+# license-gated in 2.14.3, so this OSS fresh install deliberately uses local accounts
+# behind YouEye's platform forward-auth gate. The generated bootstrap administrator
+# can create independent regular users in Stirling-PDF's Admin Settings.
 env_mapping:
   DOCKER_ENABLE_SECURITY: "true"
   SECURITY_ENABLELOGIN: "true"
+  SECURITY_LOGINMETHOD: "normal"
   SYSTEM_DEFAULTLOCALE: "${platform.locale}"
   SECURITY_INITIALLOGIN_USERNAME: "admin"
   SECURITY_INITIALLOGIN_PASSWORD: "${secrets.admin_password}"
-  SECURITY_OAUTH2_ENABLED: "true"
-  SECURITY_OAUTH2_PROVIDER: "authentik"
-  SECURITY_OAUTH2_ISSUER: "${sso.issuer}"
-  SECURITY_OAUTH2_CLIENTID: "${sso.client_id}"
-  SECURITY_OAUTH2_CLIENTSECRET: "${sso.client_secret}"
-  SECURITY_OAUTH2_SCOPES: "openid profile email"
-  SECURITY_OAUTH2_USEASUSERNAME: "preferred_username"
-  SECURITY_OAUTH2_AUTOCREATEUSER: "true"
+  SECURITY_OAUTH2_ENABLED: "false"
+  SECURITY_OAUTH2_DEBUGLOGGING: "false"
+  SYSTEM_GOOGLEVISIBILITY: "false"
+  SHOW_SURVEY: "false"

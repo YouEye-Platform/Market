@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "1.35.4"
+version: "1.37.1"
 
 metadata:
   id: "vaultwarden"
@@ -21,12 +21,18 @@ metadata:
   defaultSubdomain: "vault"
 
 detail:
+  releaseNotes: |
+    Vaultwarden 1.37.1 fresh-install manifest with an immutable server image,
+    shared PostgreSQL storage, SMTP support, and native YouEye OpenID Connect
+    sign-in with PKCE.
   longDescription: |
     Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
     Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
   screenshots:
-    - path: "https://raw.githubusercontent.com/dani-garcia/vaultwarden/main/resources/vaultwarden-icon.svg"
-      caption: "Vaultwarden password vault"
+    - path: "screenshots/admin-secure-note.png"
+      caption: "Administrator vault with a representative secure note"
+    - path: "screenshots/user-vault.png"
+      caption: "A separate standard user's empty personal vault"
 
 capabilities:
   smtp: true
@@ -50,12 +56,11 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/vaultwarden/server:1.35.4"
+    image: "docker.io/vaultwarden/server@sha256:ebdfe70701c60ac0c28c697e787cea767d7972940b786037b29fe0d507f821e8"
     port: 80
     network: internet
     volumes:
       - name: data
-        host: "/var/lib/youeye/app-${app.id}/data"
         container: "/data"
         type: data
     healthCheck:
@@ -89,7 +94,14 @@ env_mapping:
   SSO_CLIENT_ID: "${sso.client_id}"
   SSO_CLIENT_SECRET: "${sso.client_secret}"
   SSO_PKCE: "true"
-  SSO_SCOPES: "openid email profile"
+  # Vaultwarden adds the mandatory openid scope itself; list only the extra scopes
+  # advertised by YouEye ID so the authorization request contains no duplicate value.
+  SSO_SCOPES: "email profile"
+  # The Control Panel stages its local root CA after the OCI health gate. Vaultwarden
+  # 1.37's reqwest startup now honors SSL_CERT_FILE immediately, so point it at the
+  # image's existing system bundle; the later CA injection updates this same bundle.
+  SSL_CERT_FILE: "/etc/ssl/certs/ca-certificates.crt"
+  REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   SMTP_HOST: "${smtp.host}"
   SMTP_PORT: "${smtp.port}"
   SMTP_USERNAME: "${smtp.user}"
