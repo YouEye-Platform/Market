@@ -3,7 +3,7 @@
   "assetInventorySha256": "sha256:39f6a9c2c1953becada5e947c9385b7c2031d78d41c4d91dd040f355eacc9a23",
   "catalog": {
     "appCount": 34,
-    "sha256": "sha256:4b69551005f3c82e48fc99460b7d4e4e668dceeae65dd3025020816f3d85b458"
+    "sha256": "sha256:3ff03cb50ad8fce84e02c9f533f0f6b06b650f961fa333682ccd5346476caaed"
   },
   "content": {
     "algorithm": "sha256",
@@ -139,7 +139,7 @@
       },
       {
         "path": "catalog.yaml",
-        "sha256": "sha256:4b69551005f3c82e48fc99460b7d4e4e668dceeae65dd3025020816f3d85b458"
+        "sha256": "sha256:3ff03cb50ad8fce84e02c9f533f0f6b06b650f961fa333682ccd5346476caaed"
       },
       {
         "path": "integrations/audiobookshelf/youeye-id.yaml",
@@ -182,14 +182,14 @@
         "sha256": "sha256:d1bfa6f37566601739d878738af62e4e023a35e25665bb28641e0b341bcdbafa"
       }
     ],
-    "sha256": "sha256:d5bd5e57056487842bae48a88e4b669e771b3f47bd1f86f3cfa99895ab44bd24"
+    "sha256": "sha256:f7f2d87ff318303847cdf9b972f28c5e32a04cd780e3df5fa6c40742650dd511"
   },
   "identity": "YouEye-Platform/Market",
   "provenance": {
     "destination": "catalog.yaml",
     "releaseBranch": "main",
-    "releaseTag": "catalog-v0.5.1",
+    "releaseTag": "catalog-v0.5.2",
     "repository": "YouEye-Platform/Market"
   },
-  "version": "0.5.1"
+  "version": "0.5.2"
 }

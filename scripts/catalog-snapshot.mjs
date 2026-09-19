@@ -20,12 +20,12 @@ const DESTINATIONS = ['public', 'forgejo-main', 'github-beta', 'github-main'];
 function releaseBranch(destination) { return destination === 'github-beta' ? 'beta' : 'main'; }
 function releaseTag(version, branch) { return `catalog-${branch === 'beta' ? 'beta-' : ''}v${version}`; }
 const NATIVE_APPS = new Map([
-  ['wiki', 'YouEye-Platform/YE-App-Wiki'],
-  ['search', 'YouEye-Platform/YE-App-Search'],
-  ['notes', 'YouEye-Platform/YE-App-Notes'],
-  ['cinema', 'YouEye-Platform/YE-App-Cinema'],
-  ['weather', 'YouEye-Platform/YE-App-Weather'],
-  ['translate', 'YouEye-Platform/YE-App-Translate'],
+  ['wiki', 'YouEye-Platform/Wiki'],
+  ['search', 'YouEye-Platform/Search'],
+  ['notes', 'YouEye-Platform/Notes'],
+  ['cinema', 'YouEye-Platform/Cinema'],
+  ['weather', 'YouEye-Platform/Weather'],
+  ['translate', 'YouEye-Platform/Translate'],
 ]);
 const ASSET_EXTENSIONS = new Set(['.png', '.svg', '.jpg', '.jpeg', '.webp']);
 const CONTENT_ROOT_FILES = new Set(['catalog.yaml', 'store.yaml', 'RETIRED.md', 'asset-provenance.json']);

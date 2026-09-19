@@ -80,3 +80,11 @@ Snapshot generation accepts `--branch main|beta` and otherwise preserves the
 existing declared release branch. The tag prefix follows that branch. Validation
 still verifies real Git refs and does not take branch identity from environment
 variables or a caller assertion.
+
+Native manifest references in Forgejo source use the configured private owner
+and repository names.
+The GitHub export maps these exact registered references to public repository
+names such as `YouEye-Platform/Wiki`; it projects the validator's expected names
+at the same time, before regenerating snapshot hashes. Release-profile fixtures
+exercise both representations. Do not put GitHub owners in the private catalog,
+or retain private `YE-App-` names in public references.

@@ -294,3 +294,9 @@ test('snapshot generation selects and preserves the declared release branch', t 
     assert.equal(cli('validate').status, 0);
   }
 });
+
+test('native references reject the historical nonexistent public repository names', () => {
+  const input = validInput();
+  input.catalogText = catalogText.replace(/repo: [^\n]*\/(?:YE-App-)?Wiki\n/, 'repo: YouEye-Platform/YE-App-Wiki\n');
+  assert.match(validate(input).join('\n'), /native wiki: repo must be/);
+});

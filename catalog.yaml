@@ -70,35 +70,36 @@ bundles:
     latestVersion: "0.1.0"
 
 apps:
-  # Native source references are public YouEye-Platform identities. They are source
+  # Native source references use this Forgejo source namespace. Public export maps
+  # registered repositories to their GitHub names. These are source
   # metadata only: Market does not manufacture or distribute native-app binaries.
   - id: wiki
-    repo: YouEye-Platform/YE-App-Wiki
+    repo: YouEye-Platform/Wiki
     branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: search
-    repo: YouEye-Platform/YE-App-Search
+    repo: YouEye-Platform/Search
     branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: notes
-    repo: YouEye-Platform/YE-App-Notes
+    repo: YouEye-Platform/Notes
     branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: cinema
-    repo: YouEye-Platform/YE-App-Cinema
+    repo: YouEye-Platform/Cinema
     branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: weather
-    repo: YouEye-Platform/YE-App-Weather
+    repo: YouEye-Platform/Weather
     branch: main
     manifest: youeye-app.yaml
     integration: native
   - id: translate
-    repo: YouEye-Platform/YE-App-Translate
+    repo: YouEye-Platform/Translate
     branch: main
     manifest: youeye-app.yaml
     integration: native

@@ -189,14 +189,14 @@ test('generated config files target declared container storage', () => {
   assert.deepEqual(problems, [], problems.join('; '));
 });
 
-test('native app repos use public YouEye-Platform source identities and pinned source destinations', () => {
+test('native app repos use the source provider identities and pinned manifest destinations', () => {
   const expected = new Map([
-    ['wiki', 'YouEye-Platform/YE-App-Wiki'],
-    ['search', 'YouEye-Platform/YE-App-Search'],
-    ['notes', 'YouEye-Platform/YE-App-Notes'],
-    ['cinema', 'YouEye-Platform/YE-App-Cinema'],
-    ['weather', 'YouEye-Platform/YE-App-Weather'],
-    ['translate', 'YouEye-Platform/YE-App-Translate'],
+    ['wiki', 'YouEye-Platform/Wiki'],
+    ['search', 'YouEye-Platform/Search'],
+    ['notes', 'YouEye-Platform/Notes'],
+    ['cinema', 'YouEye-Platform/Cinema'],
+    ['weather', 'YouEye-Platform/Weather'],
+    ['translate', 'YouEye-Platform/Translate'],
   ]);
   const entries = new Map();
   let inApps = false;
