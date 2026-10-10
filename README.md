@@ -102,3 +102,5 @@ deterministic snapshots and destination-specific release checks.
 YouEye source code is licensed under the [Business Source License 1.1](LICENSE). Each version converts to AGPL-3.0 after four years.
 
 The "YouEye" name and logo are trademarks. See [TRADEMARK.md](TRADEMARK.md) for usage guidelines.
+
+Private Dev catalogs reference native application `dev` manifests and use `catalog-dev-v` snapshots. Stable and Beta publication still requires native `main` manifests; a Dev snapshot cannot attest either public channel. Generate with `--branch dev` and validate a tagged Dev release with `--destination forgejo-dev` (six version positions).

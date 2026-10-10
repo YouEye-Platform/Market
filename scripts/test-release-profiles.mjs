@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 const root = fileURLToPath(new URL('..', import.meta.url));
 for (const [destination, branch, version, tag] of [
+  ['forgejo-dev', 'dev', '0.6.0.0.0.1', 'catalog-dev-v0.6.0.0.0.1'],
   ['forgejo-main', 'main', '0.6.0.0.1', 'catalog-v0.6.0.0.1'],
   ['github-beta', 'beta', '0.6.0.1', 'catalog-beta-v0.6.0.1'],
   ['github-main', 'main', '0.6.1', 'catalog-v0.6.1'],
@@ -14,6 +15,8 @@ for (const [destination, branch, version, tag] of [
   const run = (command, args) => execFileSync(command, args, { cwd: directory, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 8 * 1024 * 1024 });
   try {
     cpSync(root, directory, { recursive: true, filter: path => !path.split('/').some(p => ['.git', 'node_modules'].includes(p)) });
+    const catalogPath = join(directory, 'catalog.yaml');
+    writeFileSync(catalogPath, readFileSync(catalogPath, 'utf8').replace(/^    branch: (?:main|dev)$/gm, `    branch: ${branch === 'dev' ? 'dev' : 'main'}`));
     // Mirror Infra's registered bare-repository projection in public fixtures.
     if (destination.startsWith('github-')) {
       for (const file of ['catalog.yaml', 'scripts/catalog-snapshot.mjs', 'tests/catalog-structure.spec.mjs']) {

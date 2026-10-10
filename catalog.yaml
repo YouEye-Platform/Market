@@ -1,6 +1,5 @@
 apiVersion: v1
 kind: catalog
-
 # Market categories — drive the category pills, section headers, ordering, icons, and
 # fallback tile colours in the Market UI. Data-driven: adding/renaming a category is a
 # change here only (no Control Panel code change). `icon` is a Lucide icon name.
@@ -9,43 +8,42 @@ categories:
     label: Productivity
     icon: briefcase
     order: 1
-    tile: { bg: "#eff6ff", fg: "#2563eb" }
+    tile: {bg: "#eff6ff", fg: "#2563eb"}
   - id: media
     label: Media
     icon: clapperboard
     order: 2
-    tile: { bg: "#fdf2f8", fg: "#db2777" }
+    tile: {bg: "#fdf2f8", fg: "#db2777"}
   - id: search
     label: Search
     icon: search
     order: 3
-    tile: { bg: "#f5f3ff", fg: "#7c3aed" }
+    tile: {bg: "#f5f3ff", fg: "#7c3aed"}
   - id: social
     label: Social
     icon: users
     order: 4
-    tile: { bg: "#ecfeff", fg: "#0891b2" }
+    tile: {bg: "#ecfeff", fg: "#0891b2"}
   - id: utilities
     label: Utilities
     icon: wrench
     order: 5
-    tile: { bg: "#f0f9ff", fg: "#0284c7" }
+    tile: {bg: "#f0f9ff", fg: "#0284c7"}
   - id: downloaders
     label: Downloaders
     icon: download
     order: 6
-    tile: { bg: "#fff7ed", fg: "#ea580c" }
+    tile: {bg: "#fff7ed", fg: "#ea580c"}
   - id: ai
     label: AI
     icon: bot
     order: 7
-    tile: { bg: "#eef2ff", fg: "#4f46e5" }
+    tile: {bg: "#eef2ff", fg: "#4f46e5"}
   - id: other
     label: Other
     icon: package
     order: 99
-    tile: { bg: "#f4f4f5", fg: "#52525b" }
-
+    tile: {bg: "#f4f4f5", fg: "#52525b"}
 # Curation — editorial layout for the Market home (data-driven). `spotlight` is the
 # "Built for <server>" strip (ordered app ids); `collections` are extra labeled rows.
 # Apps listed here render in their curated strip instead of the generic category browse,
@@ -61,14 +59,12 @@ curation:
     - id: media-and-files
       label: Media & files
       apps: [jellyfin, immich, nextcloud]
-
 # Bundles — curated install-and-wire recipes (a bundle installs its members together and
 # arrives pre-wired). Each entry references bundles/<id>/bundle.yaml. NOT a container/app.
 bundles:
   - id: private-search
     file: bundles/private-search/bundle.yaml
     latestVersion: "0.1.0"
-
 apps:
   # Native source references use this Forgejo source namespace. Public export maps
   # registered repositories to their GitHub names. These are source
@@ -215,7 +211,6 @@ apps:
     path: apps/jellyseerr
     integration: basic
     latestVersion: "3.2.0"
-
 integrations:
   - id: memos-youeye-id
     file: integrations/memos/youeye-id.yaml
@@ -237,13 +232,11 @@ integrations:
     file: integrations/audiobookshelf/youeye-id.yaml
     targetAppId: audiobookshelf
     latestVersion: "0.1.4"
-
 updatePlans:
   - id: search-update-plan
     appId: search
     file: updates/search/update-plan.yaml
     latestVersion: "0.1.0"
-
 system:
   - id: postgresql
     file: system/postgresql.yaml

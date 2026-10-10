@@ -215,7 +215,8 @@ test('native app repos use the source provider identities and pinned manifest de
   for (const [id, repo] of expected) {
     const entry = entries.get(id) ?? {};
     if (entry.repo !== repo) problems.push(`${id}: repo is ${entry.repo || 'missing'}, expected ${repo}`);
-    if (entry.branch !== 'main') problems.push(`${id}: branch is ${entry.branch || 'missing'}, expected main`);
+    const branch = JSON.parse(readFileSync(join(root, 'catalog-snapshot.json'), 'utf8')).provenance.releaseBranch === 'dev' ? 'dev' : 'main';
+    if (entry.branch !== branch) problems.push(`${id}: branch is ${entry.branch || 'missing'}, expected ${branch}`);
     if (entry.manifest !== 'youeye-app.yaml') problems.push(`${id}: manifest is ${entry.manifest || 'missing'}, expected youeye-app.yaml`);
     if (entry.integration !== 'native') problems.push(`${id}: integration is ${entry.integration || 'missing'}, expected native`);
   }

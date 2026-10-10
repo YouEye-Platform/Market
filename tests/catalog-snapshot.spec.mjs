@@ -22,7 +22,7 @@ function validInput() {
   return {
     root,
     catalogText,
-    snapshot: { ...structuredClone(snapshot), provenance: { ...snapshot.provenance, releaseBranch: 'main', releaseTag: `catalog-v${snapshot.version}` } },
+    snapshot: structuredClone(snapshot),
     inventory: structuredClone(inventory),
     assetProvenance: structuredClone(assetProvenance),
   };
@@ -43,6 +43,14 @@ function fixture(t) {
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   cpSync(root, directory, { recursive: true, filter: (path) => !path.split('/').includes('.git') });
   return directory;
+}
+
+function channelInput(t, branch = 'main') {
+  const directory = fixture(t);
+  const text = catalogText.replace(/^    branch: (?:main|dev)$/gm, `    branch: ${branch === 'dev' ? 'dev' : 'main'}`);
+  writeFileSync(join(directory, 'catalog.yaml'), text);
+  return { ...validInput(), root: directory, catalogText: text,
+    snapshot: buildSnapshot(directory, inventory, snapshot.version, branch) };
 }
 
 test('catalog snapshot and asset inventory are deterministic local content records', () => {
@@ -128,10 +136,10 @@ test('snapshot rejects malformed and missing release branch, tag, and destinatio
 });
 
 test('snapshot rejects invalid native source references without inspecting remote repos', () => {
-  const badSource = catalogText.replace('branch: main\n    manifest: youeye-app.yaml', 'branch: release\n    manifest: app.yaml');
+  const badSource = catalogText.replace(`branch: ${snapshot.provenance.releaseBranch === 'dev' ? 'dev' : 'main'}\n    manifest: youeye-app.yaml`, 'branch: release\n    manifest: app.yaml');
   const input = validInput();
   input.catalogText = badSource;
-  assert.match(validate(input).join('\n'), /native wiki: branch must be main/);
+  assert.match(validate(input).join('\n'), /native wiki: branch must be (main|dev)/);
   assert.match(validate(input).join('\n'), /native wiki: manifest destination must be youeye-app.yaml/);
 });
 
@@ -146,10 +154,10 @@ test('source-candidate validation does not falsely attest the local release ref'
   assert.match(errors.join('\n'), /HEAD must be tagged exactly/);
 });
 
-test('development and public release validate factual evidence without reviewer approval', () => {
-  assert.deepEqual(validate({ ...validInput(), release: true, releaseContext: releaseContext() }), []);
+test('development and public release validate factual evidence without reviewer approval', t => {
+  assert.deepEqual(validate({ ...channelInput(t), release: true, releaseContext: releaseContext() }), []);
   for (const release of [false, true]) {
-    const input = { ...validInput(), release, releaseContext: releaseContext() };
+    const input = { ...channelInput(t), release, releaseContext: releaseContext() };
     assert.match(validate({ ...input, assetProvenance: undefined }).join('\n'), /provenance metadata/);
     // Unresolved provenance remains factual; it must not be relabelled as approval.
     input.assetProvenance.assets[0].evidence = 'project-reference';
@@ -189,7 +197,8 @@ test('provenance records are bound into the snapshot content hash', t => {
 
 test('release CLI verifies real branch, tag and clean state without a separate approval file', (t) => {
   const directory = fixture(t);
-  const releaseSnapshot = { ...structuredClone(snapshot), version: '0.6.0.0.1' };
+  writeFileSync(join(directory, 'catalog.yaml'), catalogText.replace(/^    branch: (?:main|dev)$/gm, '    branch: main'));
+  const releaseSnapshot = buildSnapshot(directory, inventory, '0.6.0.0.1', 'main');
   releaseSnapshot.provenance.releaseBranch = 'main';
   releaseSnapshot.provenance.releaseTag = `catalog-v${releaseSnapshot.version}`;
   writeFileSync(join(directory, 'catalog-snapshot.json'), JSON.stringify(releaseSnapshot));
@@ -232,8 +241,8 @@ test('release CLI verifies real branch, tag and clean state without a separate a
   assert.match(cli('--release').stderr, /checkout branch must be main; found detached/);
 });
 
-test('private Forgejo validation retains tag and content integrity checks', () => {
-  const input = { ...validInput(), release: true, destination: 'forgejo-main', releaseContext: releaseContext() };
+test('private Forgejo validation retains tag and content integrity checks', t => {
+  const input = { ...channelInput(t), release: true, destination: 'forgejo-main', releaseContext: releaseContext() };
   input.snapshot.version = '0.6.0.0.1';
   input.snapshot.provenance.releaseTag = 'catalog-v0.6.0.0.1';
   input.releaseContext.tagsAtHead = ['catalog-v0.6.0.0.1'];
@@ -245,10 +254,10 @@ test('private Forgejo validation retains tag and content integrity checks', () =
   assert.match(validate(input).join('\n'), /asset inventory does not match/);
 });
 
-test('catalog source supports channel depths while Forgejo main enforces five positions', () => {
+test('catalog source supports channel depths while Forgejo main enforces five positions', t => {
  for (const version of ['0.6.0', '0.6.0.1', '0.6.0.0.1', '0.6.0.0.0.1']) {
-  const input = validInput();
-  input.snapshot = buildSnapshot(root, inventory, version);
+  const input = channelInput(t);
+  input.snapshot = buildSnapshot(input.root, inventory, version);
   assert.deepEqual(validate(input), []);
   const errors = validate({ ...input, release: true, destination: 'forgejo-main', releaseContext: releaseContext({ tagsAtHead: [`catalog-v${version}`] }) });
   assert.equal(errors.length === 0, version.split('.').length === 5, version);
@@ -259,8 +268,8 @@ for (const [destination, branch, version, tag] of [
   ['github-beta', 'beta', '0.6.0.1', 'catalog-beta-v0.6.0.1'],
   ['github-main', 'main', '0.6.1', 'catalog-v0.6.1'],
 ]) {
-  test(`${destination} requires matching branch, tag, depth and asset integrity`, () => {
-    const input = { ...validInput(), release: true, destination,
+  test(`${destination} requires matching branch, tag, depth and asset integrity`, t => {
+    const input = { ...channelInput(t, branch), release: true, destination,
       releaseContext: releaseContext({ branch, tagsAtHead: [tag] }) };
     input.snapshot.version = version;
     input.snapshot.provenance.releaseBranch = branch;
@@ -280,10 +289,11 @@ for (const [destination, branch, version, tag] of [
 test('snapshot generation selects and preserves the declared release branch', t => {
   const directory = fixture(t);
   const cli = (...args) => spawnSync(process.execPath, ['scripts/catalog-snapshot.mjs', ...args], { cwd: directory, encoding: 'utf8' });
-  assert.throws(() => buildSnapshot(root, inventory, '1.2.3', 'dev'), /Invalid snapshot branch/);
-  assert.equal(cli('generate', '--branch', 'dev').status, 1);
+  assert.throws(() => buildSnapshot(root, inventory, '1.2.3', 'unknown'), /Invalid snapshot branch/);
+  assert.equal(cli('generate', '--branch', 'unknown').status, 1);
   assert.equal(cli('validate', '--branch', 'beta').status, 1);
-  for (const [branch, version, tag] of [['beta', '1.2.3.4', 'catalog-beta-v1.2.3.4'], ['main', '1.2.3', 'catalog-v1.2.3']]) {
+  for (const [branch, version, tag] of [['dev', '1.2.3.4.5.6', 'catalog-dev-v1.2.3.4.5.6'], ['beta', '1.2.3.4', 'catalog-beta-v1.2.3.4'], ['main', '1.2.3', 'catalog-v1.2.3']]) {
+    writeFileSync(join(directory, 'catalog.yaml'), catalogText.replace(/^    branch: (?:main|dev)$/gm, `    branch: ${branch === 'dev' ? 'dev' : 'main'}`));
     const first = cli('generate', '--version', version, '--branch', branch);
     assert.equal(first.status, 0, first.stderr);
     const before = readFileSync(join(directory, 'catalog-snapshot.json'), 'utf8');
@@ -299,4 +309,18 @@ test('native references reject the historical nonexistent public repository name
   const input = validInput();
   input.catalogText = catalogText.replace(/repo: [^\n]*\/(?:YE-App-)?Wiki\n/, 'repo: YouEye-Platform/YE-App-Wiki\n');
   assert.match(validate(input).join('\n'), /native wiki: repo must be/);
+});
+
+test('Dev native references cannot be published as Stable or Beta', t => {
+  const input = channelInput(t, 'dev');
+  input.snapshot.version = '0.6.0.0.0.1';
+  input.snapshot.provenance.releaseTag = 'catalog-dev-v0.6.0.0.0.1';
+  const context = releaseContext({branch: 'dev', tagsAtHead: [input.snapshot.provenance.releaseTag]});
+  assert.deepEqual(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}), []);
+  for (const destination of ['forgejo-main', 'github-main', 'github-beta']) {
+    assert.match(validate({...input, release: true, destination, releaseContext: context}).join('\n'), /native wiki: branch must be main/);
+  }
+  input.snapshot.version = '0.6.0';
+  input.snapshot.provenance.releaseTag = 'catalog-dev-v0.6.0';
+  assert.match(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}).join('\n'), /six numeric/);
 });

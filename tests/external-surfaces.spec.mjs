@@ -40,4 +40,6 @@ test('Open WebUI delegates its shared model boundary to the selected Pointer gro
   assert.match(manifest, /^\s*BYPASS_MODEL_ACCESS_CONTROL:\s*["']true["']\s*$/m);
   assert.match(manifest, /^\s*OPENAI_API_BASE_URL:\s*["']\$\{ai\.openaiBaseUrl\}["']\s*$/m);
   assert.match(manifest, /^\s*OPENAI_API_KEY:\s*["']\$\{ai\.apiKey\}["']\s*$/m);
+  assert.match(manifest, /^\s*DEFAULT_MODELS:\s*["']\$\{ai\.defaultModel\}["']\s*$/m);
+  assert.match(manifest, /^\s*TASK_MODEL_EXTERNAL:\s*["']\$\{ai\.utilityModel\}["']\s*$/m);
 });

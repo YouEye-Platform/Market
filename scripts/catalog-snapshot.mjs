@@ -16,9 +16,9 @@ export const SNAPSHOT_API_VERSION = 'youeye.market/catalog-snapshot/v1';
 export const ASSET_INVENTORY_API_VERSION = 'youeye.market/asset-inventory/v1';
 export const ASSET_PROVENANCE_API_VERSION = 'youeye.market/asset-provenance/v1';
 export const RELEASE_BRANCH = 'main';
-const DESTINATIONS = ['public', 'forgejo-main', 'github-beta', 'github-main'];
-function releaseBranch(destination) { return destination === 'github-beta' ? 'beta' : 'main'; }
-function releaseTag(version, branch) { return `catalog-${branch === 'beta' ? 'beta-' : ''}v${version}`; }
+const DESTINATIONS = ['public', 'forgejo-dev', 'forgejo-main', 'github-beta', 'github-main'];
+function releaseBranch(destination) { return destination === 'forgejo-dev' ? 'dev' : destination === 'github-beta' ? 'beta' : 'main'; }
+function releaseTag(version, branch) { return `catalog-${branch === 'main' ? '' : `${branch}-`}v${version}`; }
 const NATIVE_APPS = new Map([
   ['wiki', 'YouEye-Platform/Wiki'],
   ['search', 'YouEye-Platform/Search'],
@@ -114,7 +114,7 @@ export function buildAssetInventory(root) {
 }
 
 export function buildSnapshot(root, assetInventory, version, branch = RELEASE_BRANCH) {
-  if (!['main', 'beta'].includes(branch)) throw new Error(`Invalid snapshot branch: ${branch}`);
+  if (!['main', 'beta', 'dev'].includes(branch)) throw new Error(`Invalid snapshot branch: ${branch}`);
   if (!/^\d+(?:\.\d+){2,7}$/.test(version)) throw new Error(`Invalid snapshot version: ${version}`);
   const contentFiles = buildContentInventory(root);
   const catalogText = readFileSync(join(root, 'catalog.yaml'), 'utf8');
@@ -154,14 +154,15 @@ function validateAssetInventory(inventory, root) {
   return errors;
 }
 
-function validateNativeSources(catalogText) {
+function validateNativeSources(catalogText, branch = RELEASE_BRANCH) {
+  const nativeBranch = branch === 'dev' ? 'dev' : RELEASE_BRANCH;
   const errors = [];
   const apps = new Map(catalogApps(catalogText).map((entry) => [entry.id, entry]));
   for (const [id, repo] of NATIVE_APPS) {
     const app = apps.get(id);
     if (!app) { errors.push(`native ${id}: catalog entry missing`); continue; }
     if (app.repo !== repo) errors.push(`native ${id}: repo must be ${repo}`);
-    if (app.branch !== RELEASE_BRANCH) errors.push(`native ${id}: branch must be ${RELEASE_BRANCH}`);
+    if (app.branch !== nativeBranch) errors.push(`native ${id}: branch must be ${nativeBranch}`);
     if (app.manifest !== 'youeye-app.yaml') errors.push(`native ${id}: manifest destination must be youeye-app.yaml`);
     if (app.integration !== 'native') errors.push(`native ${id}: integration must be native`);
     if (app.path || app.latestVersion) errors.push(`native ${id}: must not impersonate a local container app`);
@@ -235,7 +236,7 @@ export function validate({ root, catalogText, snapshot, inventory, assetProvenan
   const provenance = snapshot?.provenance ?? {};
   if (provenance.repository !== MARKET_IDENTITY) errors.push('snapshot provenance repository is invalid');
   const branch = release ? releaseBranch(destination) : provenance.releaseBranch;
-  if (!['main', 'beta'].includes(branch) || provenance.releaseBranch !== branch) errors.push(`snapshot release branch must be ${branch}`);
+  if (!['main', 'beta', 'dev'].includes(branch) || provenance.releaseBranch !== branch) errors.push(`snapshot release branch must be ${branch}`);
   if (provenance.releaseTag !== releaseTag(snapshot?.version, branch)) errors.push('snapshot release tag must match snapshot version');
   if (provenance.destination !== 'catalog.yaml') errors.push('snapshot provenance destination must be catalog.yaml');
 
@@ -247,11 +248,12 @@ export function validate({ root, catalogText, snapshot, inventory, assetProvenan
   if (snapshot?.content?.algorithm !== 'sha256' || typeof snapshot?.content?.canonicalInputs !== 'string') errors.push('snapshot canonical content contract is invalid');
   if (snapshot?.catalog?.sha256 !== sha256(catalogText)) errors.push('snapshot catalog digest does not match catalog.yaml');
   if (snapshot?.catalog?.appCount !== catalogApps(catalogText).length) errors.push('snapshot app count does not match catalog.yaml');
-  errors.push(...validateNativeSources(catalogText));
+  errors.push(...validateNativeSources(catalogText, branch));
   errors.push(...validateAssetInventory(inventory, root));
   if (snapshot?.assetInventorySha256 !== sha256(stableJson(inventory))) errors.push('snapshot asset inventory digest does not match asset inventory');
   errors.push(...validateAssetProvenance(assetProvenance, inventory));
   if (release) {
+    if (destination === 'forgejo-dev' && !/^\d+(?:\.\d+){5}$/.test(snapshot?.version ?? '')) errors.push('Forgejo dev requires six numeric version positions');
     if (destination === 'forgejo-main' && !/^\d+(?:\.\d+){4}$/.test(snapshot?.version ?? '')) errors.push('Forgejo main requires five numeric version positions');
     if (destination === 'github-beta' && !/^\d+(?:\.\d+){3}$/.test(snapshot?.version ?? '')) errors.push('GitHub beta requires four numeric version positions');
     if (destination === 'github-main' && !/^\d+(?:\.\d+){2}$/.test(snapshot?.version ?? '')) errors.push('GitHub main requires three numeric version positions');
@@ -279,7 +281,7 @@ function parseArguments(args) {
   }
   if (!DESTINATIONS.includes(destination)) throw new Error('Unknown release destination');
   if (destination !== 'public' && (!release || command !== 'validate')) throw new Error('Release destination requires validate --release');
-  if (branch !== undefined && (command !== 'generate' || !['main', 'beta'].includes(branch))) throw new Error('--branch requires generate and main or beta');
+  if (branch !== undefined && (command !== 'generate' || !['main', 'beta', 'dev'].includes(branch))) throw new Error('--branch requires generate and main, beta or dev');
   return { command, version, branch, release, destination };
 }
 
