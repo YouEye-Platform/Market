@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { isReleaseVersion, RELEASE_VERSION } from "./release-version.mjs";
 /**
  * Deterministic, local-only catalog snapshot tooling.
  *
@@ -115,7 +116,7 @@ export function buildAssetInventory(root) {
 
 export function buildSnapshot(root, assetInventory, version, branch = RELEASE_BRANCH) {
   if (!['main', 'beta', 'dev'].includes(branch)) throw new Error(`Invalid snapshot branch: ${branch}`);
-  if (!/^\d+(?:\.\d+){2,7}$/.test(version)) throw new Error(`Invalid snapshot version: ${version}`);
+  if (!isReleaseVersion(version) && !/^\d+(?:\.\d+){2,7}$/.test(version)) throw new Error(`Invalid snapshot version: ${version}`);
   const contentFiles = buildContentInventory(root);
   const catalogText = readFileSync(join(root, 'catalog.yaml'), 'utf8');
   return {
@@ -232,7 +233,7 @@ export function validate({ root, catalogText, snapshot, inventory, assetProvenan
   if (destination !== 'public' && !release) errors.push('release destination requires release validation');
   if (snapshot?.apiVersion !== SNAPSHOT_API_VERSION) errors.push('snapshot API version is invalid');
   if (snapshot?.identity !== MARKET_IDENTITY) errors.push('snapshot identity is invalid');
-  if (!/^\d+(?:\.\d+){2,7}$/.test(snapshot?.version ?? '')) errors.push('snapshot version must have 3 to 8 numeric positions');
+  if (!isReleaseVersion(snapshot?.version) && !/^\d+(?:\.\d+){2,7}$/.test(snapshot?.version ?? '')) errors.push('snapshot version must have 3 to 8 numeric positions');
   const provenance = snapshot?.provenance ?? {};
   if (provenance.repository !== MARKET_IDENTITY) errors.push('snapshot provenance repository is invalid');
   const branch = release ? releaseBranch(destination) : provenance.releaseBranch;
@@ -253,10 +254,16 @@ export function validate({ root, catalogText, snapshot, inventory, assetProvenan
   if (snapshot?.assetInventorySha256 !== sha256(stableJson(inventory))) errors.push('snapshot asset inventory digest does not match asset inventory');
   errors.push(...validateAssetProvenance(assetProvenance, inventory));
   if (release) {
+    if (isReleaseVersion(snapshot?.version)) {
+      const token = RELEASE_VERSION.exec(snapshot.version)[4] ?? '';
+      const expected = { 'forgejo-dev': 'dev', 'forgejo-main': 'alpha', 'github-beta': 'beta', 'github-main': '' }[destination];
+      if (expected !== undefined && token !== expected) errors.push('snapshot version suffix does not match release destination');
+    } else {
     if (destination === 'forgejo-dev' && !/^\d+(?:\.\d+){5}$/.test(snapshot?.version ?? '')) errors.push('Forgejo dev requires six numeric version positions');
     if (destination === 'forgejo-main' && !/^\d+(?:\.\d+){4}$/.test(snapshot?.version ?? '')) errors.push('Forgejo main requires five numeric version positions');
     if (destination === 'github-beta' && !/^\d+(?:\.\d+){3}$/.test(snapshot?.version ?? '')) errors.push('GitHub beta requires four numeric version positions');
     if (destination === 'github-main' && !/^\d+(?:\.\d+){2}$/.test(snapshot?.version ?? '')) errors.push('GitHub main requires three numeric version positions');
+    }
     errors.push(...validateReleaseRef(snapshot, releaseContext, destination));
   }
   return errors;

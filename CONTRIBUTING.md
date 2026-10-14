@@ -8,10 +8,10 @@ Changes must be reviewed locally with `pnpm test`. Do not publish a branch, tag,
 
 ## Catalog snapshot policy
 
-`catalog-snapshot.json` is an independent Market-owned release identity, not an application version. The initial catalog base is `0.5`. Versions follow the platform channel depths: Forgejo dev has six positions (initially `0.5.0.0.0.1`), Forgejo main has five (initially `0.5.0.0.1`). Generate it from local catalog content only:
+`catalog-snapshot.json` is an independent Market-owned release identity, not an application version. The initial catalog base is `0.5`. New versions use `X.Y.Z[-token.N]` with their own target Stable base. Forgejo dev uses `dev.N`, private main uses `alpha.N`, public Beta uses `beta.N`, and Stable has no suffix. Counters are positive numeric identifiers; `.10` follows `.9`. Generate it from local catalog content only:
 
 ```bash
-node scripts/catalog-snapshot.mjs generate --version 0.5.0.0.0.1
+node scripts/catalog-snapshot.mjs generate --version 0.5.1-dev.1 --branch dev
 node scripts/catalog-snapshot.mjs validate
 ```
 
@@ -60,13 +60,13 @@ Private Forgejo promotion uses:
 node scripts/catalog-snapshot.mjs validate --release --destination forgejo-main
 ```
 
-It verifies a clean `main` checkout, exact catalog tag, five-position version,
+It verifies a clean `main` checkout, exact catalog tag, `alpha.N` version suffix,
 and canonical content/asset hashes. GitHub beta uses `--destination github-beta`
-on clean `beta` with `catalog-beta-v<four-position-version>`; GitHub main uses
-`--destination github-main` on clean `main` with `catalog-v<three-position-version>`.
+on clean `beta` with `catalog-beta-v<X.Y.Z-beta.N>`; GitHub main uses
+`--destination github-main` on clean `main` with `catalog-v<X.Y.Z>`.
 Both use the same asset integrity and provenance checks as development. The public
 coordinator prepares independent snapshots without importing private history.
-Source snapshots accept 3–8 numeric positions for platform channel compatibility.
+Historical numeric-depth snapshots remain readable under their frozen contract. New releases preserve all three numeric positions and the selected suffix. The allocator reserves each identity before effects; retries retain their frozen inputs and failed attempts leave gaps. Catalog release numbers remain independent of YouEye core and app versions.
 
 ## Release-profile regression checks
 

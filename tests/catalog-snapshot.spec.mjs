@@ -322,5 +322,16 @@ test('Dev native references cannot be published as Stable or Beta', t => {
   }
   input.snapshot.version = '0.6.0';
   input.snapshot.provenance.releaseTag = 'catalog-dev-v0.6.0';
-  assert.match(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}).join('\n'), /six numeric/);
+  assert.match(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}).join('\n'), /suffix does not match/);
 });
+
+for (const [destination, branch, version] of [["forgejo-dev", "dev", "0.6.1-dev.10"], ["forgejo-main", "main", "0.6.1-alpha.2"], ["github-beta", "beta", "0.6.1-beta.2"], ["github-main", "main", "0.6.1"]]) {
+  test(`${destination} accepts canonical catalog identity without changing app versions`, t => {
+    const input = channelInput(t, branch);
+    input.snapshot = buildSnapshot(input.root, inventory, version, branch);
+    const tag = input.snapshot.provenance.releaseTag;
+    assert.deepEqual(validate({ ...input, release: true, destination, releaseContext: releaseContext({ branch, tagsAtHead: [tag] }) }), []);
+    assert.equal(input.snapshot.version, version);
+    assert.equal(readFileSync(join(input.root, "catalog.yaml"), "utf8"), input.catalogText);
+  });
+}
