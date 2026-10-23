@@ -8,10 +8,10 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const manifest = readFileSync(join(root, 'apps/searxng/youeye-app.yaml'), 'utf8');
 const catalog = readFileSync(join(root, 'catalog.yaml'), 'utf8');
 
-const expectedVersion = '2026.8.12';
+const expectedVersion = '2026.10.19';
 const expectedImages = [
   'docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec',
-  'docker.io/searxng/searxng@sha256:c2dc2d9e6b910653e8628361c23443222490e4cabbb9e02667b7847143db843b',
+  'docker.io/searxng/searxng@sha256:5ed0323b5f5f8701264ef65e239a2bd83cb57098f2b971fa30bf79c06eeae271',
 ];
 
 test('SearXNG fresh-install version and OCI identities are synchronized and immutable', () => {
@@ -33,6 +33,8 @@ test('SearXNG keeps generated configuration in its mounted volume and exposes in
   assert.match(manifest, /directoryPermission: "0o700"/);
   assert.match(manifest, /formats:\n          - html\n          - json\n          - rss/);
   assert.match(manifest, /scope: service/);
+  const volumeNames = [...manifest.matchAll(/^      - name: (.+)$/gm)].map(match => match[1]);
+  assert.deepEqual(volumeNames, ['config'], 'upgrades must preserve the published storage attachments');
 });
 
 test('SearXNG declares complete upstream and presentation metadata', () => {

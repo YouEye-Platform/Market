@@ -3,7 +3,7 @@
   "assetInventorySha256": "sha256:39f6a9c2c1953becada5e947c9385b7c2031d78d41c4d91dd040f355eacc9a23",
   "catalog": {
     "appCount": 34,
-    "sha256": "sha256:207ca809d96363ce7465983183f64abf581fb31c32bd5de7cc48d10cad35a9eb"
+    "sha256": "sha256:e7bf8c928791b4bebc133b34412ea5d0c4240b7e58c48a4613dba40483e04663"
   },
   "content": {
     "algorithm": "sha256",
@@ -99,7 +99,7 @@
       },
       {
         "path": "apps/searxng/youeye-app.yaml",
-        "sha256": "sha256:68acf30492149ea5835b8798d093e569c1ce5c63cf0659557a819ab49caef393"
+        "sha256": "sha256:75d4642d5634f0eed35302194289ced343f868cb38aee8773470bd6e17164647"
       },
       {
         "path": "apps/sonarr/youeye-app.yaml",
@@ -127,7 +127,7 @@
       },
       {
         "path": "asset-provenance.json",
-        "sha256": "sha256:fa1281f427d42bf4558f566d07a286a2c3c327ee8687ee6880e89acc391763fa"
+        "sha256": "sha256:e6e4aacb5b4e6c5d030a45328da170c4d46bd8d8a572ab6bd7a5706557c773d9"
       },
       {
         "path": "bundles/media-automation/bundle.yaml",
@@ -139,7 +139,7 @@
       },
       {
         "path": "catalog.yaml",
-        "sha256": "sha256:207ca809d96363ce7465983183f64abf581fb31c32bd5de7cc48d10cad35a9eb"
+        "sha256": "sha256:e7bf8c928791b4bebc133b34412ea5d0c4240b7e58c48a4613dba40483e04663"
       },
       {
         "path": "integrations/audiobookshelf/youeye-id.yaml",
@@ -182,14 +182,14 @@
         "sha256": "sha256:d1bfa6f37566601739d878738af62e4e023a35e25665bb28641e0b341bcdbafa"
       }
     ],
-    "sha256": "sha256:5be009ba2e6cc1213fbb11eb482222d88062ed1b874dfc961570ac38fd5a047a"
+    "sha256": "sha256:a906fb1e1991b2f877a4b983b636db0e39a8fac735b6b365764abe46bf8cb0fa"
   },
   "identity": "YouEye-Platform/Market",
   "provenance": {
     "destination": "catalog.yaml",
     "releaseBranch": "main",
-    "releaseTag": "catalog-v0.5.6",
+    "releaseTag": "catalog-v0.5.10",
     "repository": "YouEye-Platform/Market"
   },
-  "version": "0.5.6"
+  "version": "0.5.10"
 }

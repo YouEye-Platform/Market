@@ -449,21 +449,21 @@
       "sha256": "sha256:e0f4c72fe58055043d04446350e7d3e6a25105e507519b1ceacffd5b9aa89593",
       "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/ce550a844bad92ea19b5926cb887285c46bac01a/svg/searxng.svg",
       "evidence": "exact-source",
-      "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
+      "notes": "Unmodified exact-source icon from Homarr dashboard-icons revision ce550a844bad92ea19b5926cb887285c46bac01a. Collection Apache-2.0 licence retained in apps/searxng/LICENSE-dashboard-icons.txt; see apps/searxng/ASSET-NOTICES.md. Used only to identify SearXNG; no trademark endorsement claimed."
     },
     {
       "path": "apps/searxng/screenshots/admin-search-results.png",
       "sha256": "sha256:d2b7b3f365884c31d95d4ed7e3e144b6fdd5ca2073f8e10d5fccfc87912602cd",
       "source": "https://github.com/searxng/searxng",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Search snippets visible: review snippet reuse and any internal naming before approval."
+      "notes": "Existing repository local acceptance capture of unmodified SearXNG 2026.8.12 UI, reviewed at full resolution 2026-10-23. No credentials, private links, account identifiers or third-party images. See apps/searxng/ASSET-NOTICES.md for source, licence and screenshot-content review; this older capture illustrates UI, not candidate runtime acceptance."
     },
     {
       "path": "apps/searxng/screenshots/user-search-home.png",
       "sha256": "sha256:0358d605c7a909949c1100fd4d5e1722e2bbe4128ae889a3a0c34e0725aea23f",
       "source": "https://github.com/searxng/searxng",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Search snippets visible: review snippet reuse and any internal naming before approval."
+      "notes": "Existing repository local acceptance capture of unmodified SearXNG 2026.8.12 UI, reviewed at full resolution 2026-10-23. No credentials, private links, account identifiers or third-party images. See apps/searxng/ASSET-NOTICES.md for source, licence and screenshot-content review; this older capture illustrates UI, not candidate runtime acceptance."
     },
     {
       "path": "apps/sonarr/icon.svg",
