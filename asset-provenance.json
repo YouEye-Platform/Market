@@ -47,24 +47,24 @@
     },
     {
       "path": "apps/docuseal/icon.svg",
-      "sha256": "sha256:7a34254195a8b1d44df18abff11ccd673e88055fb5491ac87e2d5ee35b56040c",
-      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/ce550a844bad92ea19b5926cb887285c46bac01a/svg/docuseal.svg",
+      "sha256": "sha256:fde5f71884ac625107c918c5c2a555b07b533bcf04a3df622588db99a629f506",
+      "source": "https://raw.githubusercontent.com/docusealco/docuseal/3.3.3/public/logo.svg",
       "evidence": "exact-source",
-      "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
+      "notes": "Official unmodified tagged logo; AGPLv3 and Section7(b) attribution terms retained in apps/docuseal/ASSET-NOTICES.md. Product identification, no endorsement."
     },
     {
       "path": "apps/docuseal/screenshots/platform-admin-template-3.2.0.png",
       "sha256": "sha256:bba6086ba621d86cd766f7c1dac08860d282b9007e01e1b631c63a6d84950345",
       "source": "https://github.com/docusealco/docuseal",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical 3.2.0 repository demonstration capture, visually inspected 2026-10-23; minimal sample PDF/fictitious Accepted User signature, no personal data or external artwork. Upstream UI AGPLv3 + attribution terms retained in ASSET-NOTICES.md. Current 3.3.3 testing is separate."
     },
     {
       "path": "apps/docuseal/screenshots/standard-user-signing-3.2.0.png",
       "sha256": "sha256:ee01c61b27053adcc8413997a79d27edfd149f90abc685929a98b5d00fc76f8f",
       "source": "https://github.com/docusealco/docuseal",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical 3.2.0 repository demonstration capture, visually inspected 2026-10-23; minimal sample PDF/fictitious Accepted User signature, no personal data or external artwork. Upstream UI AGPLv3 + attribution terms retained in ASSET-NOTICES.md. Current 3.3.3 testing is separate."
     },
     {
       "path": "apps/freshrss/icon.svg",

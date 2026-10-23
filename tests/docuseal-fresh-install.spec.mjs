@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 
 const manifest = readFileSync(new URL('../apps/docuseal/youeye-app.yaml', import.meta.url), 'utf8');
 
-test('DocuSeal 3.2.0 uses the official immutable OCI release', () => {
-  assert.match(manifest, /version: "3\.2\.0"/);
-  assert.match(manifest, /docker\.io\/docuseal\/docuseal@sha256:50ed54743542a86c7bb97bea06fbddae619cbd3273df9589af44cac318f0f774/);
+test('DocuSeal 3.3.3 uses the official immutable OCI release', () => {
+  assert.match(manifest, /version: "3\.3\.3"/);
+  assert.match(manifest, /docker\.io\/docuseal\/docuseal@sha256:516d993ae9af884334100ee784f8d1c1b2a4fa83b155e5bc8df236fbf7544a89/);
 });
 
 test('DocuSeal persists application state and keeps its local-login contract explicit', () => {
