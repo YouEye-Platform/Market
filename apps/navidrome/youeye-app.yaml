@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "0.63.2"
+version: "0.64.2"
 forwardAuth: enabled
 
 metadata:
@@ -23,10 +23,10 @@ metadata:
 
 detail:
   releaseNotes: |
-    Navidrome 0.63 adds richer synchronized lyrics, faster large-library
-    search and synchronization, stronger per-library access controls, and
-    smarter exact-match search. Version 0.63.2 fixes plugin error reporting,
-    symlink scanning, and invalid mixed smart-playlist conditions.
+    Navidrome 0.64.2 improves scanning on slow storage, fixes initial administrator
+    creation and download filename handling, and includes the 0.64.1 security
+    fixes for authentication and per-library access. Existing databases must be
+    backed up before upgrading across 0.64 because internal IDs are re-encoded.
   longDescription: |
     Navidrome is an open-source music server and streamer. Stream your entire music collection
     from anywhere using any Subsonic-compatible client. Features include multi-user support,
@@ -34,9 +34,9 @@ detail:
     play:Sub, and many more clients for your personal library.
   screenshots:
     - path: "screenshots/platform-admin-library-0.63.2.png"
-      caption: "Platform administrator playing the accepted music fixture"
+      caption: "Historical 0.63.2 player layout, cropped; see ASSET-NOTICES.md"
     - path: "screenshots/standard-user-player-0.63.2.png"
-      caption: "Standard user playing the shared music library fixture"
+      caption: "Historical 0.63.2 song table, cropped; see ASSET-NOTICES.md"
 
 database:
   mode: none
@@ -45,7 +45,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/deluan/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40"
+    image: "docker.io/navidrome/navidrome@sha256:59ce76e6e06193fbfbb1736a93b8468227e1ea663fc7b25b1da13fbb97f5197b"
     port: 4533
     network: internet
     volumes:

@@ -142,7 +142,7 @@ apps:
   - id: navidrome
     path: apps/navidrome
     integration: basic
-    latestVersion: "0.63.2"
+    latestVersion: "0.64.2"
   - id: audiobookshelf
     path: apps/audiobookshelf
     integration: basic

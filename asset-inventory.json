@@ -200,17 +200,17 @@
     },
     {
       "path": "apps/navidrome/icon.svg",
-      "sha256": "sha256:cd8911581c1173c0696dadaeb02f9bb2eb1ff3b6bdf5c64c49b90f7cb70274cf",
+      "sha256": "sha256:2b06a3340f259c74cf913dab16a52769cf662156a0b1756e0d0e8c72ee0262cb",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/navidrome/screenshots/platform-admin-library-0.63.2.png",
-      "sha256": "sha256:13cbc9baba989d72bd0c0837120533054523ae92c6b1d718c49b5ea9a7b6bdf4",
+      "sha256": "sha256:fee6d123869441339ef0c565551119330ad71748d0ee8baf5e3b79f752850178",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/navidrome/screenshots/standard-user-player-0.63.2.png",
-      "sha256": "sha256:5c6c8d885b3eb24e41d650c2910074a816b24090e69cbc4d996b08bb77bd80ca",
+      "sha256": "sha256:fee6d123869441339ef0c565551119330ad71748d0ee8baf5e3b79f752850178",
       "ownershipStatus": "unverified"
     },
     {
