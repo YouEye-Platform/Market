@@ -424,25 +424,25 @@
       "notes": "Repository acceptance screenshot of the linked application. Movie download entry visible: verify fixture source; no film frame is visible in this overview."
     },
     {
-      "path": "apps/radarr/icon.png",
-      "sha256": "sha256:3d564fbcfb2523d9c90671ec1743250902fe3c28277cc07b6dc72a1728864e4c",
-      "source": "https://github.com/Radarr/Radarr",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "path": "apps/radarr/icon.svg",
+      "sha256": "sha256:d6b94a4f1d29c8d09b206e52ac3fd2c4ceafff6095a7baecee1b52634b32b46c",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "evidence": "local-capture",
+      "notes": "Original geometric film glyph CC0-1.0; see app notices."
     },
     {
       "path": "apps/radarr/screenshots/platform-admin-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
-      "source": "https://github.com/Radarr/Radarr",
+      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
+      "source": "https://github.com/Radarr/Radarr/tree/v6.3.0.10514",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Big Buck Bunny poster/backdrop and metadata visible: verify attribution and metadata source terms."
+      "notes": "Historical6.3.0.10514 GPL3 UI capture, artwork/backdrop/synopsis redacted; not current candidate evidence. Attribution/limitations in app notices."
     },
     {
       "path": "apps/radarr/screenshots/standard-profile-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
-      "source": "https://github.com/Radarr/Radarr",
+      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
+      "source": "https://github.com/Radarr/Radarr/tree/v6.3.0.10514",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Big Buck Bunny poster/backdrop and metadata visible: verify attribution and metadata source terms."
+      "notes": "Historical6.3.0.10514 GPL3 UI capture, artwork/backdrop/synopsis redacted; not current candidate evidence. Attribution/limitations in app notices."
     },
     {
       "path": "apps/searxng/icon.svg",

@@ -304,18 +304,18 @@
       "ownershipStatus": "unverified"
     },
     {
-      "path": "apps/radarr/icon.png",
-      "sha256": "sha256:3d564fbcfb2523d9c90671ec1743250902fe3c28277cc07b6dc72a1728864e4c",
+      "path": "apps/radarr/icon.svg",
+      "sha256": "sha256:d6b94a4f1d29c8d09b206e52ac3fd2c4ceafff6095a7baecee1b52634b32b46c",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/radarr/screenshots/platform-admin-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
+      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/radarr/screenshots/standard-profile-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:24fb7a91985fed745687db6ce45dafd150c45236c9d042a04e6b3bb8ab527271",
+      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
       "ownershipStatus": "unverified"
     },
     {

@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 const manifest = readFileSync(new URL('../apps/radarr/youeye-app.yaml', import.meta.url), 'utf8');
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
-test('Radarr 6.3.0.10514 uses the reviewed immutable LinuxServer OCI release', () => {
-  assert.match(manifest, /^version: "6\.3\.0\.10514"$/m);
-  assert.match(catalog, /id: radarr[\s\S]*?latestVersion: "6\.3\.0\.10514"/);
-  assert.match(manifest, /docker\.io\/linuxserver\/radarr@sha256:a45b5ab0f850f39edb4cc9c95bbd967b52ddc3d4574a4dfb45561177db6c88f4/);
+test('Radarr 6.4.4.10685 uses the reviewed immutable LinuxServer OCI release', () => {
+  assert.match(manifest, /^version: "6\.4\.4\.10685"$/m);
+  assert.match(catalog, /id: radarr[\s\S]*?latestVersion: "6\.4\.4\.10685"/);
+  assert.match(manifest, /docker\.io\/linuxserver\/radarr@sha256:a466ac12c33425ec22ec4bb0d71c3edb79fd5e5f845bba0e2901c1a6aa59b075/);
   assert.doesNotMatch(manifest, /docker\.io\/linuxserver\/radarr:[^\s"]+/);
 });
 
@@ -44,7 +44,7 @@ test('Radarr declares complete upstream and release detail', () => {
   for (const field of ['website', 'developer', 'license', 'sourceCode', 'support', 'docs', 'tagline', 'defaultSubdomain']) {
     assert.match(manifest, new RegExp(`^  ${field}:`, 'm'));
   }
-  assert.match(manifest, /iconUrl: "icon\.png"/);
+  assert.match(manifest, /iconUrl: "icon\.svg"/);
   assert.match(manifest, /releaseNotes: \|/);
   assert.match(manifest, /longDescription: \|/);
   assert.match(manifest, /screenshots\/platform-admin-public-domain-movie-6\.3\.0\.10514\.png/);

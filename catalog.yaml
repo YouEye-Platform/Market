@@ -202,7 +202,7 @@ apps:
   - id: radarr
     path: apps/radarr
     integration: basic
-    latestVersion: "6.3.0.10514"
+    latestVersion: "6.4.4.10685"
   - id: qbittorrent
     path: apps/qbittorrent
     integration: basic
