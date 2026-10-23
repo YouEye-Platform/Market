@@ -551,24 +551,24 @@
     },
     {
       "path": "apps/wallabag/icon.svg",
-      "sha256": "sha256:a433d3d12562afacf772b2b9ca1e5a985d5a8c638218a67710cf1ff66fba9231",
-      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/ce550a844bad92ea19b5926cb887285c46bac01a/svg/wallabag.svg",
+      "sha256": "sha256:77a39db470f4402e2bfe34d9068b7dbc561437ba26893e986771f06185a960a9",
+      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.14/web/img/logo-square.svg",
       "evidence": "exact-source",
-      "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
+      "notes": "Official unmodified wallabag 2.6.14 logo, MIT source licence COPYING.md; identification only, no endorsement. Verified 2026-10-23."
     },
     {
       "path": "apps/wallabag/screenshots/platform-admin-library-2.6.14.png",
       "sha256": "sha256:d723cc4476f97eb2937c844edcae48ae2f995a18970da54df5e0c0268c04c5a4",
       "source": "https://github.com/wallabag/wallabag",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 2.6.14 capture, inspected 2026-10-23: redacted demonstration accounts or empty quickstart UI, no credentials/private links/article media. Wallabag UI MIT. Not current runtime or role acceptance; caption explicitly historical."
     },
     {
       "path": "apps/wallabag/screenshots/standard-user-library-2.6.14.png",
       "sha256": "sha256:18393cbfa27f97f0d59a30139f05d3e4f7501cd8ab25b5eda89a9f6fbed1af57",
       "source": "https://github.com/wallabag/wallabag",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 2.6.14 capture, inspected 2026-10-23: redacted demonstration accounts or empty quickstart UI, no credentials/private links/article media. Wallabag UI MIT. Not current runtime or role acceptance; caption explicitly historical."
     },
     {
       "path": "apps/wikiless/icon.svg",

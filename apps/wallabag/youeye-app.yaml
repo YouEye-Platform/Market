@@ -31,9 +31,9 @@ detail:
     saving, full-text search, reading time estimates, and mobile apps.
   screenshots:
     - path: "screenshots/platform-admin-library-2.6.14.png"
-      caption: "Platform administrator managing an accepted read-later library"
+      caption: "Historical 2.6.14 application administrator user-management screen"
     - path: "screenshots/standard-user-library-2.6.14.png"
-      caption: "Standard user using an independently provisioned local account"
+      caption: "Historical 2.6.14 standard-user quickstart screen"
 
 capabilities:
   smtp: true
@@ -60,7 +60,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/wallabag/wallabag@sha256:4a527e027e0d59e87c14225ef11e005af3d4890374202ad319ce5e63dfc66709"
+    image: "docker.io/wallabag/wallabag@sha256:82ade66b403d67c05732f9f08003034509f6499e9f487b858c0b77524b28545d"
     command: >-
       /bin/sh -lc '(sleep 45; until php /var/www/wallabag/bin/console fos:user:change-password wallabag "$YOUEYE_ADMIN_PASSWORD" --env=prod --no-interaction >/dev/null 2>&1; do sleep 2; done) & exec /entrypoint.sh wallabag'
     port: 80
