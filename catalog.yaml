@@ -206,7 +206,7 @@ apps:
   - id: qbittorrent
     path: apps/qbittorrent
     integration: basic
-    latestVersion: "5.2.3"
+    latestVersion: "5.3.0"
   - id: jellyseerr
     path: apps/jellyseerr
     integration: basic

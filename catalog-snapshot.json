@@ -1,9 +1,9 @@
 {
   "apiVersion": "youeye.market/catalog-snapshot/v1",
-  "assetInventorySha256": "sha256:c79d06434415e6cccc5c0a54e357d640cf82f5dd422cef385fb164722e875da8",
+  "assetInventorySha256": "sha256:455ce59d1c60e928133212d8f84ce5483efd05030106d483a7a4dcfd33e2f177",
   "catalog": {
     "appCount": 34,
-    "sha256": "sha256:1dac15b18c3b9848c52eea4ae10e42c76db6ea71c69f4b9d13eef9901ce61f94"
+    "sha256": "sha256:86de5d197e7ad32081444bd67c26bde390d9fa823818503f3705f385ac3412b4"
   },
   "content": {
     "algorithm": "sha256",
@@ -91,7 +91,7 @@
       },
       {
         "path": "apps/qbittorrent/youeye-app.yaml",
-        "sha256": "sha256:68ed5f31282555d46a8f8d4dc523fba82cc3715ed19dc55ff7b2d78aa969851a"
+        "sha256": "sha256:d5be82a2ce6078d8f8446f04d8cec7bacef7c6cae82f35cddbca408acea9c6ec"
       },
       {
         "path": "apps/radarr/youeye-app.yaml",
@@ -127,7 +127,7 @@
       },
       {
         "path": "asset-provenance.json",
-        "sha256": "sha256:6d7068da71eb582a0332c63c4e04df67423e6ecb370d74f2b43e8052cf8a7ef8"
+        "sha256": "sha256:22f3a3de0fd3a17d6599a52f5330af80afaee6e2ca8e66ae993894110d1ca619"
       },
       {
         "path": "bundles/media-automation/bundle.yaml",
@@ -139,7 +139,7 @@
       },
       {
         "path": "catalog.yaml",
-        "sha256": "sha256:1dac15b18c3b9848c52eea4ae10e42c76db6ea71c69f4b9d13eef9901ce61f94"
+        "sha256": "sha256:86de5d197e7ad32081444bd67c26bde390d9fa823818503f3705f385ac3412b4"
       },
       {
         "path": "integrations/audiobookshelf/youeye-id.yaml",
@@ -182,14 +182,14 @@
         "sha256": "sha256:d1bfa6f37566601739d878738af62e4e023a35e25665bb28641e0b341bcdbafa"
       }
     ],
-    "sha256": "sha256:1d47624ec50c88da749abc05c58696487bbca872fddf7e92c7c2be100f5469d4"
+    "sha256": "sha256:36ebc96506f2616804d14e608a7fd29d4acccadab65a269e96c1a79ed8219c52"
   },
   "identity": "YouEye-Platform/Market",
   "provenance": {
     "destination": "catalog.yaml",
     "releaseBranch": "main",
-    "releaseTag": "catalog-v0.5.17",
+    "releaseTag": "catalog-v0.5.18",
     "repository": "YouEye-Platform/Market"
   },
-  "version": "0.5.17"
+  "version": "0.5.18"
 }

@@ -289,8 +289,8 @@
       "ownershipStatus": "unverified"
     },
     {
-      "path": "apps/qbittorrent/icon.png",
-      "sha256": "sha256:19f74839525b7848912ccfa653f9ede3f0d83ff9bff6dfc9685137e31912c5e8",
+      "path": "apps/qbittorrent/icon.svg",
+      "sha256": "sha256:d360326b11c58caabe1627347966307901123cb694581f9a411bd06877b9b433",
       "ownershipStatus": "unverified"
     },
     {

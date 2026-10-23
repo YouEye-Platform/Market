@@ -403,25 +403,25 @@
       "notes": "Historical repository capture of Prowlarr2.5.2.5491, not current-version acceptance. Logo, fixture title/indexer and query removed with opaque redactions. No artwork, credentials or private links. GPL-3.0 UI attribution in app notices; no public-domain claim about original fixture."
     },
     {
-      "path": "apps/qbittorrent/icon.png",
-      "sha256": "sha256:19f74839525b7848912ccfa653f9ede3f0d83ff9bff6dfc9685137e31912c5e8",
-      "source": "https://github.com/qbittorrent/qBittorrent",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "path": "apps/qbittorrent/icon.svg",
+      "sha256": "sha256:d360326b11c58caabe1627347966307901123cb694581f9a411bd06877b9b433",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "evidence": "local-capture",
+      "notes": "Original geometric download glyph CC0-1.0; ASSET-NOTICES.md."
     },
     {
       "path": "apps/qbittorrent/screenshots/platform-admin-completed-download-5.2.3.png",
       "sha256": "sha256:336330c818c6306b88747ac33a82666ed51eb024702fad5f2881dfdabfb5f438",
       "source": "https://github.com/qbittorrent/qBittorrent",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Movie download entry visible: verify fixture source; no film frame is visible in this overview."
+      "notes": "Historical5.2.3 UI capture visually reviewed2026-10-23, no film frames/credentials/personal data. qBittorrent UI GPL3+; ASSET-NOTICES.md. Not current acceptance."
     },
     {
       "path": "apps/qbittorrent/screenshots/standard-profile-completed-download-5.2.3.png",
       "sha256": "sha256:d0341a8ed9f3f6141834e1a64d5b829dd689f4b3fac6ec45229d33262d650d63",
       "source": "https://github.com/qbittorrent/qBittorrent",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Movie download entry visible: verify fixture source; no film frame is visible in this overview."
+      "notes": "Historical5.2.3 UI capture visually reviewed2026-10-23, no film frames/credentials/personal data. qBittorrent UI GPL3+; ASSET-NOTICES.md. Not current acceptance."
     },
     {
       "path": "apps/radarr/icon.svg",
