@@ -467,24 +467,24 @@
     },
     {
       "path": "apps/sonarr/icon.svg",
-      "sha256": "sha256:e75b18bbf2f662788214437e47bacf6393676231ceddae32e6d02cffabc50c75",
-      "source": "https://github.com/Sonarr/Sonarr",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "sha256": "sha256:cc78bfecaa8420606ec79ba411ba0333982ad7e63d42f033841a7a408ea531ba",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "evidence": "local-capture",
+      "notes": "Original geometric TV glyph, CC0-1.0. See app notices."
     },
     {
       "path": "apps/sonarr/screenshots/platform-admin-series-library-4.0.19.2979.png",
-      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
-      "source": "https://github.com/Sonarr/Sonarr",
+      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
+      "source": "https://github.com/Sonarr/Sonarr/tree/v4.0.19.2979",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. The Lucy Show poster/backdrop and synopsis visible: rights are not established by an episode public-domain claim."
+      "notes": "Historical 4.0.19.2979 UI capture; poster/backdrop/synopsis removed by opaque redaction. GPL3 UI attribution in notices. Not current-version acceptance."
     },
     {
       "path": "apps/sonarr/screenshots/standard-profile-series-library-4.0.19.2979.png",
-      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
-      "source": "https://github.com/Sonarr/Sonarr",
+      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
+      "source": "https://github.com/Sonarr/Sonarr/tree/v4.0.19.2979",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. The Lucy Show poster/backdrop and synopsis visible: rights are not established by an episode public-domain claim."
+      "notes": "Historical 4.0.19.2979 UI capture; poster/backdrop/synopsis removed by opaque redaction. GPL3 UI attribution in notices. Not current-version acceptance."
     },
     {
       "path": "apps/stirling-pdf/icon.svg",

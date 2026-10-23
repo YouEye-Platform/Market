@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "4.0.19.2979"
+version: "4.0.20.3014"
 forwardAuth: enabled
 
 metadata:
@@ -23,9 +23,9 @@ metadata:
 
 detail:
   releaseNotes: |
-    Sonarr 4.0.19.2979 fixes qBittorrent Basic-auth handling and builds on
-    the 4.0.18 improvements for qBittorrent authentication-cookie reuse and
-    download-client compatibility.
+    Sonarr 4.0.20.3014 handles unknown database languages safely, updates
+    Jellyfin/Emby connection authentication, and avoids unnecessary disk-space
+    checks when prior specifications already reject a download.
   longDescription: |
     Sonarr is a PVR for Usenet and BitTorrent users. It monitors your indexers (via Prowlarr)
     for new episodes of the shows you follow, grabs them through your download client, then
@@ -33,9 +33,9 @@ detail:
     packs, failed-download handling, and calendar tracking are all built in.
   screenshots:
     - path: "screenshots/platform-admin-series-library-4.0.19.2979.png"
-      caption: "Platform administrator reviewing an unmonitored public-domain series library"
+      caption: "Historical 4.0.19.2979 series view; artwork and synopsis redacted"
     - path: "screenshots/standard-profile-series-library-4.0.19.2979.png"
-      caption: "Separate standard platform profile reviewing the persisted series library"
+      caption: "Historical 4.0.19.2979 persisted series view; artwork and synopsis redacted"
 
 database:
   mode: none
@@ -50,7 +50,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/sonarr@sha256:373159ba768e23a3a1c497d9f2b936addf8fd5b1fdce7dd6a14080ac928bfda0"
+    image: "docker.io/linuxserver/sonarr@sha256:c5a8178dc6d1f2e2c34b5e254716230d9769af34b4090e61cc116dc055a3083f"
     port: 8989
     network: internet
     volumes:

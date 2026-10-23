@@ -198,7 +198,7 @@ apps:
   - id: sonarr
     path: apps/sonarr
     integration: basic
-    latestVersion: "4.0.19.2979"
+    latestVersion: "4.0.20.3014"
   - id: radarr
     path: apps/radarr
     integration: basic

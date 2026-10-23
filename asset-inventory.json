@@ -335,17 +335,17 @@
     },
     {
       "path": "apps/sonarr/icon.svg",
-      "sha256": "sha256:e75b18bbf2f662788214437e47bacf6393676231ceddae32e6d02cffabc50c75",
+      "sha256": "sha256:cc78bfecaa8420606ec79ba411ba0333982ad7e63d42f033841a7a408ea531ba",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/sonarr/screenshots/platform-admin-series-library-4.0.19.2979.png",
-      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
+      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/sonarr/screenshots/standard-profile-series-library-4.0.19.2979.png",
-      "sha256": "sha256:1351ab9177faafa1f4a3c26e2703391be082640e3af1c37b2a8fb8ea43c0fcd3",
+      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
       "ownershipStatus": "unverified"
     },
     {
