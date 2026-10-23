@@ -178,7 +178,7 @@ apps:
   - id: miniflux
     path: apps/miniflux
     integration: basic
-    latestVersion: "2.3.3"
+    latestVersion: "2.3.4"
   - id: linkwarden
     path: apps/linkwarden
     integration: basic

@@ -6,9 +6,9 @@ const manifest = readFileSync(new URL('../apps/miniflux/youeye-app.yaml', import
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
 test('Miniflux version and immutable OCI identity are synchronized', () => {
-  assert.match(manifest, /^version: "2\.3\.3"$/m);
-  assert.match(catalog, /id: miniflux[\s\S]*?latestVersion: "2\.3\.3"/);
-  assert.match(manifest, /docker\.io\/miniflux\/miniflux@sha256:49d7b60987616387c306a8023087b31f2c9b7b21288b523026cb04058e8b6dbb/);
+  assert.match(manifest, /^version: "2\.3\.4"$/m);
+  assert.match(catalog, /id: miniflux[\s\S]*?latestVersion: "2\.3\.4"/);
+  assert.match(manifest, /docker\.io\/miniflux\/miniflux@sha256:ef6cf5a911b7276225d8e0e7a1077013a202b1d6a019526aaa250ad06942cbbc/);
 });
 
 test('Miniflux retains shared PostgreSQL and app bootstrap contracts', () => {

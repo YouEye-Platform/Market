@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2.3.3"
+version: "2.3.4"
 
 metadata:
   id: "miniflux"
@@ -22,9 +22,9 @@ metadata:
 
 detail:
   releaseNotes: |
-    Miniflux 2.3.3 adds feed and entry language detection, improves screen-reader
-    semantics, discovers feeds offered by GitHub pages, reloads renewed TLS
-    certificates on SIGHUP, and improves response-compression compatibility.
+    Miniflux 2.3.4 adds Gotify notifications and rewrite-rule validation, reduces
+    database and memory usage, and strengthens reserved-address, WebAuthn redirect,
+    proxy, local-authentication and embedded-content protections.
   longDescription: |
     Miniflux is a minimalist and opinionated feed reader. Built with Go, it's fast,
     lightweight, and focused on simplicity. Features include keyboard shortcuts, automatic
@@ -32,9 +32,9 @@ detail:
     integration with read-it-later services, and a clean dark mode.
   screenshots:
     - path: "screenshots/platform-admin-feed.png"
-      caption: "Platform administrator reading the current Miniflux release feed"
+      caption: "Historical 2.3.3 example: administrator reading the upstream release feed"
     - path: "screenshots/standard-user-subscriptions.png"
-      caption: "Standard user managing an independently subscribed release feed"
+      caption: "Historical 2.3.3 example: standard user managing a release feed subscription"
 
 database:
   mode: shared
@@ -60,7 +60,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/miniflux/miniflux@sha256:49d7b60987616387c306a8023087b31f2c9b7b21288b523026cb04058e8b6dbb"
+    image: "docker.io/miniflux/miniflux@sha256:ef6cf5a911b7276225d8e0e7a1077013a202b1d6a019526aaa250ad06942cbbc"
     port: 8080
     network: internet
     healthCheck:

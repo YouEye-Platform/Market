@@ -257,24 +257,24 @@
     },
     {
       "path": "apps/miniflux/icon.svg",
-      "sha256": "sha256:132032458a533a14451d8c3a108a2fc98305e804fc4ec721831be8677bd0a8b5",
-      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/ce550a844bad92ea19b5926cb887285c46bac01a/svg/miniflux.svg",
-      "evidence": "exact-source",
-      "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
+      "sha256": "sha256:d2b03e645a47269e2691b8e112a4dc1919d15b6c3d1816930388ba3d315b850e",
+      "source": "https://github.com/YouEye-Platform/Market",
+      "evidence": "local-capture",
+      "notes": "Original geometric RSS illustration authored for this Market entry 2026-10-23; CC0-1.0. No upstream trademark artwork copied."
     },
     {
       "path": "apps/miniflux/screenshots/platform-admin-feed.png",
       "sha256": "sha256:704e64ae98b1c82b922b0d5d930e06d721467e10e2dc844be48408c2014022b1",
       "source": "https://github.com/miniflux/v2",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Retained repository historical 2.3.3 demonstration capture, inspected 2026-10-23: Miniflux Apache-2.0 interface displaying public upstream release titles; no credentials, private links or personal data visible. Historical version stated in caption; current runtime evidence retained separately."
     },
     {
       "path": "apps/miniflux/screenshots/standard-user-subscriptions.png",
       "sha256": "sha256:3a66fde2f2aec82ce5516e32363d719a5a87aaf8c7aff889c2e3ebc00fd7a74f",
       "source": "https://github.com/miniflux/v2",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Retained repository historical 2.3.3 demonstration capture, inspected 2026-10-23: Miniflux Apache-2.0 interface displaying public upstream release titles; no credentials, private links or personal data visible. Historical version stated in caption; current runtime evidence retained separately."
     },
     {
       "path": "apps/navidrome/icon.svg",
