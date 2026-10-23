@@ -509,24 +509,24 @@
     },
     {
       "path": "apps/vaultwarden/icon.svg",
-      "sha256": "sha256:385b85761c2acf8ecd1e863d67e583a48be09d9e66348a3d20411079f09da5d9",
-      "source": "https://github.com/dani-garcia/vaultwarden",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "sha256": "sha256:c58fe91554bda6e1be51bd0cf56ac84ab63f798d5173e41e71e1aa1de515c7ef",
+      "source": "https://raw.githubusercontent.com/dani-garcia/vaultwarden/1.37.4/resources/vaultwarden-icon.svg",
+      "evidence": "exact-source",
+      "notes": "Byte-matched official 1.37.4 icon, AGPL-3.0-only; unmodified. See apps/vaultwarden/ASSET-NOTICES.md and LICENSE.upstream.txt."
     },
     {
       "path": "apps/vaultwarden/screenshots/admin-secure-note.png",
       "sha256": "sha256:bf870168225c84c46be062374f72f612098c38b0d0c3313d30957371ba5faaf1",
       "source": "https://github.com/dani-garcia/vaultwarden",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 1.37.1 local testing screenshot, full-resolution privacy review 2026-10-23: generic demonstration note or empty personal vault; no passwords/tokens/private links/media. Personal vault role is independent of platform administrator. Historical caption, not current acceptance. UI attribution and licence notes in apps/vaultwarden/ASSET-NOTICES.md."
     },
     {
       "path": "apps/vaultwarden/screenshots/user-vault.png",
       "sha256": "sha256:d313d55d5d91bad01eaa8b11ffaf7396e12abd4fa46c777bc520ebb4dea976be",
       "source": "https://github.com/dani-garcia/vaultwarden",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 1.37.1 local testing screenshot, full-resolution privacy review 2026-10-23: generic demonstration note or empty personal vault; no passwords/tokens/private links/media. Personal vault role is independent of platform administrator. Historical caption, not current acceptance. UI attribution and licence notes in apps/vaultwarden/ASSET-NOTICES.md."
     },
     {
       "path": "apps/vikunja/icon.svg",

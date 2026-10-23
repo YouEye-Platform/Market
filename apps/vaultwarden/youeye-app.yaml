@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "1.37.1"
+version: "1.37.4"
 
 metadata:
   id: "vaultwarden"
@@ -22,7 +22,7 @@ metadata:
 
 detail:
   releaseNotes: |
-    Vaultwarden 1.37.1 fresh-install manifest with an immutable server image,
+    Vaultwarden 1.37.4 fresh-install manifest with an immutable server image,
     shared PostgreSQL storage, SMTP support, and native YouEye OpenID Connect
     sign-in with PKCE.
   longDescription: |
@@ -30,9 +30,9 @@ detail:
     Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
   screenshots:
     - path: "screenshots/admin-secure-note.png"
-      caption: "Administrator vault with a representative secure note"
+      caption: "Historical 1.37.1 personal vault with a demonstration secure note"
     - path: "screenshots/user-vault.png"
-      caption: "A separate standard user's empty personal vault"
+      caption: "Historical 1.37.1 separate user’s empty personal vault"
 
 capabilities:
   smtp: true
@@ -56,7 +56,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/vaultwarden/server@sha256:ebdfe70701c60ac0c28c697e787cea767d7972940b786037b29fe0d507f821e8"
+    image: "docker.io/vaultwarden/server@sha256:2bb2e0344616c62a6d76ea10558497499f8ed3f731400e143dc7bf17b757b5b9"
     port: 80
     network: internet
     volumes:
