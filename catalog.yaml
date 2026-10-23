@@ -126,7 +126,7 @@ apps:
   - id: paperless-ngx
     path: apps/paperless-ngx
     integration: basic
-    latestVersion: "3.0.5"
+    latestVersion: "3.3.4"
   - id: nextcloud
     path: apps/nextcloud
     integration: basic

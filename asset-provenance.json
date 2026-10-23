@@ -341,24 +341,24 @@
     },
     {
       "path": "apps/paperless-ngx/icon.svg",
-      "sha256": "sha256:b135396c8e93196699d6e88f6663e018f20e71bf893febba0b735d7771b4710c",
-      "source": "https://github.com/paperless-ngx/paperless-ngx",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "sha256": "sha256:27a6a4519fa481a1181a3b9b52513763740dce9d0eb073bc874a1a4ae3d7d759",
+      "source": "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/v3.3.4/docs/assets/logo_leaf.svg",
+      "evidence": "exact-source",
+      "notes": "Exact official v3.3.4 leaf logo; GPL-3.0 upstream licence retained in LICENSE.upstream.txt, identify application only; no endorsement asserted."
     },
     {
       "path": "apps/paperless-ngx/screenshots/platform-admin-document-3.0.5.png",
       "sha256": "sha256:8f3b985ff594d10ce6c78c0a23187b6709de86f99bc56924d8674c0d4b8d2fe3",
       "source": "https://github.com/paperless-ngx/paperless-ngx",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository capture of Paperless-NGX3.0.5; inspected full resolution2026-10-23. Only app UI and minimal synthetic first/second PDF text; no credentials, private links, personal documents or third-party media visible. Caption labels historical version. UI under retained upstream GPL-3.0; separate current acceptance evidence required."
     },
     {
       "path": "apps/paperless-ngx/screenshots/standard-user-document-3.0.5.png",
       "sha256": "sha256:6203e7e7a58657bc7d6f5c2ec0791ee3f70337c97067d723493ed108296d07d8",
       "source": "https://github.com/paperless-ngx/paperless-ngx",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository capture of Paperless-NGX3.0.5; inspected full resolution2026-10-23. Only app UI and minimal synthetic first/second PDF text; no credentials, private links, personal documents or third-party media visible. Caption labels historical version. UI under retained upstream GPL-3.0; separate current acceptance evidence required."
     },
     {
       "path": "apps/pingvin-share/icon.svg",
