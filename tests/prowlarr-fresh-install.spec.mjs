@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 
 const manifest = readFileSync(new URL('../apps/prowlarr/youeye-app.yaml', import.meta.url), 'utf8');
 
-test('Prowlarr 2.5.2.5491 uses the reviewed immutable LinuxServer OCI release', () => {
-  assert.match(manifest, /^version: "2\.5\.2\.5491"$/m);
-  assert.match(manifest, /docker\.io\/linuxserver\/prowlarr@sha256:2f3d31307beba3ba2dd226d191f5f5c14ee3b4d8b49277c64683f5ed97083179/);
+test('Prowlarr 2.6.5.5623 uses the reviewed immutable LinuxServer OCI release', () => {
+  assert.match(manifest, /^version: "2\.6\.5\.5623"$/m);
+  assert.match(manifest, /docker\.io\/linuxserver\/prowlarr@sha256:9ad6d7c7f1334a879b1d8aa488539c8cad5d19e7a876bb2ca2f6fd47b23fbc81/);
   assert.doesNotMatch(manifest, /docker\.io\/linuxserver\/prowlarr:[^\s"]+/);
 });
 

@@ -383,24 +383,24 @@
     },
     {
       "path": "apps/prowlarr/icon.svg",
-      "sha256": "sha256:a8ed9073263696dcaec3c6dc477c82dae4fc83dd13914899def26388758784f0",
-      "source": "https://github.com/Prowlarr/Prowlarr",
-      "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "sha256": "sha256:7ec359bbca79b5343ddc0236aeaee5b31e6df3217933401254c66f00fb55710f",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "evidence": "local-capture",
+      "notes": "Original geometric radar symbol created for Market, CC0-1.0; no upstream logo copied. See app notices."
     },
     {
       "path": "apps/prowlarr/screenshots/platform-admin-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:3514a59c96c49d924416e7b2492a91afb972ef818d59ae30f23c95114df49ab8",
+      "sha256": "sha256:90c07a5aae4499d6fcf3c7105d9272067aca2f2aec033ee894bb4ab211c44f97",
       "source": "https://github.com/Prowlarr/Prowlarr",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Movie search result visible: verify fixture metadata source; do not infer public-domain status from filename."
+      "notes": "Historical repository capture of Prowlarr2.5.2.5491, not current-version acceptance. Logo, fixture title/indexer and query removed with opaque redactions. No artwork, credentials or private links. GPL-3.0 UI attribution in app notices; no public-domain claim about original fixture."
     },
     {
       "path": "apps/prowlarr/screenshots/standard-profile-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:751fbd1aba3a480687453131b8ae515174fdfd4c7b09e88b763c97c4a66e8fed",
+      "sha256": "sha256:f741af7a8197f70302fc9790b95ec768c98887f8fe6f09b8a312880f0e13436a",
       "source": "https://github.com/Prowlarr/Prowlarr",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Movie search result visible: verify fixture metadata source; do not infer public-domain status from filename."
+      "notes": "Historical repository capture of Prowlarr2.5.2.5491, not current-version acceptance. Logo, fixture title/indexer and query removed with opaque redactions. No artwork, credentials or private links. GPL-3.0 UI attribution in app notices; no public-domain claim about original fixture."
     },
     {
       "path": "apps/qbittorrent/icon.png",

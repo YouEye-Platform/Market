@@ -194,7 +194,7 @@ apps:
   - id: prowlarr
     path: apps/prowlarr
     integration: basic
-    latestVersion: "2.5.2.5491"
+    latestVersion: "2.6.5.5623"
   - id: sonarr
     path: apps/sonarr
     integration: basic

@@ -275,17 +275,17 @@
     },
     {
       "path": "apps/prowlarr/icon.svg",
-      "sha256": "sha256:a8ed9073263696dcaec3c6dc477c82dae4fc83dd13914899def26388758784f0",
+      "sha256": "sha256:7ec359bbca79b5343ddc0236aeaee5b31e6df3217933401254c66f00fb55710f",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/prowlarr/screenshots/platform-admin-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:3514a59c96c49d924416e7b2492a91afb972ef818d59ae30f23c95114df49ab8",
+      "sha256": "sha256:90c07a5aae4499d6fcf3c7105d9272067aca2f2aec033ee894bb4ab211c44f97",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/prowlarr/screenshots/standard-profile-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:751fbd1aba3a480687453131b8ae515174fdfd4c7b09e88b763c97c4a66e8fed",
+      "sha256": "sha256:f741af7a8197f70302fc9790b95ec768c98887f8fe6f09b8a312880f0e13436a",
       "ownershipStatus": "unverified"
     },
     {
