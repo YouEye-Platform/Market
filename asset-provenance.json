@@ -571,25 +571,25 @@
       "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
     },
     {
-      "path": "apps/wikiless/icon.png",
-      "sha256": "sha256:c23caf37a71cdf4c86a14eeb370bcd0aad4d6416851a51af5f07730e3e07b5ab",
-      "source": "https://github.com/tiekoetter/Wikiless",
+      "path": "apps/wikiless/icon.svg",
+      "sha256": "sha256:8b283107205b0a6f542c7b427299d4e53bcca0737a8c1849ac08c283729831c9",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
       "evidence": "project-reference",
-      "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
+      "notes": "Original Market open-book vector, CC0-1.0; no upstream logo claim. See ASSET-NOTICES.md."
     },
     {
       "path": "apps/wikiless/screenshots/platform-admin-article-0.1.3.png",
-      "sha256": "sha256:124f5ddbefef850f0104f0dd11b9ac27d62a693db27f391cd186526e1e6b6bce",
-      "source": "https://github.com/tiekoetter/Wikiless",
+      "sha256": "sha256:2a98b8a16a9fd191f70230c39b097ebf3baf3bd5661af34ae0e6c76289b6f078",
+      "source": "https://en.wikipedia.org/wiki/Open-source_software",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Wikipedia article and images visible: establish page revision, text attribution/share-alike requirements and individual image licences."
+      "notes": "Historical local0.1.3 capture, cropped to article text only; Wikipedia contributors, CC BY-SA4.0, linked author history and licence in ASSET-NOTICES.md. Exact historical revision unknown. No desktop image/globe/private content remains; not current runtime evidence."
     },
     {
       "path": "apps/wikiless/screenshots/standard-user-article-0.1.3.png",
-      "sha256": "sha256:238c74e2214c19dfc777ac22aa6f5ad282d9da96055e8ef036faa7877e377110",
-      "source": "https://github.com/tiekoetter/Wikiless",
+      "sha256": "sha256:2a98b8a16a9fd191f70230c39b097ebf3baf3bd5661af34ae0e6c76289b6f078",
+      "source": "https://en.wikipedia.org/wiki/Open-source_software",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Wikipedia article and images visible: establish page revision, text attribution/share-alike requirements and individual image licences."
+      "notes": "Historical local0.1.3 capture, cropped to article text only; Wikipedia contributors, CC BY-SA4.0, linked author history and licence in ASSET-NOTICES.md. Exact historical revision unknown. No desktop image/globe/private content remains; not current runtime evidence."
     }
   ]
 }

@@ -8,7 +8,7 @@ const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8'
 test('Wikiless 0.1.3 uses reviewed immutable maintained OCI releases', () => {
   assert.match(manifest, /^version: "0\.1\.3"$/m);
   assert.match(catalog, /id: wikiless[\s\S]*?latestVersion: "0\.1\.3"/);
-  assert.match(manifest, /ghcr\.io\/tiekoetter\/wikiless@sha256:c791def71a566e1ab7bc67c8cbfb5d5385036e1f5228ae4a6eba62d818245af3/);
+  assert.match(manifest, /ghcr\.io\/tiekoetter\/wikiless@sha256:ef1d1400078019a9d7e39e300373e10b160cc8b785c7b175e80270846a031df6/);
   assert.match(manifest, /docker\.io\/valkey\/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec/);
   assert.doesNotMatch(manifest, /ghcr\.io\/metastem/);
 });
@@ -37,7 +37,7 @@ test('Wikiless declares its maintained upstream and complete release detail', ()
   for (const field of ['website', 'developer', 'license', 'sourceCode', 'support', 'docs', 'tagline', 'defaultSubdomain']) {
     assert.match(manifest, new RegExp(`^  ${field}:`, 'm'));
   }
-  assert.match(manifest, /iconUrl: "icon\.png"/);
+  assert.match(manifest, /iconUrl: "icon\.svg"/);
   assert.match(manifest, /releaseNotes: \|/);
   assert.match(manifest, /longDescription: \|/);
 });

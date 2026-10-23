@@ -1,6 +1,6 @@
 {
   "apiVersion": "youeye.market/catalog-snapshot/v1",
-  "assetInventorySha256": "sha256:39f6a9c2c1953becada5e947c9385b7c2031d78d41c4d91dd040f355eacc9a23",
+  "assetInventorySha256": "sha256:796ac489ae4c919bc5b7f08d486f8fadf2413afeeafede843406c17bc925f09e",
   "catalog": {
     "appCount": 34,
     "sha256": "sha256:e7bf8c928791b4bebc133b34412ea5d0c4240b7e58c48a4613dba40483e04663"
@@ -123,11 +123,11 @@
       },
       {
         "path": "apps/wikiless/youeye-app.yaml",
-        "sha256": "sha256:3beb3020f05b0ee4a47fb17237c27d9bb2352cac8f0bdf115126d9e67efe593f"
+        "sha256": "sha256:bff251ce97729b99069d7e8f61be09a0b8bb1cb5b207b7498bfc5e7a5303c753"
       },
       {
         "path": "asset-provenance.json",
-        "sha256": "sha256:e6e4aacb5b4e6c5d030a45328da170c4d46bd8d8a572ab6bd7a5706557c773d9"
+        "sha256": "sha256:d6ec55707632e2acea54e035924df3fbc953651d48c6caabd5ad362a6f50d266"
       },
       {
         "path": "bundles/media-automation/bundle.yaml",
@@ -182,14 +182,14 @@
         "sha256": "sha256:d1bfa6f37566601739d878738af62e4e023a35e25665bb28641e0b341bcdbafa"
       }
     ],
-    "sha256": "sha256:a906fb1e1991b2f877a4b983b636db0e39a8fac735b6b365764abe46bf8cb0fa"
+    "sha256": "sha256:dfbd5551b2a35afd22919ffa7715f34c4793f8e7ef17f4b0f2b97e4e9b107f63"
   },
   "identity": "YouEye-Platform/Market",
   "provenance": {
     "destination": "catalog.yaml",
     "releaseBranch": "main",
-    "releaseTag": "catalog-v0.5.10",
+    "releaseTag": "catalog-v0.5.11",
     "repository": "YouEye-Platform/Market"
   },
-  "version": "0.5.10"
+  "version": "0.5.11"
 }
