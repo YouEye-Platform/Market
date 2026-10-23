@@ -89,24 +89,24 @@
     },
     {
       "path": "apps/hedgedoc/icon.svg",
-      "sha256": "sha256:68d63299352beb7b44e0c9996ad3761762a981220d66ddd3e0044dd2118a7d4b",
-      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/ce550a844bad92ea19b5926cb887285c46bac01a/svg/hedgedoc.svg",
-      "evidence": "exact-source",
-      "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
+      "sha256": "sha256:8069cbea6c64779f4a149d817e9a50e448f32e3dbaa866dc45bd77aeae1faf9a",
+      "source": "https://github.com/YouEye-Platform/Market",
+      "evidence": "local-capture",
+      "notes": "Original geometric document illustration authored 2026-10-23, CC0-1.0; no upstream logo copied."
     },
     {
       "path": "apps/hedgedoc/screenshots/platform-admin-note-1.11.1.png",
-      "sha256": "sha256:a3f3f3154474d572b8d5b72523b92684b469de3c7975480e29ae4a87c83f58ba",
-      "source": "https://github.com/hedgedoc/hedgedoc",
+      "sha256": "sha256:3eab70c699aa8d24ac2e3572d2e6809a51f38ebbc74265bc9ccded914310e487",
+      "source": "https://github.com/hedgedoc/hedgedoc/tree/1.11.1",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 1.11.1 demo capture, reviewed and modified 2026-10-23: upstream logo and internal demo instance name redacted with opaque rectangles. Generic test document only, no private data/credentials. HedgeDoc UI AGPL-3.0, source and licence retained in ASSET-NOTICES; historical/redaction caption explicit. Separate current runtime checkpoints required."
     },
     {
       "path": "apps/hedgedoc/screenshots/standard-user-note-1.11.1.png",
-      "sha256": "sha256:0915f0fc7f056d5ca891e6632493991f23d1453a48ffc731856a49e2f51ed87a",
-      "source": "https://github.com/hedgedoc/hedgedoc",
+      "sha256": "sha256:dc4f3a7f7ee6902b4f050c956ca8ecd7bd919c069c2d9033bd576d312af50212",
+      "source": "https://github.com/hedgedoc/hedgedoc/tree/1.11.1",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Historical repository 1.11.1 demo capture, reviewed and modified 2026-10-23: upstream logo and internal demo instance name redacted with opaque rectangles. Generic test document only, no private data/credentials. HedgeDoc UI AGPL-3.0, source and licence retained in ASSET-NOTICES; historical/redaction caption explicit. Separate current runtime checkpoints required."
     },
     {
       "path": "apps/immich/icon.svg",

@@ -65,17 +65,17 @@
     },
     {
       "path": "apps/hedgedoc/icon.svg",
-      "sha256": "sha256:68d63299352beb7b44e0c9996ad3761762a981220d66ddd3e0044dd2118a7d4b",
+      "sha256": "sha256:8069cbea6c64779f4a149d817e9a50e448f32e3dbaa866dc45bd77aeae1faf9a",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/hedgedoc/screenshots/platform-admin-note-1.11.1.png",
-      "sha256": "sha256:a3f3f3154474d572b8d5b72523b92684b469de3c7975480e29ae4a87c83f58ba",
+      "sha256": "sha256:3eab70c699aa8d24ac2e3572d2e6809a51f38ebbc74265bc9ccded914310e487",
       "ownershipStatus": "unverified"
     },
     {
       "path": "apps/hedgedoc/screenshots/standard-user-note-1.11.1.png",
-      "sha256": "sha256:0915f0fc7f056d5ca891e6632493991f23d1453a48ffc731856a49e2f51ed87a",
+      "sha256": "sha256:dc4f3a7f7ee6902b4f050c956ca8ecd7bd919c069c2d9033bd576d312af50212",
       "ownershipStatus": "unverified"
     },
     {

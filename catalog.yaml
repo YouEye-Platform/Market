@@ -190,7 +190,7 @@ apps:
   - id: hedgedoc
     path: apps/hedgedoc
     integration: basic
-    latestVersion: "1.11.1"
+    latestVersion: "1.12.0"
   - id: prowlarr
     path: apps/prowlarr
     integration: basic

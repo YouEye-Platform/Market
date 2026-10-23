@@ -6,9 +6,9 @@ const manifest = readFileSync(new URL('../apps/hedgedoc/youeye-app.yaml', import
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
 test('HedgeDoc version and official immutable OCI identity are synchronized', () => {
-  assert.match(manifest, /^version: "1\.11\.1"$/m);
-  assert.match(catalog, /id: hedgedoc[\s\S]*?latestVersion: "1\.11\.1"/);
-  assert.match(manifest, /quay\.io\/hedgedoc\/hedgedoc@sha256:7b3f79667ad58c6419758547f10940638bcdc85ebee2a4e650318a704095975b/);
+  assert.match(manifest, /^version: "1\.12\.0"$/m);
+  assert.match(catalog, /id: hedgedoc[\s\S]*?latestVersion: "1\.12\.0"/);
+  assert.match(manifest, /quay\.io\/hedgedoc\/hedgedoc@sha256:5aff8d48f1d64a36e21e442216513a9d6bed02bad8dcf9a37f303c76356a727a/);
   assert.doesNotMatch(manifest, /linuxserver\/hedgedoc/);
 });
 

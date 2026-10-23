@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "1.11.1"
+version: "1.12.0"
 
 metadata:
   id: "hedgedoc"
@@ -22,9 +22,9 @@ metadata:
 
 detail:
   releaseNotes: |
-    HedgeDoc 1.11.1 validates note permission values to prevent corruption,
-    adds WebP uploads and configurable external-link warnings, fixes subpath
-    warnings and slide list rendering, and restores browser zoom shortcuts.
+    HedgeDoc 1.12.0 fixes real-time reconnection issues that could lose edits,
+    restores opening links in new tabs and simplifies single-provider login.
+    The official container includes the required Node runtime (20.17 or newer).
   longDescription: |
     HedgeDoc is a collaborative, real-time markdown editor. Write documents together with
     your team in real-time, see changes instantly, and present slides directly from your
@@ -32,9 +32,9 @@ detail:
     export formats, and collaborative writing workflows.
   screenshots:
     - path: "screenshots/platform-admin-note-1.11.1.png"
-      caption: "Platform administrator editing a collaborative Markdown note"
+      caption: "Historical 1.11.1 collaborative editor example (branding and instance name redacted)"
     - path: "screenshots/standard-user-note-1.11.1.png"
-      caption: "Standard user contributing to a shared Markdown document"
+      caption: "Historical 1.11.1 shared document example (branding and instance name redacted)"
 
 database:
   mode: shared
@@ -55,7 +55,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "quay.io/hedgedoc/hedgedoc@sha256:7b3f79667ad58c6419758547f10940638bcdc85ebee2a4e650318a704095975b"
+    image: "quay.io/hedgedoc/hedgedoc@sha256:5aff8d48f1d64a36e21e442216513a9d6bed02bad8dcf9a37f303c76356a727a"
     port: 3000
     network: internet
     volumes:
