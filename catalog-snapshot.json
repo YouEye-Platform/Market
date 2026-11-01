@@ -188,8 +188,8 @@
   "provenance": {
     "destination": "catalog.yaml",
     "releaseBranch": "main",
-    "releaseTag": "catalog-v0.5.22",
+    "releaseTag": "catalog-v0.5.23",
     "repository": "YouEye-Platform/Market"
   },
-  "version": "0.5.22"
+  "version": "0.5.23"
 }

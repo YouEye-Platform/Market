@@ -88,3 +88,21 @@ names such as `YouEye-Platform/Wiki`; it projects the validator's expected names
 at the same time, before regenerating snapshot hashes. Release-profile fixtures
 exercise both representations. Do not put GitHub owners in the private catalog,
 or retain private `YE-App-` names in public references.
+
+## Artifact promotion
+
+`.youeye/release/artifact-promotion.json` opts this source into external signed
+product release metadata. Source/package versions remain immutable build identity.
+The platform signs `product-build.json` once, binding the original source commit,
+artifact hashes and install contract; `product-release.json` assigns independent
+product versions and channels to that unchanged signed build. Promotion does not
+run source version preparation, repackage archives or repeat unchanged builds.
+Legacy releases keep their existing contract. New source/dependency/toolchain or
+build-configuration changes require a new candidate and relevant validation.
+
+The System catalog reader verifies both signatures, retains the accepted release
+with the original catalog snapshot and source commit, and displays its release
+and build versions in Sources. Catalog content comes from that exact snapshot;
+changing the release label never edits the catalog or its member manifests.
+An offline refresh keeps the last authenticated snapshot and reports the refresh
+failure. Legacy catalogs keep their existing Git-based lookup.
