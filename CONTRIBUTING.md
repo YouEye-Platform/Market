@@ -2,7 +2,7 @@
 
 ## Scope and release boundary
 
-YouEye Market is source metadata: it curates catalog entries, manifests, wiring recipes, and presentation assets. It does not build, package, sign, mirror, upload, or distribute application binaries or OCI images. Third-party application versions and image digests are selected and preserved in their own manifests; catalog snapshots never rewrite them.
+YouEye Market is source metadata: it curates catalog entries, manifests, wiring recipes, and presentation assets. It does not build, package, mirror, upload, or distribute application binaries or OCI images. Third-party application versions and image digests are selected and preserved in their own manifests; catalog snapshots never rewrite them.
 
 Changes must be reviewed locally with `pnpm test`. Do not publish a branch, tag, release, artifact, image, or other binary from this repository unless an authorized release owner separately approves that action.
 
@@ -91,18 +91,24 @@ or retain private `YE-App-` names in public references.
 
 ## Artifact promotion
 
-`.youeye/release/artifact-promotion.json` opts this source into external signed
+`.youeye/release/artifact-promotion.json` opts this source into external
 product release metadata. Source/package versions remain immutable build identity.
-The platform signs `product-build.json` once, binding the original source commit,
-artifact hashes and install contract; `product-release.json` assigns independent
-product versions and channels to that unchanged signed build. Promotion does not
-run source version preparation, repackage archives or repeat unchanged builds.
-Legacy releases keep their existing contract. New source/dependency/toolchain or
-build-configuration changes require a new candidate and relevant validation.
+The platform publishes an unsigned `product-release.json` (schema
+`youeye.product-release.v1`, `"authority": "digest"`) that embeds the base64
+`product-build.json` (`youeye.product-build.v1`). The build record binds the
+original source commit, the SHA-256 digest and size of each asset (for example
+`catalog-snapshot.json`) and the install contract digest; `product-release.json`
+assigns independent product versions and channels to that unchanged build. There
+are no `.sig` or `.pub` files: integrity comes from these SHA-256 digests, fetched
+over HTTPS. Promotion does not run source version preparation, repackage archives
+or repeat unchanged builds. Legacy releases keep their existing contract. New
+source/dependency/toolchain or build-configuration changes require a new candidate
+and relevant validation.
 
-The System catalog reader verifies both signatures, retains the accepted release
-with the original catalog snapshot and source commit, and displays its release
-and build versions in Sources. Catalog content comes from that exact snapshot;
-changing the release label never edits the catalog or its member manifests.
-An offline refresh keeps the last authenticated snapshot and reports the refresh
-failure. Legacy catalogs keep their existing Git-based lookup.
+The System catalog reader fetches `product-release.json` over HTTPS, checks the
+catalog snapshot and catalog files by SHA-256, retains the accepted release with
+that snapshot and its source commit, and displays its release and build versions
+in Sources. Catalog content comes from that exact snapshot; changing the release
+label never edits the catalog or its member manifests. An offline refresh keeps
+the last accepted snapshot and reports the refresh failure. Legacy catalogs keep
+their existing Git-based lookup.
