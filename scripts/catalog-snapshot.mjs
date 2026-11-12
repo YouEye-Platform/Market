@@ -1,36 +1,32 @@
 #!/usr/bin/env node
-import { isReleaseVersion, RELEASE_VERSION } from "./release-version.mjs";
 /**
- * Deterministic, local-only catalog snapshot tooling.
+ * Deterministic, local-only Market catalog tooling.
+ *
+ *   node scripts/catalog-snapshot.mjs generate        rewrite asset-inventory.json from the images under apps/
+ *   node scripts/catalog-snapshot.mjs validate        check catalog content, native entries, asset inventory and provenance
+ *   node scripts/catalog-snapshot.mjs release <dir>   validate, then write <dir>/catalog-snapshot.json and <dir>/catalog.tar
+ *
+ * The snapshot and catalog.tar depend only on the repository content. They carry no
+ * version, branch, repository or host, so the same commit gives the same bytes on every
+ * host and channel. The release version lives only in product-release.json.
  *
  * This tool hashes repository content; it never builds, downloads, uploads, or
  * publishes application binaries or OCI images.
  */
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const MARKET_IDENTITY = 'YouEye-Platform/Market';
 export const SNAPSHOT_API_VERSION = 'youeye.market/catalog-snapshot/v1';
 export const ASSET_INVENTORY_API_VERSION = 'youeye.market/asset-inventory/v1';
 export const ASSET_PROVENANCE_API_VERSION = 'youeye.market/asset-provenance/v1';
-export const RELEASE_BRANCH = 'main';
-const DESTINATIONS = ['public', 'forgejo-dev', 'forgejo-main', 'github-beta', 'github-main'];
-function releaseBranch(destination) { return destination === 'forgejo-dev' ? 'dev' : destination === 'github-beta' ? 'beta' : 'main'; }
-function releaseTag(version, branch) { return `catalog-${branch === 'main' ? '' : `${branch}-`}v${version}`; }
-const NATIVE_APPS = new Map([
-  ['wiki', 'YouEye-Platform/Wiki'],
-  ['search', 'YouEye-Platform/Search'],
-  ['notes', 'YouEye-Platform/Notes'],
-  ['cinema', 'YouEye-Platform/Cinema'],
-  ['weather', 'YouEye-Platform/Weather'],
-  ['translate', 'YouEye-Platform/Translate'],
-]);
+export const CANONICAL_INPUTS = 'RETIRED.md, asset-inventory.json, asset-provenance.json, catalog.yaml, store.yaml, and every file under apps/, bundles/, integrations/, system/, and updates/ (dot files excluded), sorted by repository path; raw file bytes are hashed without network access';
 const ASSET_EXTENSIONS = new Set(['.png', '.svg', '.jpg', '.jpeg', '.webp']);
-const CONTENT_ROOT_FILES = new Set(['catalog.yaml', 'store.yaml', 'RETIRED.md', 'asset-provenance.json']);
-const CONTENT_DIRECTORIES = new Set(['apps', 'bundles', 'integrations', 'system', 'updates']);
+const CONTENT_ROOT_FILES = ['RETIRED.md', 'asset-inventory.json', 'asset-provenance.json', 'catalog.yaml', 'store.yaml'];
+const CONTENT_DIRECTORIES = ['apps', 'bundles', 'integrations', 'system', 'updates'];
+const NATIVE_ENTRY_FIELDS = ['id', 'integration'];
 
 export function sha256(content) {
   return `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -44,7 +40,8 @@ function pathCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-function catalogApps(catalogText) {
+/** Catalog `apps:` entries with their single-line scalar fields. */
+export function catalogApps(catalogText) {
   const entries = [];
   let inApps = false;
   let current = null;
@@ -69,6 +66,7 @@ function walk(root, directory, include) {
   const records = [];
   if (!existsSync(directory)) return records;
   for (const entry of readdirSync(directory).sort(pathCompare)) {
+    if (entry.startsWith('.')) continue;
     const absolute = join(directory, entry);
     const info = statSync(absolute);
     if (info.isDirectory()) records.push(...walk(root, absolute, include));
@@ -89,16 +87,15 @@ function walkAssets(root) {
   });
 }
 
+/** Every file the catalog release carries, sorted by path. */
 export function buildContentInventory(root) {
   const files = [];
-  for (const path of [...CONTENT_ROOT_FILES].sort(pathCompare)) {
+  for (const path of CONTENT_ROOT_FILES) {
     const absolute = join(root, path);
     if (!existsSync(absolute)) throw new Error(`Canonical catalog input is missing: ${path}`);
     files.push({ path, sha256: sha256(readFileSync(absolute)) });
   }
-  for (const directory of [...CONTENT_DIRECTORIES].sort(pathCompare)) {
-    files.push(...walk(root, join(root, directory), (name) => /\.ya?ml$/i.test(name)));
-  }
+  for (const directory of CONTENT_DIRECTORIES) files.push(...walk(root, join(root, directory), () => true));
   return files.sort((a, b) => pathCompare(a.path, b.path));
 }
 
@@ -114,33 +111,80 @@ export function buildAssetInventory(root) {
   };
 }
 
-export function buildSnapshot(root, assetInventory, version, branch = RELEASE_BRANCH) {
-  if (!['main', 'beta', 'dev'].includes(branch)) throw new Error(`Invalid snapshot branch: ${branch}`);
-  if (!isReleaseVersion(version) && !/^\d+(?:\.\d+){2,7}$/.test(version)) throw new Error(`Invalid snapshot version: ${version}`);
-  const contentFiles = buildContentInventory(root);
+export function buildSnapshot(root) {
+  const files = buildContentInventory(root);
   const catalogText = readFileSync(join(root, 'catalog.yaml'), 'utf8');
   return {
     apiVersion: SNAPSHOT_API_VERSION,
     identity: MARKET_IDENTITY,
-    version,
-    provenance: {
-      repository: MARKET_IDENTITY,
-      releaseBranch: branch,
-      releaseTag: releaseTag(version, branch),
-      destination: 'catalog.yaml',
-    },
     content: {
       algorithm: 'sha256',
-      canonicalInputs: 'catalog.yaml, store.yaml, RETIRED.md, asset-provenance.json, and every YAML file under apps/, bundles/, integrations/, system/, and updates/, sorted by repository path; raw file bytes are hashed without network access',
-      files: contentFiles,
-      sha256: sha256(stableJson(contentFiles)),
+      canonicalInputs: CANONICAL_INPUTS,
+      files,
+      sha256: sha256(stableJson(files)),
     },
     catalog: {
       sha256: sha256(catalogText),
       appCount: catalogApps(catalogText).length,
     },
-    assetInventorySha256: sha256(stableJson(assetInventory)),
   };
+}
+
+export function snapshotBytes(snapshot) {
+  return Buffer.from(stableJson(snapshot));
+}
+
+function octal(value, width) {
+  const text = value.toString(8);
+  if (text.length > width - 1) throw new Error(`tar field overflow: ${value}`);
+  return text.padStart(width - 1, '0') + '\0';
+}
+
+function tarHeader(path, size) {
+  const header = Buffer.alloc(512);
+  let name = path;
+  let prefix = '';
+  if (Buffer.byteLength(path) > 100) {
+    const cut = path.lastIndexOf('/', 155);
+    if (cut <= 0 || Buffer.byteLength(path.slice(cut + 1)) > 100) throw new Error(`path too long for a ustar tar: ${path}`);
+    prefix = path.slice(0, cut);
+    name = path.slice(cut + 1);
+  }
+  header.write(name, 0, 100, 'utf8');
+  header.write(octal(0o644, 8), 100, 8, 'ascii');
+  header.write(octal(0, 8), 108, 8, 'ascii');
+  header.write(octal(0, 8), 116, 8, 'ascii');
+  header.write(octal(size, 12), 124, 12, 'ascii');
+  header.write(octal(0, 12), 136, 12, 'ascii');
+  header.fill(0x20, 148, 156);
+  header.write('0', 156, 1, 'ascii');
+  header.write('ustar\0', 257, 6, 'ascii');
+  header.write('00', 263, 2, 'ascii');
+  header.write(octal(0, 8), 329, 8, 'ascii');
+  header.write(octal(0, 8), 337, 8, 'ascii');
+  header.write(prefix, 345, 155, 'utf8');
+  let checksum = 0;
+  for (const byte of header) checksum += byte;
+  header.write(`${checksum.toString(8).padStart(6, '0')}\0 `, 148, 8, 'ascii');
+  return header;
+}
+
+/**
+ * A plain ustar archive of exactly the snapshot's files, in snapshot order: regular
+ * files only, mode 0644, uid/gid 0, no owner names, mtime 0. Each file's bytes are
+ * checked against the snapshot while writing.
+ */
+export function buildCatalogTar(root, snapshot) {
+  const blocks = [];
+  for (const file of snapshot.content.files) {
+    const bytes = readFileSync(join(root, file.path));
+    if (sha256(bytes) !== file.sha256) throw new Error(`catalog file changed while packing: ${file.path}`);
+    blocks.push(tarHeader(file.path, bytes.length), bytes);
+    const padding = (512 - (bytes.length % 512)) % 512;
+    if (padding) blocks.push(Buffer.alloc(padding));
+  }
+  blocks.push(Buffer.alloc(1024));
+  return Buffer.concat(blocks);
 }
 
 function validateAssetInventory(inventory, root) {
@@ -155,18 +199,14 @@ function validateAssetInventory(inventory, root) {
   return errors;
 }
 
-function validateNativeSources(catalogText, branch = RELEASE_BRANCH) {
-  const nativeBranch = branch === 'dev' ? 'dev' : RELEASE_BRANCH;
+/** Native apps are named by id only; the box resolves them through its channel index. */
+export function validateNativeEntries(catalogText) {
   const errors = [];
-  const apps = new Map(catalogApps(catalogText).map((entry) => [entry.id, entry]));
-  for (const [id, repo] of NATIVE_APPS) {
-    const app = apps.get(id);
-    if (!app) { errors.push(`native ${id}: catalog entry missing`); continue; }
-    if (app.repo !== repo) errors.push(`native ${id}: repo must be ${repo}`);
-    if (app.branch !== nativeBranch) errors.push(`native ${id}: branch must be ${nativeBranch}`);
-    if (app.manifest !== 'youeye-app.yaml') errors.push(`native ${id}: manifest destination must be youeye-app.yaml`);
-    if (app.integration !== 'native') errors.push(`native ${id}: integration must be native`);
-    if (app.path || app.latestVersion) errors.push(`native ${id}: must not impersonate a local container app`);
+  for (const entry of catalogApps(catalogText)) {
+    if (entry.integration !== 'native') continue;
+    for (const field of Object.keys(entry)) {
+      if (!NATIVE_ENTRY_FIELDS.includes(field)) errors.push(`native ${entry.id}: only id and integration are allowed, found ${field}`);
+    }
   }
   return errors;
 }
@@ -203,126 +243,60 @@ function validateAssetProvenance(provenance, inventory) {
   return errors;
 }
 
-function localReleaseContext(root) {
-  try {
-    const branch = execFileSync('git', ['-C', root, 'branch', '--show-current'], { encoding: 'utf8' }).trim();
-    const head = execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-    const tagsAtHead = execFileSync('git', ['-C', root, 'tag', '--points-at', 'HEAD'], { encoding: 'utf8' })
-      .split(/\r?\n/).filter(Boolean);
-    const dirty = execFileSync('git', ['-C', root, 'status', '--porcelain'], { encoding: 'utf8' }).trim() !== '';
-    return { branch, head, tagsAtHead, dirty };
-  } catch (error) {
-    throw new Error(`release validation requires a local Git checkout: ${error.message}`);
-  }
-}
-
-function validateReleaseRef(snapshot, context, destination) {
-  const branch = releaseBranch(destination);
+export function validate({ root, catalogText, inventory, assetProvenance }) {
   const errors = [];
-  const expectedTag = releaseTag(snapshot?.version, branch);
-  if (!context) return ['release validation requires verified local Git branch and tag context'];
-  if (context.branch !== branch) errors.push(`release checkout branch must be ${branch}; found ${context.branch || 'detached'}`);
-  if (!context.tagsAtHead.includes(expectedTag)) errors.push(`release checkout HEAD must be tagged exactly ${expectedTag}`);
-  if (context.dirty) errors.push('release checkout must have no tracked or untracked changes');
-  return errors;
-}
-
-export function validate({ root, catalogText, snapshot, inventory, assetProvenance, release = false, releaseContext, destination = 'public' }) {
-  const errors = [];
-  if (!DESTINATIONS.includes(destination)) errors.push('unknown release destination');
-  if (destination !== 'public' && !release) errors.push('release destination requires release validation');
-  if (snapshot?.apiVersion !== SNAPSHOT_API_VERSION) errors.push('snapshot API version is invalid');
-  if (snapshot?.identity !== MARKET_IDENTITY) errors.push('snapshot identity is invalid');
-  if (!isReleaseVersion(snapshot?.version) && !/^\d+(?:\.\d+){2,7}$/.test(snapshot?.version ?? '')) errors.push('snapshot version must have 3 to 8 numeric positions');
-  const provenance = snapshot?.provenance ?? {};
-  if (provenance.repository !== MARKET_IDENTITY) errors.push('snapshot provenance repository is invalid');
-  const branch = release ? releaseBranch(destination) : provenance.releaseBranch;
-  if (!['main', 'beta', 'dev'].includes(branch) || provenance.releaseBranch !== branch) errors.push(`snapshot release branch must be ${branch}`);
-  if (provenance.releaseTag !== releaseTag(snapshot?.version, branch)) errors.push('snapshot release tag must match snapshot version');
-  if (provenance.destination !== 'catalog.yaml') errors.push('snapshot provenance destination must be catalog.yaml');
-
-  let expectedContent;
-  try { expectedContent = buildContentInventory(root); }
-  catch (error) { errors.push(error.message); expectedContent = []; }
-  if (stableJson(snapshot?.content?.files) !== stableJson(expectedContent)) errors.push('snapshot canonical content file list or digest entries do not match local catalog content');
-  if (snapshot?.content?.sha256 !== sha256(stableJson(expectedContent))) errors.push('snapshot canonical content set digest does not match local catalog content');
-  if (snapshot?.content?.algorithm !== 'sha256' || typeof snapshot?.content?.canonicalInputs !== 'string') errors.push('snapshot canonical content contract is invalid');
-  if (snapshot?.catalog?.sha256 !== sha256(catalogText)) errors.push('snapshot catalog digest does not match catalog.yaml');
-  if (snapshot?.catalog?.appCount !== catalogApps(catalogText).length) errors.push('snapshot app count does not match catalog.yaml');
-  errors.push(...validateNativeSources(catalogText, branch));
+  try { buildContentInventory(root); } catch (error) { errors.push(error.message); }
+  errors.push(...validateNativeEntries(catalogText));
   errors.push(...validateAssetInventory(inventory, root));
-  if (snapshot?.assetInventorySha256 !== sha256(stableJson(inventory))) errors.push('snapshot asset inventory digest does not match asset inventory');
   errors.push(...validateAssetProvenance(assetProvenance, inventory));
-  if (release) {
-    if (isReleaseVersion(snapshot?.version)) {
-      const token = RELEASE_VERSION.exec(snapshot.version)[4] ?? '';
-      const expected = { 'forgejo-dev': 'dev', 'forgejo-main': 'alpha', 'github-beta': 'beta', 'github-main': '' }[destination];
-      if (expected !== undefined && token !== expected) errors.push('snapshot version suffix does not match release destination');
-    } else {
-    if (destination === 'forgejo-dev' && !/^\d+(?:\.\d+){5}$/.test(snapshot?.version ?? '')) errors.push('Forgejo dev requires six numeric version positions');
-    if (destination === 'forgejo-main' && !/^\d+(?:\.\d+){4}$/.test(snapshot?.version ?? '')) errors.push('Forgejo main requires five numeric version positions');
-    if (destination === 'github-beta' && !/^\d+(?:\.\d+){3}$/.test(snapshot?.version ?? '')) errors.push('GitHub beta requires four numeric version positions');
-    if (destination === 'github-main' && !/^\d+(?:\.\d+){2}$/.test(snapshot?.version ?? '')) errors.push('GitHub main requires three numeric version positions');
-    }
-    errors.push(...validateReleaseRef(snapshot, releaseContext, destination));
-  }
   return errors;
 }
 
-function parseArguments(args) {
-  let command = 'validate', version, branch, release = false, destination = 'public';
-  let commandSeen = false;
-  for (let i = 0; i < args.length; i++) {
-    const argument = args[i];
-    if (argument === '--release') release = true;
-    else if (argument === '--version' || argument === '--destination' || argument === '--branch') {
-      const value = args[++i];
-      if (!value || value.startsWith('--')) throw new Error(`${argument} requires a value`);
-      if (argument === '--version') version = value;
-      else if (argument === '--branch') branch = value;
-      else destination = value;
-    } else if (!argument.startsWith('--') && !commandSeen) {
-      command = argument;
-      commandSeen = true;
-    } else throw new Error(`Unknown argument: ${argument}`);
-  }
-  if (!DESTINATIONS.includes(destination)) throw new Error('Unknown release destination');
-  if (destination !== 'public' && (!release || command !== 'validate')) throw new Error('Release destination requires validate --release');
-  if (branch !== undefined && (command !== 'generate' || !['main', 'beta', 'dev'].includes(branch))) throw new Error('--branch requires generate and main, beta or dev');
-  return { command, version, branch, release, destination };
+function readInputs(root) {
+  const provenancePath = join(root, 'asset-provenance.json');
+  return {
+    root,
+    catalogText: readFileSync(join(root, 'catalog.yaml'), 'utf8'),
+    inventory: JSON.parse(readFileSync(join(root, 'asset-inventory.json'), 'utf8')),
+    assetProvenance: existsSync(provenancePath) ? JSON.parse(readFileSync(provenancePath, 'utf8')) : undefined,
+  };
 }
+
+/** Writes catalog-snapshot.json and catalog.tar for a release into `directory`. */
+export function writeRelease(root, directory) {
+  const errors = validate(readInputs(root));
+  if (errors.length) throw new Error(errors.join('\n'));
+  const snapshot = buildSnapshot(root);
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(join(directory, 'catalog-snapshot.json'), snapshotBytes(snapshot));
+  writeFileSync(join(directory, 'catalog.tar'), buildCatalogTar(root, snapshot));
+  return snapshot;
+}
+
+const USAGE = 'usage: catalog-snapshot.mjs generate | validate | release <output directory>';
 
 function main() {
   const root = fileURLToPath(new URL('..', import.meta.url));
-  const { command, version, branch, release, destination } = parseArguments(process.argv.slice(2));
-  const catalogText = readFileSync(join(root, 'catalog.yaml'), 'utf8');
-  const snapshotPath = join(root, 'catalog-snapshot.json');
-  const inventoryPath = join(root, 'asset-inventory.json');
-  const provenancePath = join(root, 'asset-provenance.json');
-
-  if (command === 'generate') {
-    const prior = existsSync(snapshotPath) ? JSON.parse(readFileSync(snapshotPath, 'utf8')) : undefined;
-    const inventory = buildAssetInventory(root);
-    const snapshot = buildSnapshot(root, inventory, version ?? prior?.version ?? '0.5.0.0.0.1', branch ?? prior?.provenance?.releaseBranch ?? RELEASE_BRANCH);
-    writeFileSync(inventoryPath, stableJson(inventory));
-    writeFileSync(snapshotPath, stableJson(snapshot));
+  const [command = 'validate', ...rest] = process.argv.slice(2);
+  if (command === 'generate' && rest.length === 0) {
+    writeFileSync(join(root, 'asset-inventory.json'), stableJson(buildAssetInventory(root)));
     return;
   }
-  if (command !== 'validate') throw new Error(`Unknown command: ${command}`);
-  const errors = validate({
-    root,
-    catalogText,
-    snapshot: JSON.parse(readFileSync(snapshotPath, 'utf8')),
-    inventory: JSON.parse(readFileSync(inventoryPath, 'utf8')),
-    assetProvenance: existsSync(provenancePath) ? JSON.parse(readFileSync(provenancePath, 'utf8')) : undefined,
-    release,
-    destination,
-    releaseContext: release ? localReleaseContext(root) : undefined,
-  });
-  if (errors.length) throw new Error(errors.join('\n'));
-  console.log(release
-    ? `Market catalog release ${snapshotPath} is valid for ${destination} and the checked-out ${releaseBranch(destination)} tag.`
-    : `Market catalog source candidate ${snapshotPath} is internally valid; no release ref is asserted.`);
+  if (command === 'validate' && rest.length === 0) {
+    const errors = validate(readInputs(root));
+    if (errors.length) throw new Error(errors.join('\n'));
+    console.log('Market catalog is valid.');
+    return;
+  }
+  if (command === 'release' && rest.length === 1) {
+    const directory = resolve(rest[0]);
+    const snapshot = writeRelease(root, directory);
+    console.log(`Wrote catalog-snapshot.json and catalog.tar (${snapshot.content.files.length} files) to ${directory}`);
+    return;
+  }
+  throw new Error(USAGE);
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
+}

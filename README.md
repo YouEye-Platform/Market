@@ -2,14 +2,14 @@
 
 Official app catalog for the [YouEye](https://github.com/YouEye-Platform/YouEye) self-hosted platform.
 
-The Market is a plain YAML catalog. YouEye Control Panel reads this repository directly from GitHub, shows the available apps, and uses the manifests here to install and update containers. There is no release artifact for this repo: publishing the branch is enough.
+The Market is a plain YAML catalog. Each release packs it into `catalog.tar`; the YouEye Control Panel reads that archive, shows the available apps, and uses the manifests in it to install and update containers.
 
 ## What Is In This Repo
 
 | Path | Purpose |
 |---|---|
 | `catalog.yaml` | Root catalog: categories, curated rows, bundles, integrations, and app entries |
-| `catalog-snapshot.json` | Deterministic Market-owned identity and digest for the local catalog content |
+| `VERSION` | Release line (`X.Y.Z`); releases are `catalog-vX.Y.Z-rc.N` |
 | `asset-inventory.json` | Asset digest inventory; intentionally not an assertion of ownership or rights |
 | `store.yaml` | Store metadata for the official YouEye Market source |
 | `apps/<app-id>/youeye-app.yaml` | Full manifest for a container app installed by Control Panel |
@@ -50,12 +50,11 @@ The Market is a plain YAML catalog. YouEye Control Panel reads this repository d
 - `apps` lists native app references and container app manifest paths.
 - `integrations` lists optional wiring recipes.
 
-Native app references use GitHub repo names, for example:
+Native apps are named by id only; the box finds their releases through its
+channel index:
 
 ```yaml
 - id: wiki
-  repo: YouEye-Platform/YE-App-Wiki
-  manifest: youeye-app.yaml
   integration: native
 ```
 
@@ -76,31 +75,19 @@ The catalog tests use Node's built-in test runner and do not install extra depen
 pnpm test
 ```
 
-The Market snapshot is an independent catalog identity, not an app release and not a
-binary artifact. Generate and verify it deterministically from local content:
-
-```bash
-pnpm catalog:generate --version X.Y.Z
-pnpm catalog:validate
-```
-
-The snapshot validator preserves third-party manifest versions and OCI digests because
-it only hashes catalog and asset metadata, including every application YAML manifest.
-Source validation makes no assertion about the current branch or tag. Release
-validation checks the destination's branch, tag, channel version and exact content.
-Asset provenance is reviewed when entries change, without a separate reviewer
-appointment at release time. Factual source records and exact hashes are checked during development and
-release; see [CONTRIBUTING.md](CONTRIBUTING.md).
+`pnpm catalog:validate` checks native entries, the asset inventory and asset
+provenance. `pnpm catalog:release <dir>` writes the release's
+`catalog-snapshot.json` and `catalog.tar`; both depend only on the repository
+content. Third-party manifest versions and OCI digests are hashed, never
+rewritten. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Contributing and releases
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution scope, asset provenance,
-deterministic snapshots and destination-specific release checks.
+catalog releases.
 
 ## License
 
 YouEye source code is licensed under the [Business Source License 1.1](LICENSE). Each version converts to AGPL-3.0 after four years.
 
 The "YouEye" name and logo are trademarks. See [TRADEMARK.md](TRADEMARK.md) for usage guidelines.
-
-Private Dev catalogs reference native application `dev` manifests and use `catalog-dev-v` snapshots. Stable and Beta publication still requires native `main` manifests; a Dev snapshot cannot attest either public channel. Generate with `--branch dev` and validate a tagged Dev release with `--destination forgejo-dev` (six version positions).

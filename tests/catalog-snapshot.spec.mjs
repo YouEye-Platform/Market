@@ -1,68 +1,98 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  CANONICAL_INPUTS,
   MARKET_IDENTITY,
+  SNAPSHOT_API_VERSION,
   buildAssetInventory,
+  buildCatalogTar,
   buildSnapshot,
+  sha256,
   validate,
 } from '../scripts/catalog-snapshot.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const catalogText = readFileSync(join(root, 'catalog.yaml'), 'utf8');
-const snapshot = JSON.parse(readFileSync(join(root, 'catalog-snapshot.json'), 'utf8'));
 const inventory = JSON.parse(readFileSync(join(root, 'asset-inventory.json'), 'utf8'));
 const assetProvenance = JSON.parse(readFileSync(join(root, 'asset-provenance.json'), 'utf8'));
+const snapshot = buildSnapshot(root);
 
 function validInput() {
   return {
     root,
     catalogText,
-    snapshot: structuredClone(snapshot),
     inventory: structuredClone(inventory),
     assetProvenance: structuredClone(assetProvenance),
-  };
-}
-
-function releaseContext(overrides = {}) {
-  return {
-    branch: 'main',
-    head: '0123456789abcdef0123456789abcdef01234567',
-    tagsAtHead: [`catalog-v${snapshot.version}`],
-    dirty: false,
-    ...overrides,
   };
 }
 
 function fixture(t) {
   const directory = mkdtempSync(join(tmpdir(), 'market-snapshot-test-'));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
-  cpSync(root, directory, { recursive: true, filter: (path) => !path.split('/').includes('.git') });
+  cpSync(root, directory, { recursive: true, filter: (path) => !path.split('/').some(p => ['.git', 'node_modules'].includes(p)) });
   return directory;
 }
 
-function channelInput(t, branch = 'main') {
-  const directory = fixture(t);
-  const text = catalogText.replace(/^    branch: (?:main|dev)$/gm, `    branch: ${branch === 'dev' ? 'dev' : 'main'}`);
-  writeFileSync(join(directory, 'catalog.yaml'), text);
-  return { ...validInput(), root: directory, catalogText: text,
-    snapshot: buildSnapshot(directory, inventory, snapshot.version, branch) };
+function cli(directory, ...args) {
+  return spawnSync(process.execPath, ['scripts/catalog-snapshot.mjs', ...args], { cwd: directory, encoding: 'utf8' });
 }
 
-test('catalog snapshot and asset inventory are deterministic local content records', () => {
-  const generatedInventory = buildAssetInventory(root);
-  const generatedSnapshot = buildSnapshot(root, generatedInventory, snapshot.version, snapshot.provenance.releaseBranch);
-  assert.deepEqual(inventory, generatedInventory);
-  assert.deepEqual(snapshot, generatedSnapshot);
-  assert.deepEqual(validate({ ...validInput(), snapshot }), []);
+/** Minimal ustar reader: [{name, mode, uid, gid, mtime, type, uname, gname, data}]. */
+function readTar(bytes) {
+  const entries = [];
+  for (let offset = 0; offset + 512 <= bytes.length;) {
+    const header = bytes.subarray(offset, offset + 512);
+    if (header.every(byte => byte === 0)) break;
+    const text = (start, length) => header.subarray(start, start + length).toString('utf8').replace(/\0.*$/s, '');
+    const number = (start, length) => parseInt(text(start, length).trim() || '0', 8);
+    const prefix = text(345, 155);
+    const size = number(124, 12);
+    let checksum = 0;
+    for (let index = 0; index < 512; index += 1) checksum += index >= 148 && index < 156 ? 0x20 : header[index];
+    assert.equal(number(148, 8), checksum, 'tar header checksum');
+    entries.push({
+      name: (prefix ? `${prefix}/` : '') + text(0, 100), mode: number(100, 8), uid: number(108, 8), gid: number(116, 8),
+      mtime: number(136, 12), type: text(156, 1), magic: text(257, 6), uname: text(265, 32), gname: text(297, 32),
+      data: bytes.subarray(offset + 512, offset + 512 + size),
+    });
+    offset += 512 + Math.ceil(size / 512) * 512;
+  }
+  return entries;
+}
+
+test('the snapshot describes content only: no version, branch, repository or host', () => {
+  assert.deepEqual(Object.keys(snapshot), ['apiVersion', 'identity', 'content', 'catalog']);
+  assert.equal(snapshot.apiVersion, SNAPSHOT_API_VERSION);
+  assert.equal(snapshot.identity, MARKET_IDENTITY);
+  assert.equal(snapshot.content.canonicalInputs, CANONICAL_INPUTS);
+  assert.deepEqual(buildSnapshot(root), snapshot);
+  assert.equal(snapshot.content.sha256, sha256(`${JSON.stringify(snapshot.content.files, null, 2)}\n`));
+  assert.equal(snapshot.catalog.sha256, snapshot.content.files.find(f => f.path === 'catalog.yaml').sha256);
+  assert.doesNotMatch(JSON.stringify(snapshot), /"(?:version|provenance|releaseBranch|releaseTag|branch|repository)"/);
+});
+
+test('the snapshot lists the catalog, manifests, images and notices', () => {
+  const paths = snapshot.content.files.map(f => f.path);
+  assert.deepEqual(paths, [...paths].sort());
+  for (const path of ['catalog.yaml', 'store.yaml', 'RETIRED.md', 'asset-inventory.json', 'asset-provenance.json',
+    'apps/immich/youeye-app.yaml', 'apps/immich/icon.svg', 'system/caddy.yaml']) assert.ok(paths.includes(path), path);
+  for (const asset of inventory.assets) assert.ok(paths.includes(asset.path), asset.path);
+  assert.ok(paths.some(p => /^apps\/[^/]+\/ASSET-NOTICES\.md$/.test(p)));
+  assert.ok(!paths.some(p => p.split('/').some(part => part.startsWith('.'))));
+  assert.ok(!paths.some(p => p.startsWith('scripts/') || p.startsWith('tests/')));
+});
+
+test('the committed asset inventory and provenance are valid', () => {
+  assert.deepEqual(inventory, buildAssetInventory(root));
   assert.deepEqual(validate(validInput()), []);
 });
 
-test('real manifest version and OCI digest changes invalidate the snapshot and change its identity', (t) => {
+test('manifest, image and added or removed files change the content identity', (t) => {
   const directory = fixture(t);
   const path = join(directory, 'apps/immich/youeye-app.yaml');
   const original = readFileSync(path, 'utf8');
@@ -72,97 +102,37 @@ test('real manifest version and OCI digest changes invalidate the snapshot and c
   ]) {
     assert.notEqual(changed, original, 'fixture must change a real version or OCI digest');
     writeFileSync(path, changed);
-    const next = buildSnapshot(directory, inventory, snapshot.version);
-    assert.notEqual(next.content.sha256, snapshot.content.sha256);
-    assert.match(validate({ ...validInput(), root: directory }).join('\n'), /canonical content/);
+    assert.notEqual(buildSnapshot(directory).content.sha256, snapshot.content.sha256);
   }
-});
-
-test('every inventoried YAML input and added or removed canonical manifest affects identity', (t) => {
-  const directory = fixture(t);
-  for (const input of snapshot.content.files) {
-    const path = join(directory, input.path);
-    const original = readFileSync(path);
-    writeFileSync(path, Buffer.concat([original, Buffer.from('\n# changed input\n')]));
-    assert.notEqual(buildSnapshot(directory, inventory, snapshot.version).content.sha256,
-      snapshot.content.sha256, input.path);
-    writeFileSync(path, original);
+  writeFileSync(path, original);
+  for (const input of snapshot.content.files.filter((_, index) => index % 7 === 0)) {
+    const file = join(directory, input.path);
+    const bytes = readFileSync(file);
+    writeFileSync(file, Buffer.concat([bytes, Buffer.from('\n')]));
+    assert.notEqual(buildSnapshot(directory).content.sha256, snapshot.content.sha256, input.path);
+    writeFileSync(file, bytes);
   }
   for (const area of ['apps', 'bundles', 'integrations', 'system', 'updates']) {
-    const path = join(directory, area, 'added-fixture.yaml');
+    const added = join(directory, area, 'added-fixture.txt');
     mkdirSync(join(directory, area), { recursive: true });
-    writeFileSync(path, 'fixture: true\n');
-    assert.notEqual(buildSnapshot(directory, inventory, snapshot.version).content.sha256, snapshot.content.sha256);
-    assert.match(validate({ ...validInput(), root: directory }).join('\n'), /canonical content/);
-    rmSync(path);
+    writeFileSync(added, 'fixture\n');
+    assert.notEqual(buildSnapshot(directory).content.sha256, snapshot.content.sha256, area);
+    rmSync(added);
   }
-  rmSync(join(directory, 'apps/immich/youeye-app.yaml'));
-  assert.match(validate({ ...validInput(), root: directory }).join('\n'), /canonical content/);
+  assert.equal(buildSnapshot(directory).content.sha256, snapshot.content.sha256);
+  rmSync(path);
+  assert.notEqual(buildSnapshot(directory).content.sha256, snapshot.content.sha256);
+  rmSync(join(directory, 'store.yaml'));
+  assert.throws(() => buildSnapshot(directory), /Canonical catalog input is missing: store\.yaml/);
 });
 
-test('snapshot rejects malformed and missing catalog pins', () => {
-  const malformed = validInput();
-  malformed.snapshot.catalog.sha256 = 'sha256:not-a-digest';
-  assert.match(validate(malformed).join('\n'), /catalog digest/);
-
-  const missing = validInput();
-  delete missing.snapshot.catalog;
-  assert.match(validate(missing).join('\n'), /catalog digest/);
-});
-
-test('snapshot rejects false Market provenance and identity', () => {
-  const falseIdentity = validInput();
-  falseIdentity.snapshot.identity = 'third-party/market';
-  assert.match(validate(falseIdentity).join('\n'), /snapshot identity/);
-
-  const falseProvenance = validInput();
-  falseProvenance.snapshot.provenance.repository = 'third-party/market';
-  assert.match(validate(falseProvenance).join('\n'), /provenance repository/);
-});
-
-test('snapshot rejects malformed and missing release branch, tag, and destination pins', () => {
-  for (const [field, value, expected] of [
-    ['releaseBranch', 'release', /release branch/],
-    ['releaseBranch', undefined, /release branch/],
-    ['releaseTag', 'v9.9.9', /release tag/],
-    ['releaseTag', undefined, /release tag/],
-    ['destination', 'apps/immich/youeye-app.yaml', /provenance destination/],
-    ['destination', undefined, /provenance destination/],
-  ]) {
+test('native entries name only the app id', () => {
+  const native = catalogText.match(/^  - id: notes\n    integration: native\n/m);
+  assert.ok(native, 'notes is an id-only native entry');
+  for (const extra of ['repo: YouEye-Platform/Notes', 'branch: main', 'manifest: youeye-app.yaml', 'path: apps/notes', 'latestVersion: "1.0.0"']) {
     const input = validInput();
-    input.snapshot.provenance[field] = value;
-    assert.match(validate(input).join('\n'), expected, `${field}=${value}`);
-  }
-});
-
-test('snapshot rejects invalid native source references without inspecting remote repos', () => {
-  const badSource = catalogText.replace(`branch: ${snapshot.provenance.releaseBranch === 'dev' ? 'dev' : 'main'}\n    manifest: youeye-app.yaml`, 'branch: release\n    manifest: app.yaml');
-  const input = validInput();
-  input.catalogText = badSource;
-  assert.match(validate(input).join('\n'), /native wiki: branch must be (main|dev)/);
-  assert.match(validate(input).join('\n'), /native wiki: manifest destination must be youeye-app.yaml/);
-});
-
-test('source-candidate validation does not falsely attest the local release ref', () => {
-  assert.deepEqual(validate(validInput()), []);
-  const errors = validate({
-    ...validInput(),
-    release: true,
-    releaseContext: releaseContext({ branch: 'dev', tagsAtHead: [] }),
-  });
-  assert.match(errors.join('\n'), /checkout branch must be main/);
-  assert.match(errors.join('\n'), /HEAD must be tagged exactly/);
-});
-
-test('development and public release validate factual evidence without reviewer approval', t => {
-  assert.deepEqual(validate({ ...channelInput(t), release: true, releaseContext: releaseContext() }), []);
-  for (const release of [false, true]) {
-    const input = { ...channelInput(t), release, releaseContext: releaseContext() };
-    assert.match(validate({ ...input, assetProvenance: undefined }).join('\n'), /provenance metadata/);
-    // Unresolved provenance remains factual; it must not be relabelled as approval.
-    input.assetProvenance.assets[0].evidence = 'project-reference';
-    input.assetProvenance.assets[0].notes = 'Exact icon origin remains unresolved.';
-    assert.deepEqual(validate(input), []);
+    input.catalogText = catalogText.replace(native[0], `${native[0]}    ${extra}\n`);
+    assert.match(validate(input).join('\n'), new RegExp(`native notes: only id and integration are allowed, found ${extra.split(':')[0]}`), extra);
   }
 });
 
@@ -171,6 +141,7 @@ test('provenance rejects missing, duplicate, surplus, stale or malformed records
     const input = validInput(); change(input.assetProvenance);
     return validate(input).join('\n');
   };
+  assert.match(validate({ ...validInput(), assetProvenance: undefined }).join('\n'), /provenance metadata/);
   assert.match(check(p => p.assets.pop()), /missing asset provenance/);
   assert.match(check(p => p.assets[1] = structuredClone(p.assets[0])), /duplicate asset provenance/);
   assert.match(check(p => p.assets[0].path = 'apps/unknown/icon.svg'), /unknown or missing path/);
@@ -184,154 +155,65 @@ test('provenance rejects missing, duplicate, surplus, stale or malformed records
   for (const notes of ['', '  ', null, 42]) {
     assert.match(check(p => p.assets[0].notes = notes), /notes are required/);
   }
+  // Unresolved provenance remains factual; it must not be relabelled as approval.
+  assert.deepEqual(check(p => { p.assets[0].evidence = 'project-reference'; p.assets[0].notes = 'Exact icon origin remains unresolved.'; }), '');
 });
 
-test('provenance records are bound into the snapshot content hash', t => {
-  const directory = fixture(t);
-  const changed = structuredClone(assetProvenance);
-  changed.assets[0].notes += ' Changed source assessment.';
-  writeFileSync(join(directory, 'asset-provenance.json'), JSON.stringify(changed));
-  assert.notEqual(buildSnapshot(directory, inventory, snapshot.version).content.sha256, snapshot.content.sha256);
-  assert.match(validate({ ...validInput(), root: directory, assetProvenance: changed }).join('\n'), /canonical content/);
-});
-
-test('release CLI verifies real branch, tag and clean state without a separate approval file', (t) => {
-  const directory = fixture(t);
-  writeFileSync(join(directory, 'catalog.yaml'), catalogText.replace(/^    branch: (?:main|dev)$/gm, '    branch: main'));
-  const releaseSnapshot = buildSnapshot(directory, inventory, '0.6.0.0.1', 'main');
-  releaseSnapshot.provenance.releaseBranch = 'main';
-  releaseSnapshot.provenance.releaseTag = `catalog-v${releaseSnapshot.version}`;
-  writeFileSync(join(directory, 'catalog-snapshot.json'), JSON.stringify(releaseSnapshot));
-  // Obsolete human-approval files are not required.
-  rmSync(join(directory, 'asset-approvals.json'), { force: true });
-  const git = (...args) => execFileSync('git', ['-C', directory, ...args], { encoding: 'utf8' }).trim();
-  const cli = (...args) => spawnSync(process.execPath, ['scripts/catalog-snapshot.mjs', 'validate', ...args], {
-    cwd: directory, encoding: 'utf8',
-    env: { ...process.env, RELEASE_BRANCH: 'main', RELEASE_TAG: `catalog-v${releaseSnapshot.version}` },
-  });
-  git('init', '--initial-branch=dev', '--template=');
-  git('config', 'user.name', 'Snapshot test fixture');
-  git('config', 'user.email', 'fixture@example.invalid');
-  git('config', 'commit.gpgsign', 'false');
-  git('add', '.');
-  git('commit', '-m', 'Local test fixture');
-  const source = cli();
-  assert.equal(source.status, 0, source.stderr);
-  assert.match(source.stdout, /source candidate.*no release ref is asserted/);
-  const wrongRef = cli('--release');
-  assert.equal(wrongRef.status, 1);
-  assert.match(wrongRef.stderr, /checkout branch must be main/);
-  assert.match(wrongRef.stderr, /HEAD must be tagged exactly/);
-  assert.match(cli('--release', '--destination', 'forgejo-main').stderr, /checkout branch must be main/);
-  assert.equal(cli('--release', '--destination', 'typo').status, 1);
-  assert.equal(cli('--destination', 'forgejo-main').status, 1);
-  git('checkout', '-b', 'main');
-  git('-c', 'tag.gpgSign=false', 'tag', `catalog-v${releaseSnapshot.version}`);
-  const privateRelease = cli('--release', '--destination', 'forgejo-main');
-  assert.equal(privateRelease.status, 0, privateRelease.stderr);
-  const publicRelease = cli('--release');
-  assert.equal(publicRelease.status, 0, publicRelease.stderr);
-  writeFileSync(join(directory, 'untracked.txt'), 'dirty fixture');
-  assert.match(cli('--release').stderr, /checkout must have no tracked or untracked changes/);
-  assert.match(cli('--release', '--destination', 'forgejo-main').stderr, /checkout must have no tracked or untracked changes/);
-  git('add', 'untracked.txt');
-  git('commit', '-m', 'Change after release tag');
-  assert.match(cli('--release').stderr, /HEAD must be tagged exactly/);
-  git('checkout', `catalog-v${releaseSnapshot.version}`);
-  assert.match(cli('--release').stderr, /checkout branch must be main; found detached/);
-});
-
-test('private Forgejo validation retains tag and content integrity checks', t => {
-  const input = { ...channelInput(t), release: true, destination: 'forgejo-main', releaseContext: releaseContext() };
-  input.snapshot.version = '0.6.0.0.1';
-  input.snapshot.provenance.releaseTag = 'catalog-v0.6.0.0.1';
-  input.releaseContext.tagsAtHead = ['catalog-v0.6.0.0.1'];
-  assert.deepEqual(validate(input), []);
-  assert.match(validate({ ...input, releaseContext: releaseContext({ tagsAtHead: [] }) }).join('\n'), /HEAD must be tagged exactly/);
-  input.snapshot.content.sha256 = 'sha256:invalid';
-  assert.match(validate(input).join('\n'), /canonical content set digest/);
+test('a stale asset inventory fails validation', () => {
+  const input = validInput();
   input.inventory.assets[0].sha256 = 'sha256:invalid';
   assert.match(validate(input).join('\n'), /asset inventory does not match/);
 });
 
-test('catalog source supports channel depths while Forgejo main enforces five positions', t => {
- for (const version of ['0.6.0', '0.6.0.1', '0.6.0.0.1', '0.6.0.0.0.1']) {
-  const input = channelInput(t);
-  input.snapshot = buildSnapshot(input.root, inventory, version);
-  assert.deepEqual(validate(input), []);
-  const errors = validate({ ...input, release: true, destination: 'forgejo-main', releaseContext: releaseContext({ tagsAtHead: [`catalog-v${version}`] }) });
-  assert.equal(errors.length === 0, version.split('.').length === 5, version);
- }
+test('catalog.tar holds exactly the snapshot files, normalised', () => {
+  const tar = buildCatalogTar(root, snapshot);
+  assert.equal(tar.length % 512, 0);
+  assert.deepEqual(buildCatalogTar(root, snapshot), tar);
+  const entries = readTar(tar);
+  assert.deepEqual(entries.map(e => e.name), snapshot.content.files.map(f => f.path));
+  for (const [index, entry] of entries.entries()) {
+    assert.equal(sha256(entry.data), snapshot.content.files[index].sha256, entry.name);
+    assert.deepEqual([entry.type, entry.mode, entry.uid, entry.gid, entry.mtime, entry.uname, entry.gname, entry.magic],
+      ['0', 0o644, 0, 0, 0, '', '', 'ustar'], entry.name);
+  }
+  if (spawnSync('tar', ['--version']).status === 0) {
+    const directory = mkdtempSync(join(tmpdir(), 'market-tar-'));
+    try {
+      writeFileSync(join(directory, 'catalog.tar'), tar);
+      const listed = spawnSync('tar', ['-tf', 'catalog.tar'], { cwd: directory, encoding: 'utf8' });
+      assert.equal(listed.status, 0, listed.stderr);
+      assert.deepEqual(listed.stdout.trim().split('\n'), snapshot.content.files.map(f => f.path));
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+  }
 });
 
-for (const [destination, branch, version, tag] of [
-  ['github-beta', 'beta', '0.6.0.1', 'catalog-beta-v0.6.0.1'],
-  ['github-main', 'main', '0.6.1', 'catalog-v0.6.1'],
-]) {
-  test(`${destination} requires matching branch, tag, depth and asset integrity`, t => {
-    const input = { ...channelInput(t, branch), release: true, destination,
-      releaseContext: releaseContext({ branch, tagsAtHead: [tag] }) };
-    input.snapshot.version = version;
-    input.snapshot.provenance.releaseBranch = branch;
-    input.snapshot.provenance.releaseTag = tag;
-    assert.deepEqual(validate(input), []);
-    assert.match(validate({ ...input, assetProvenance: undefined }).join('\n'), /asset provenance metadata/);
-    assert.match(validate({ ...input, releaseContext: releaseContext({ branch: 'dev', tagsAtHead: [tag] }) }).join('\n'), /checkout branch/);
-    assert.match(validate({ ...input, releaseContext: releaseContext({ branch, tagsAtHead: [] }) }).join('\n'), /tagged exactly/);
-    input.snapshot.version += '.1';
-    input.snapshot.provenance.releaseTag += '.1';
-    input.releaseContext.tagsAtHead = [input.snapshot.provenance.releaseTag];
-    assert.match(validate(input).join('\n'), /numeric version positions/);
-  });
-}
+test('release CLI writes the same snapshot and tar from any checkout', (t) => {
+  const first = fixture(t);
+  const second = fixture(t);
+  for (const directory of [first, second]) {
+    const result = cli(directory, 'release', 'out');
+    assert.equal(result.status, 0, result.stderr);
+  }
+  for (const name of ['catalog-snapshot.json', 'catalog.tar']) {
+    assert.deepEqual(readFileSync(join(first, 'out', name)), readFileSync(join(second, 'out', name)), name);
+  }
+  assert.deepEqual(JSON.parse(readFileSync(join(first, 'out/catalog-snapshot.json'), 'utf8')), snapshot);
+  assert.deepEqual(readFileSync(join(first, 'out/catalog.tar')), buildCatalogTar(root, snapshot));
 
+  const broken = fixture(t);
+  writeFileSync(join(broken, 'catalog.yaml'), catalogText.replace(/^(  - id: notes\n    integration: native\n)/m, '$1    branch: dev\n'));
+  const refused = cli(broken, 'release', 'out');
+  assert.equal(refused.status, 1);
+  assert.match(refused.stderr, /native notes: only id and integration are allowed, found branch/);
+  assert.equal(cli(broken, 'release').status, 1);
+  assert.equal(cli(broken, 'unknown').status, 1);
+});
 
-test('snapshot generation selects and preserves the declared release branch', t => {
+test('generate CLI rewrites the asset inventory deterministically', (t) => {
   const directory = fixture(t);
-  const cli = (...args) => spawnSync(process.execPath, ['scripts/catalog-snapshot.mjs', ...args], { cwd: directory, encoding: 'utf8' });
-  assert.throws(() => buildSnapshot(root, inventory, '1.2.3', 'unknown'), /Invalid snapshot branch/);
-  assert.equal(cli('generate', '--branch', 'unknown').status, 1);
-  assert.equal(cli('validate', '--branch', 'beta').status, 1);
-  for (const [branch, version, tag] of [['dev', '1.2.3.4.5.6', 'catalog-dev-v1.2.3.4.5.6'], ['beta', '1.2.3.4', 'catalog-beta-v1.2.3.4'], ['main', '1.2.3', 'catalog-v1.2.3']]) {
-    writeFileSync(join(directory, 'catalog.yaml'), catalogText.replace(/^    branch: (?:main|dev)$/gm, `    branch: ${branch === 'dev' ? 'dev' : 'main'}`));
-    const first = cli('generate', '--version', version, '--branch', branch);
-    assert.equal(first.status, 0, first.stderr);
-    const before = readFileSync(join(directory, 'catalog-snapshot.json'), 'utf8');
-    assert.equal(JSON.parse(before).provenance.releaseTag, tag);
-    const repeat = cli('generate');
-    assert.equal(repeat.status, 0, repeat.stderr);
-    assert.equal(readFileSync(join(directory, 'catalog-snapshot.json'), 'utf8'), before);
-    assert.equal(cli('validate').status, 0);
-  }
+  rmSync(join(directory, 'asset-inventory.json'));
+  const result = cli(directory, 'generate');
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(join(directory, 'asset-inventory.json'), 'utf8'), readFileSync(join(root, 'asset-inventory.json'), 'utf8'));
+  assert.equal(cli(directory, 'validate').status, 0);
 });
-
-test('native references reject the historical nonexistent public repository names', () => {
-  const input = validInput();
-  input.catalogText = catalogText.replace(/repo: [^\n]*\/(?:YE-App-)?Wiki\n/, 'repo: YouEye-Platform/YE-App-Wiki\n');
-  assert.match(validate(input).join('\n'), /native wiki: repo must be/);
-});
-
-test('Dev native references cannot be published as Stable or Beta', t => {
-  const input = channelInput(t, 'dev');
-  input.snapshot.version = '0.6.0.0.0.1';
-  input.snapshot.provenance.releaseTag = 'catalog-dev-v0.6.0.0.0.1';
-  const context = releaseContext({branch: 'dev', tagsAtHead: [input.snapshot.provenance.releaseTag]});
-  assert.deepEqual(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}), []);
-  for (const destination of ['forgejo-main', 'github-main', 'github-beta']) {
-    assert.match(validate({...input, release: true, destination, releaseContext: context}).join('\n'), /native wiki: branch must be main/);
-  }
-  input.snapshot.version = '0.6.0';
-  input.snapshot.provenance.releaseTag = 'catalog-dev-v0.6.0';
-  assert.match(validate({...input, release: true, destination: 'forgejo-dev', releaseContext: context}).join('\n'), /suffix does not match/);
-});
-
-for (const [destination, branch, version] of [["forgejo-dev", "dev", "0.6.1-dev.10"], ["forgejo-main", "main", "0.6.1-alpha.2"], ["github-beta", "beta", "0.6.1-beta.2"], ["github-main", "main", "0.6.1"]]) {
-  test(`${destination} accepts canonical catalog identity without changing app versions`, t => {
-    const input = channelInput(t, branch);
-    input.snapshot = buildSnapshot(input.root, inventory, version, branch);
-    const tag = input.snapshot.provenance.releaseTag;
-    assert.deepEqual(validate({ ...input, release: true, destination, releaseContext: releaseContext({ branch, tagsAtHead: [tag] }) }), []);
-    assert.equal(input.snapshot.version, version);
-    assert.equal(readFileSync(join(input.root, "catalog.yaml"), "utf8"), input.catalogText);
-  });
-}

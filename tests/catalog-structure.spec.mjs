@@ -189,36 +189,11 @@ test('generated config files target declared container storage', () => {
   assert.deepEqual(problems, [], problems.join('; '));
 });
 
-test('native app repos use the source provider identities and pinned manifest destinations', () => {
-  const expected = new Map([
-    ['wiki', 'YouEye-Platform/Wiki'],
-    ['search', 'YouEye-Platform/Search'],
-    ['notes', 'YouEye-Platform/Notes'],
-    ['cinema', 'YouEye-Platform/Cinema'],
-    ['weather', 'YouEye-Platform/Weather'],
-    ['translate', 'YouEye-Platform/Translate'],
-  ]);
-  const entries = new Map();
-  let inApps = false;
-  let current = null;
-  for (const line of catalog.split('\n')) {
-    if (/^apps:\s*$/.test(line)) { inApps = true; continue; }
-    if (inApps && /^[a-zA-Z]/.test(line)) break;
-    if (!inApps) continue;
-    const id = line.match(/^  - id:\s*([a-z0-9-]+)\s*$/)?.[1];
-    if (id) { if (current) entries.set(current.id, current); current = { id }; continue; }
-    const field = line.match(/^    (repo|branch|manifest|integration):\s*([^\s]+)\s*$/);
-    if (field && current) current[field[1]] = field[2];
+test('native apps are id-only entries resolved through the channel index', () => {
+  const expected = ['wiki', 'search', 'notes', 'cinema', 'weather', 'translate'];
+  const block = catalog.slice(catalog.search(/^apps:\s*$/m));
+  for (const id of expected) {
+    assert.match(block, new RegExp(`^  - id: ${id}\\n    integration: native\\n(?=  - id: |\\S|$)`, 'm'), id);
   }
-  if (current) entries.set(current.id, current);
-  const problems = [];
-  for (const [id, repo] of expected) {
-    const entry = entries.get(id) ?? {};
-    if (entry.repo !== repo) problems.push(`${id}: repo is ${entry.repo || 'missing'}, expected ${repo}`);
-    const branch = JSON.parse(readFileSync(join(root, 'catalog-snapshot.json'), 'utf8')).provenance.releaseBranch === 'dev' ? 'dev' : 'main';
-    if (entry.branch !== branch) problems.push(`${id}: branch is ${entry.branch || 'missing'}, expected ${branch}`);
-    if (entry.manifest !== 'youeye-app.yaml') problems.push(`${id}: manifest is ${entry.manifest || 'missing'}, expected youeye-app.yaml`);
-    if (entry.integration !== 'native') problems.push(`${id}: integration is ${entry.integration || 'missing'}, expected native`);
-  }
-  assert.deepEqual(problems, [], problems.join('; '));
+  assert.doesNotMatch(catalog, /^\s+(?:repo|branch):/m);
 });

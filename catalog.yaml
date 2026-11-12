@@ -70,38 +70,19 @@ bundles:
     latestVersion: "0.1.0"
 
 apps:
-  # Native source references use this Forgejo source namespace. Public export maps
-  # registered repositories to their GitHub names. These are source
-  # metadata only: Market does not manufacture or distribute native-app binaries.
+  # Native apps are named by id only. The box finds each one's release through its
+  # channel index; the Market does not build or distribute native-app binaries.
   - id: wiki
-    repo: YouEye-Platform/Wiki
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: search
-    repo: YouEye-Platform/Search
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: notes
-    repo: YouEye-Platform/Notes
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: cinema
-    repo: YouEye-Platform/Cinema
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: weather
-    repo: YouEye-Platform/Weather
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: translate
-    repo: YouEye-Platform/Translate
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: searxng
     path: apps/searxng
