@@ -9,7 +9,7 @@ metadata:
   name: "Wikiless"
   description: "Privacy-respecting Wikipedia frontend"
   icon: "book-open"
-  iconUrl: "icon.png"
+  iconUrl: "icon.svg"
   category: "search"
   website: "https://wikiless.tiekoetter.com"
   developer: "Wikiless contributors; maintained by tiekoetter"
@@ -23,10 +23,9 @@ metadata:
 
 detail:
   releaseNotes: |
-    This fresh-install definition adopts the actively maintained Wikiless fork at
-    source revision e31ca6d. The 0.1.3 application now runs on Node.js 26.7, Redis
-    client 6.2, Express 5.2, current request and HTML-processing dependencies, and
-    includes recent CSRF, redirect, proxy, media, rate-limit, and static-asset fixes.
+    Wikiless 0.1.3 at upstream revision e9e618fe refreshes its dependency stack,
+    Node.js 26.12 runtime, proxy handling and Wikimedia request identification.
+    The image is pinned to its immutable Linux amd64 manifest.
   longDescription: |
     Wikiless is a free, open-source alternative frontend for Wikipedia. It proxies
     article pages and media through your own server, strips tracking-oriented browser
@@ -35,9 +34,9 @@ detail:
     to Wikipedia content where the original site is blocked.
   screenshots:
     - path: "screenshots/platform-admin-article-0.1.3.png"
-      caption: "Platform administrator reading the Open-source software article through Wikiless"
+      caption: "Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md"
     - path: "screenshots/standard-user-article-0.1.3.png"
-      caption: "Standard platform user independently reading the same proxied Wikipedia article"
+      caption: "Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md"
 
 database:
   mode: none
@@ -54,7 +53,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "ghcr.io/tiekoetter/wikiless@sha256:c791def71a566e1ab7bc67c8cbfb5d5385036e1f5228ae4a6eba62d818245af3"
+    image: "ghcr.io/tiekoetter/wikiless@sha256:ef1d1400078019a9d7e39e300373e10b160cc8b785c7b175e80270846a031df6"
     port: 8080
     network: internet
     volumes:

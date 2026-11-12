@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 
 const manifest = readFileSync(new URL('../apps/sonarr/youeye-app.yaml', import.meta.url), 'utf8');
 
-test('Sonarr 4.0.19.2979 uses the reviewed immutable LinuxServer OCI release', () => {
-  assert.match(manifest, /^version: "4\.0\.19\.2979"$/m);
-  assert.match(manifest, /docker\.io\/linuxserver\/sonarr@sha256:373159ba768e23a3a1c497d9f2b936addf8fd5b1fdce7dd6a14080ac928bfda0/);
+test('Sonarr 4.0.20.3014 uses the reviewed immutable LinuxServer OCI release', () => {
+  assert.match(manifest, /^version: "4\.0\.20\.3014"$/m);
+  assert.match(manifest, /docker\.io\/linuxserver\/sonarr@sha256:c5a8178dc6d1f2e2c34b5e254716230d9769af34b4090e61cc116dc055a3083f/);
   assert.doesNotMatch(manifest, /docker\.io\/linuxserver\/sonarr:[^\s"]+/);
 });
 

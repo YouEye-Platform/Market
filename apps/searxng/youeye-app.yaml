@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "2026.8.12"
+version: "2026.10.19"
 
 metadata:
   id: "searxng"
@@ -22,8 +22,9 @@ metadata:
 
 detail:
   releaseNotes: |
-    SearXNG 2026.8.12 from upstream revision cdfdaa5a8, paired with the current
-    Valkey 8.1 maintenance image. Both multi-architecture OCI sources are
+    SearXNG 2026.10.19 from upstream revision 81371861f, with the existing
+    immutable Valkey sidecar. Uses the upstream valkey settings and preserves
+    the existing configuration storage layout for upgrades. Both multi-architecture OCI sources are
     immutable and the JSON/RSS search formats remain enabled for integrations.
   longDescription: |
     SearXNG is a free, privacy-respecting metasearch engine that aggregates
@@ -52,7 +53,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/searxng/searxng@sha256:c2dc2d9e6b910653e8628361c23443222490e4cabbb9e02667b7847143db843b"
+    image: "docker.io/searxng/searxng@sha256:5ed0323b5f5f8701264ef65e239a2bd83cb57098f2b971fa30bf79c06eeae271"
     port: 8080
     network: internet
     volumes:
@@ -73,7 +74,7 @@ provides:
 env_mapping:
   SEARXNG_BASE_URL: "${app.url}"
   SEARXNG_SECRET: "${secrets.secret_key}"
-  SEARXNG_REDIS_URL: "redis://${containers.redis.internal_host}:6379/0"
+  SEARXNG_VALKEY_URL: "valkey://${containers.redis.internal_host}:6379/0"
   SEARXNG_DEFAULT_LANG: "${platform.locale}"
 
 configFiles:
@@ -100,8 +101,8 @@ configFiles:
           - html
           - json
           - rss
-      redis:
-        url: "redis://${containers.redis.internal_host}:6379/0"
+      valkey:
+        url: "valkey://${containers.redis.internal_host}:6379/0"
       ui:
         static_use_hash: true
         default_theme: simple

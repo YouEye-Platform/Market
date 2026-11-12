@@ -5,8 +5,8 @@ import test from 'node:test';
 const manifest = readFileSync(new URL('../apps/vaultwarden/youeye-app.yaml', import.meta.url), 'utf8');
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
-const version = '1.37.1';
-const image = 'docker.io/vaultwarden/server@sha256:ebdfe70701c60ac0c28c697e787cea767d7972940b786037b29fe0d507f821e8';
+const version = '1.37.4';
+const image = 'docker.io/vaultwarden/server@sha256:2bb2e0344616c62a6d76ea10558497499f8ed3f731400e143dc7bf17b757b5b9';
 
 test('Vaultwarden version and OCI identity are synchronized and immutable', () => {
   assert.match(manifest, new RegExp(`^version: "${version.replaceAll('.', '\\.')}"$`, 'm'));

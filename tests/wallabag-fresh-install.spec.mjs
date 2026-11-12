@@ -5,7 +5,7 @@ const manifest = readFileSync(new URL('../apps/wallabag/youeye-app.yaml', import
 
 test('wallabag uses the official immutable 2.6.14 OCI image', () => {
   assert.match(manifest, /version: "2\.6\.14"/);
-  assert.match(manifest, /docker\.io\/wallabag\/wallabag@sha256:4a527e027e0d59e87c14225ef11e005af3d4890374202ad319ce5e63dfc66709/);
+  assert.match(manifest, /docker\.io\/wallabag\/wallabag@sha256:82ade66b403d67c05732f9f08003034509f6499e9f487b858c0b77524b28545d/);
 });
 test('wallabag keeps app data, images, SMTP, and explicit local-login semantics', () => {
   assert.match(manifest, /container: "\/var\/www\/wallabag\/data"/);

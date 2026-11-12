@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 const manifest = readFileSync(new URL('../apps/paperless-ngx/youeye-app.yaml', import.meta.url), 'utf8');
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
-test('Paperless-NGX 3.0.5 uses reviewed immutable upstream OCI releases', () => {
-  assert.match(manifest, /version: "3\.0\.5"/);
-  assert.match(catalog, /id: paperless-ngx[\s\S]*?latestVersion: "3\.0\.5"/);
-  assert.match(manifest, /ghcr\.io\/paperless-ngx\/paperless-ngx@sha256:65a4cabf0169ea7fbd90ab7bb28ba3f8b5909613635acda1a03ad606f34b456b/);
+test('Paperless-NGX 3.3.4 uses reviewed immutable upstream OCI releases', () => {
+  assert.match(manifest, /version: "3\.3\.4"/);
+  assert.match(catalog, /id: paperless-ngx[\s\S]*?latestVersion: "3\.3\.4"/);
+  assert.match(manifest, /ghcr\.io\/paperless-ngx\/paperless-ngx@sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8/);
   assert.match(manifest, /docker\.io\/valkey\/valkey@sha256:ee91f7a174ac4d6a6b0685b3a60e321f0a9dbbb691f9b0e285be2ba1d1be8328/);
 });
 

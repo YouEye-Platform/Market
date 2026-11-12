@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "6.3.0.10514"
+version: "6.4.4.10685"
 forwardAuth: enabled
 
 metadata:
@@ -9,7 +9,7 @@ metadata:
   name: "Radarr"
   description: "Smart PVR for your movie collection"
   icon: "film"
-  iconUrl: "icon.png"
+  iconUrl: "icon.svg"
   category: "media"
   website: "https://radarr.video"
   developer: "Team Radarr"
@@ -23,9 +23,8 @@ metadata:
 
 detail:
   releaseNotes: |
-    Radarr 6.3.0.10514 fixes imports from Simkl lists, updates FFProbe,
-    corrects custom formats that use a year for imported files, and refreshes
-    translations and build dependencies.
+    Radarr 6.4.4.10685 improves allowed-host checks and logging, corrects
+    iOS modals and automatic theme changes, and adds movie-file quality filtering.
   longDescription: |
     Radarr is a movie collection manager for Usenet and BitTorrent users. It watches your
     indexers (via Prowlarr) for the films on your wanted list, grabs them through your
@@ -33,9 +32,9 @@ detail:
     Quality profiles, custom formats, and release-upgrade handling are all built in.
   screenshots:
     - path: "screenshots/platform-admin-public-domain-movie-6.3.0.10514.png"
-      caption: "Platform administrator reviewing the accepted public-domain movie and file"
+      caption: "Historical 6.3.0.10514 movie view; artwork and synopsis redacted"
     - path: "screenshots/standard-profile-public-domain-movie-6.3.0.10514.png"
-      caption: "Separate standard platform profile reviewing the persisted movie library"
+      caption: "Historical 6.3.0.10514 persisted movie view; artwork and synopsis redacted"
 
 database:
   mode: none
@@ -50,7 +49,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "docker.io/linuxserver/radarr@sha256:a45b5ab0f850f39edb4cc9c95bbd967b52ddc3d4574a4dfb45561177db6c88f4"
+    image: "docker.io/linuxserver/radarr@sha256:a466ac12c33425ec22ec4bb0d71c3edb79fd5e5f845bba0e2901c1a6aa59b075"
     port: 7878
     network: internet
     volumes:

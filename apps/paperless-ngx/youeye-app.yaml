@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: app
 integration: basic
-version: "3.0.5"
+version: "3.3.4"
 
 metadata:
   id: "paperless-ngx"
@@ -22,19 +22,18 @@ metadata:
 
 detail:
   releaseNotes: |
-    Paperless-NGX 3 introduces Tantivy-powered search, document versions,
-    share-link bundles, and parser plugins. Version 3.0.5 improves search,
-    document editing, custom-field validation, PDF handling, and locale-aware
-    monetary values while fixing several cache and interface regressions.
+    Paperless-NGX 3.3.4 updates trust and security dependencies, following recent
+    document-permission and search fixes. Uses one task worker and one OCR thread
+    for predictable resource use. Historical screenshots show version 3.0.5.
   longDescription: |
     Paperless-NGX is a document management system that transforms your physical documents
     into a searchable online archive. Features automatic OCR, smart tagging, full-text search,
     and a modern web interface.
   screenshots:
     - path: "screenshots/platform-admin-document-3.0.5.png"
-      caption: "Platform administrator reviewing an OCR-indexed and tagged document"
+      caption: "Historical 3.0.5: platform administrator reviewing an OCR-indexed and tagged document"
     - path: "screenshots/standard-user-document-3.0.5.png"
-      caption: "Standard platform user reviewing an independently indexed document"
+      caption: "Historical 3.0.5: standard platform user reviewing an independently indexed document"
 
 capabilities:
   smtp: true
@@ -75,7 +74,7 @@ containers:
   - name: "main"
     type: oci
     primary: true
-    image: "ghcr.io/paperless-ngx/paperless-ngx@sha256:65a4cabf0169ea7fbd90ab7bb28ba3f8b5909613635acda1a03ad606f34b456b"
+    image: "ghcr.io/paperless-ngx/paperless-ngx@sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8"
     port: 8000
     network: internet
     volumes:
@@ -115,6 +114,9 @@ env_mapping:
   PAPERLESS_TIME_ZONE: "${platform.timezone}"
   PAPERLESS_ADMIN_USER: "admin"
   PAPERLESS_ADMIN_PASSWORD: "${secrets.admin_password}"
+  PAPERLESS_WEBSERVER_WORKERS: "1"
+  PAPERLESS_TASK_WORKERS: "1"
+  PAPERLESS_THREADS_PER_WORKER: "1"
   PAPERLESS_OCR_LANGUAGE: "eng"
   PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
   PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"

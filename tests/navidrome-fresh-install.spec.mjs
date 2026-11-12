@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 const manifest = readFileSync(new URL('../apps/navidrome/youeye-app.yaml', import.meta.url), 'utf8');
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
-test('Navidrome 0.63.2 uses the reviewed immutable official OCI release', () => {
-  assert.match(manifest, /version: "0\.63\.2"/);
-  assert.match(catalog, /id: navidrome[\s\S]*?latestVersion: "0\.63\.2"/);
-  assert.match(manifest, /docker\.io\/deluan\/navidrome@sha256:9012939114fbb1bb641b81cf96dec5ded15f0aafefe8d47a511d7cb919658e40/);
+test('Navidrome 0.64.2 uses the reviewed immutable official OCI release', () => {
+  assert.match(manifest, /version: "0\.64\.2"/);
+  assert.match(catalog, /id: navidrome[\s\S]*?latestVersion: "0\.64\.2"/);
+  assert.match(manifest, /docker\.io\/navidrome\/navidrome@sha256:59ce76e6e06193fbfbb1736a93b8468227e1ea663fc7b25b1da13fbb97f5197b/);
 });
 
 test('Navidrome persists its database and music library under the app-owned root', () => {

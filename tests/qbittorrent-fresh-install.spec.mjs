@@ -5,10 +5,10 @@ import assert from 'node:assert/strict';
 const manifest = readFileSync(new URL('../apps/qbittorrent/youeye-app.yaml', import.meta.url), 'utf8');
 const catalog = readFileSync(new URL('../catalog.yaml', import.meta.url), 'utf8');
 
-test('qBittorrent 5.2.3 uses the reviewed immutable LinuxServer OCI release', () => {
-  assert.match(manifest, /version: "5\.2\.3"/);
-  assert.match(catalog, /id: qbittorrent[\s\S]*?latestVersion: "5\.2\.3"/);
-  assert.match(manifest, /docker\.io\/linuxserver\/qbittorrent@sha256:6816d2b144b1eb97665f886e41e18a14d026ba78c9d0953fc68a1211ea819433/);
+test('qBittorrent 5.3.0 uses the reviewed immutable LinuxServer OCI release', () => {
+  assert.match(manifest, /version: "5\.3\.0"/);
+  assert.match(catalog, /id: qbittorrent[\s\S]*?latestVersion: "5\.3\.0"/);
+  assert.match(manifest, /docker\.io\/linuxserver\/qbittorrent@sha256:0f8c20d15d18f5bb0b29ed4811c82c462960b5d3c441d07b59f38c2d337ad20c/);
 });
 
 test('qBittorrent persists configuration and uses the shared media storage group', () => {

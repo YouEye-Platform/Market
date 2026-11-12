@@ -70,42 +70,24 @@ bundles:
     latestVersion: "0.1.0"
 
 apps:
-  # Native source references are public YouEye-Platform identities. They are source
-  # metadata only: Market does not manufacture or distribute native-app binaries.
+  # Native apps are named by id only. The box finds each one's release through its
+  # channel index; the Market does not build or distribute native-app binaries.
   - id: wiki
-    repo: YouEye-Platform/YE-App-Wiki
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: search
-    repo: YouEye-Platform/YE-App-Search
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: notes
-    repo: YouEye-Platform/YE-App-Notes
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: cinema
-    repo: YouEye-Platform/YE-App-Cinema
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: weather
-    repo: YouEye-Platform/YE-App-Weather
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: translate
-    repo: YouEye-Platform/YE-App-Translate
-    branch: main
-    manifest: youeye-app.yaml
     integration: native
   - id: searxng
     path: apps/searxng
     integration: basic
-    latestVersion: "2026.8.12"
+    latestVersion: "2026.10.19"
   - id: wikiless
     path: apps/wikiless
     integration: basic
@@ -125,11 +107,11 @@ apps:
   - id: vaultwarden
     path: apps/vaultwarden
     integration: basic
-    latestVersion: "1.37.1"
+    latestVersion: "1.37.4"
   - id: paperless-ngx
     path: apps/paperless-ngx
     integration: basic
-    latestVersion: "3.0.5"
+    latestVersion: "3.3.4"
   - id: nextcloud
     path: apps/nextcloud
     integration: basic
@@ -145,7 +127,7 @@ apps:
   - id: navidrome
     path: apps/navidrome
     integration: basic
-    latestVersion: "0.63.2"
+    latestVersion: "0.64.2"
   - id: audiobookshelf
     path: apps/audiobookshelf
     integration: basic
@@ -173,7 +155,7 @@ apps:
   - id: docuseal
     path: apps/docuseal
     integration: basic
-    latestVersion: "3.2.0"
+    latestVersion: "3.3.3"
   - id: vikunja
     path: apps/vikunja
     integration: basic
@@ -181,7 +163,7 @@ apps:
   - id: miniflux
     path: apps/miniflux
     integration: basic
-    latestVersion: "2.3.3"
+    latestVersion: "2.3.4"
   - id: linkwarden
     path: apps/linkwarden
     integration: basic
@@ -193,23 +175,23 @@ apps:
   - id: hedgedoc
     path: apps/hedgedoc
     integration: basic
-    latestVersion: "1.11.1"
+    latestVersion: "1.12.0"
   - id: prowlarr
     path: apps/prowlarr
     integration: basic
-    latestVersion: "2.5.2.5491"
+    latestVersion: "2.6.5.5623"
   - id: sonarr
     path: apps/sonarr
     integration: basic
-    latestVersion: "4.0.19.2979"
+    latestVersion: "4.0.20.3014"
   - id: radarr
     path: apps/radarr
     integration: basic
-    latestVersion: "6.3.0.10514"
+    latestVersion: "6.4.4.10685"
   - id: qbittorrent
     path: apps/qbittorrent
     integration: basic
-    latestVersion: "5.2.3"
+    latestVersion: "5.3.0"
   - id: jellyseerr
     path: apps/jellyseerr
     integration: basic

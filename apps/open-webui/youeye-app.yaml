@@ -92,7 +92,7 @@ env_mapping:
   OPENAI_API_BASE_URL: "${ai.openaiBaseUrl}"
   OPENAI_API_KEY: "${ai.apiKey}"
   DEFAULT_MODELS: "${ai.defaultModel}"
-  TASK_MODEL_EXTERNAL: "${ai.defaultModel}"
+  TASK_MODEL_EXTERNAL: "${ai.utilityModel}"
   SCARF_NO_ANALYTICS: "true"
   DO_NOT_TRACK: "true"
   ANONYMIZED_TELEMETRY: "false"
