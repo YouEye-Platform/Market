@@ -1,93 +1,58 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "0.30.0"
+schema: youeye.app.v1
+id: memos
+version: 0.30.0
+name: Memos
+listing:
+  tagline: Capture ideas quickly in a private Markdown-first notebook
+  description: Lightweight self-hosted memo hub
+  long_description: |
+    A privacy-first, lightweight note-taking service. Easily capture and share your great thoughts.
+    Built with Go and React.
 
-metadata:
-  id: "memos"
-  name: "Memos"
-  description: "Lightweight self-hosted memo hub"
-  icon: "sticky-note"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://usememos.com"
-  developer: "Memos contributors"
-  license: "MIT"
-  sourceCode: "https://github.com/usememos/memos"
-  support: "https://github.com/usememos/memos/issues"
-  docs: "https://www.usememos.com/docs"
-  tagline: "Capture ideas quickly in a private Markdown-first notebook"
-  tags: ["notes", "memo", "markdown"]
-  defaultSubdomain: "memos"
-
-detail:
-  releaseNotes: |
+    Sign-in: everyone signs in with YouEye ID and is a regular Memos user; Memos cannot take roles from
+    YouEye ID. The Memos admin is the setup account shown under Credentials; use it to promote others.
+  release_notes: |
     Memos 0.30.0 introduces a rebuilt Markdown editor, richer memo details,
     configurable multi-column feeds, faster rendering, file-backed deployment
     settings, a redesigned MCP surface, and stronger authentication and sharing
     boundaries.
-  longDescription: |
-    A privacy-first, lightweight note-taking service. Easily capture and share your great thoughts.
-    Built with Go and React.
+  category: productivity
+  tags: [notes, memo, markdown]
+  icon: sticky-note
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-memos.png"
-      caption: "Platform administrator composing and reviewing private Markdown memos"
-    - path: "screenshots/standard-user-memos.png"
-      caption: "Standard user working in an independently provisioned memo timeline"
-
-capabilities:
-  smtp: true
-
-surfaces:
-  - id: "memo-alert"
-    kind: "notification"
-    placement: "notification-center"
-    name: "Memos notification"
-    description: "Render a Memos notification embed inside YouEye notifications."
-    embedPath: "/embed/notification/memo-alert"
-    permissions:
-      - "notifications:send"
-
-database:
-  mode: shared
-  name: "memos"
-  user: "memos"
-
+    - path: screenshots/platform-admin-memos.png
+      caption: Platform administrator composing and reviewing private Markdown memos
+    - path: screenshots/standard-user-memos.png
+      caption: Standard user working in an independently provisioned memo timeline
+  website: https://usememos.com
+  developer: Memos contributors
+  license: MIT
+  source_code: https://github.com/usememos/memos
+  support: https://github.com/usememos/memos/issues
+  docs: https://www.usememos.com/docs
+image: docker.io/neosmemo/memos@sha256:71a5b4738d1bed96e92112004054f0888e92791b64eb78afd79077c96e6f9327
+port: 5230
+health: /healthz
+internet: true
+database: postgres
+data:
+  - /var/opt/memos
+env:
+  MEMOS_DRIVER: postgres
+  MEMOS_DSN: ${database.url}?sslmode=disable
+  MEMOS_INSTANCE_URL: ${app.url}
 secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
+  admin_password: {length: 24}
 credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/neosmemo/memos@sha256:71a5b4738d1bed96e92112004054f0888e92791b64eb78afd79077c96e6f9327"
-    port: 5230
-    network: internet
-    volumes:
-      - name: data
-        container: "/var/opt/memos"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/healthz"
-      timeout: 120000
-
-env_mapping:
-  MEMOS_DRIVER: "postgres"
-  MEMOS_DSN: "${database.dsn}"
-  MEMOS_INSTANCE_URL: "${app.url}"
-
-uninstall:
-  dropSharedDatabase: true
+  - {label: Admin Account, username: admin, password: admin_password}
+sso:
+  callback: /auth/callback
+surfaces:
+  - id: memo-alert
+    kind: notification
+    placement: notification-center
+    name: Memos notification
+    description: Render a Memos notification embed inside YouEye notifications.
+    embed: /embed/notification/memo-alert
+    permissions: ['notifications:send']

@@ -3,7 +3,7 @@
  * Deterministic, local-only Market catalog tooling.
  *
  *   node scripts/catalog-snapshot.mjs generate        rewrite asset-inventory.json from the images under apps/
- *   node scripts/catalog-snapshot.mjs validate        check catalog content, native entries, asset inventory and provenance
+ *   node scripts/catalog-snapshot.mjs validate        check the catalog index, app/bundle/system files, asset inventory and provenance
  *   node scripts/catalog-snapshot.mjs release <dir>   validate, then write <dir>/catalog-snapshot.json and <dir>/catalog.tar
  *
  * The snapshot and catalog.tar depend only on the repository content. They carry no
@@ -11,7 +11,9 @@
  * host and channel. The release version lives only in product-release.json.
  *
  * This tool hashes repository content; it never builds, downloads, uploads, or
- * publishes application binaries or OCI images.
+ * publishes application binaries or OCI images. Its checks are structural (no YAML
+ * parser, no dependencies); the full check of every manifest and setup file is the
+ * Control Panel's own validator (`parseApp`, `parseSetup`).
  */
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -22,11 +24,12 @@ export const MARKET_IDENTITY = 'YouEye-Platform/Market';
 export const SNAPSHOT_API_VERSION = 'youeye.market/catalog-snapshot/v1';
 export const ASSET_INVENTORY_API_VERSION = 'youeye.market/asset-inventory/v1';
 export const ASSET_PROVENANCE_API_VERSION = 'youeye.market/asset-provenance/v1';
-export const CANONICAL_INPUTS = 'RETIRED.md, asset-inventory.json, asset-provenance.json, catalog.yaml, store.yaml, and every file under apps/, bundles/, integrations/, system/, and updates/ (dot files excluded), sorted by repository path; raw file bytes are hashed without network access';
+export const CANONICAL_INPUTS = 'RETIRED.md, asset-inventory.json, asset-provenance.json, catalog.yaml, store.yaml, and every file under apps/, bundles/ and system/ (dot files excluded), sorted by repository path; raw file bytes are hashed without network access';
 const ASSET_EXTENSIONS = new Set(['.png', '.svg', '.jpg', '.jpeg', '.webp']);
 const CONTENT_ROOT_FILES = ['RETIRED.md', 'asset-inventory.json', 'asset-provenance.json', 'catalog.yaml', 'store.yaml'];
-const CONTENT_DIRECTORIES = ['apps', 'bundles', 'integrations', 'system', 'updates'];
-const NATIVE_ENTRY_FIELDS = ['id', 'integration'];
+const CONTENT_DIRECTORIES = ['apps', 'bundles', 'system'];
+const ID = /^[a-z][a-z0-9-]{0,31}$/;
+const DIGEST_PINNED = /@sha256:[0-9a-f]{64}$/;
 
 export function sha256(content) {
   return `sha256:${createHash('sha256').update(content).digest('hex')}`;
@@ -40,26 +43,18 @@ function pathCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-/** Catalog `apps:` entries with their single-line scalar fields. */
-export function catalogApps(catalogText) {
-  const entries = [];
-  let inApps = false;
-  let current = null;
-  for (const line of catalogText.split('\n')) {
-    if (/^apps:\s*$/.test(line)) { inApps = true; continue; }
-    if (inApps && /^[A-Za-z]/.test(line)) break;
-    if (!inApps) continue;
-    const id = line.match(/^  - id:\s*([a-z0-9-]+)\s*$/)?.[1];
-    if (id) {
-      if (current) entries.push(current);
-      current = { id };
-      continue;
-    }
-    const field = line.match(/^    ([A-Za-z][A-Za-z0-9]*):\s*["']?([^"'\s]+)["']?\s*$/);
-    if (field && current) current[field[1]] = field[2];
-  }
-  if (current) entries.push(current);
-  return entries;
+/** Ids of a one-line flow list at the top level of catalog.yaml (`native: [a, b]`). */
+export function catalogList(catalogText, key) {
+  const match = catalogText.match(new RegExp(`^${key}:\\s*\\[([^\\]]*)\\]\\s*$`, 'm'));
+  if (!match) return null;
+  return match[1].split(',').map(id => id.trim()).filter(Boolean);
+}
+
+/** App folders: apps/<id>/ with a youeye-app.yaml. */
+export function appFolders(root) {
+  const directory = join(root, 'apps');
+  if (!existsSync(directory)) return [];
+  return readdirSync(directory).filter(entry => !entry.startsWith('.') && statSync(join(directory, entry)).isDirectory()).sort(pathCompare);
 }
 
 function walk(root, directory, include) {
@@ -125,7 +120,7 @@ export function buildSnapshot(root) {
     },
     catalog: {
       sha256: sha256(catalogText),
-      appCount: catalogApps(catalogText).length,
+      appCount: (catalogList(catalogText, 'native') ?? []).length + appFolders(root).length,
     },
   };
 }
@@ -199,14 +194,78 @@ function validateAssetInventory(inventory, root) {
   return errors;
 }
 
-/** Native apps are named by id only; the box resolves them through its channel index. */
-export function validateNativeEntries(catalogText) {
+/** Top-level `<key>: <value>` of a YAML file, unquoted (structural check only). */
+function topLevel(text, key) {
+  return text.match(new RegExp(`^${key}:\\s*["']?([^"'\\s#]+)["']?\\s*$`, 'm'))?.[1];
+}
+
+function images(text) {
+  return [...text.matchAll(/^\s*(?:- )?image:\s*["']?([^"'\s]+)["']?\s*$/gm)].map(match => match[1]);
+}
+
+/**
+ * The catalog index names only what cannot be discovered: categories, curation and the native
+ * app ids. Apps, bundles and system apps are discovered from their folders.
+ */
+export function validateCatalogIndex(catalogText, root) {
   const errors = [];
-  for (const entry of catalogApps(catalogText)) {
-    if (entry.integration !== 'native') continue;
-    for (const field of Object.keys(entry)) {
-      if (!NATIVE_ENTRY_FIELDS.includes(field)) errors.push(`native ${entry.id}: only id and integration are allowed, found ${field}`);
+  if (topLevel(catalogText, 'schema') !== 'youeye.catalog.v1') errors.push('catalog.yaml: schema must be youeye.catalog.v1');
+  for (const key of ['apiVersion', 'kind', 'apps', 'bundles', 'integrations', 'updatePlans', 'system']) {
+    if (new RegExp(`^${key}:`, 'm').test(catalogText)) errors.push(`catalog.yaml: ${key} is not part of youeye.catalog.v1`);
+  }
+  if (/^\s+(?:repo|branch|path|file|latestVersion):/m.test(catalogText)) {
+    errors.push('catalog.yaml: names a repository, branch, path, file or version');
+  }
+  const native = catalogList(catalogText, 'native');
+  if (!native?.length) errors.push('catalog.yaml: native must list the native app ids');
+  const folders = appFolders(root);
+  for (const id of native ?? []) {
+    if (!ID.test(id)) errors.push(`catalog.yaml: invalid native app id ${id}`);
+    if (folders.includes(id)) errors.push(`catalog.yaml: native ${id} is also an apps/ folder`);
+  }
+  return errors;
+}
+
+/** Structural checks of every app folder, setup file, bundle and system app. */
+export function validateCatalogFiles(root) {
+  const errors = [];
+  for (const id of appFolders(root)) {
+    const path = join(root, 'apps', id, 'youeye-app.yaml');
+    if (!existsSync(path)) { errors.push(`apps/${id}: missing youeye-app.yaml`); continue; }
+    const text = readFileSync(path, 'utf8');
+    if (topLevel(text, 'schema') !== 'youeye.app.v1') errors.push(`apps/${id}: schema must be youeye.app.v1`);
+    if (topLevel(text, 'id') !== id) errors.push(`apps/${id}: id must equal the folder name`);
+    if (!topLevel(text, 'version')) errors.push(`apps/${id}: version is required`);
+    if (!ID.test(id)) errors.push(`apps/${id}: invalid app id`);
+    const found = images(text);
+    if (!found.length) errors.push(`apps/${id}: no image`);
+    for (const image of found) if (!DIGEST_PINNED.test(image)) errors.push(`apps/${id}: image is not digest-pinned: ${image}`);
+    const setupDirectory = join(root, 'apps', id, 'setup');
+    const setupFiles = existsSync(setupDirectory) ? readdirSync(setupDirectory).sort(pathCompare) : [];
+    for (const name of setupFiles) {
+      const setup = readFileSync(join(setupDirectory, name), 'utf8');
+      if (!name.endsWith('.yaml')) errors.push(`apps/${id}/setup/${name}: setup files are .yaml`);
+      if (topLevel(setup, 'schema') !== 'youeye.setup.v1') errors.push(`apps/${id}/setup/${name}: schema must be youeye.setup.v1`);
     }
+    for (const match of text.matchAll(/^\s+setup:\s*["']?([^"'\s]+)["']?\s*$/gm)) {
+      if (!setupFiles.includes(match[1].replace(/^setup\//, ''))) errors.push(`apps/${id}: ${match[1]} does not exist`);
+    }
+  }
+  const bundles = join(root, 'bundles');
+  for (const id of existsSync(bundles) ? readdirSync(bundles).filter(e => !e.startsWith('.')).sort(pathCompare) : []) {
+    const path = join(bundles, id, 'bundle.yaml');
+    if (!existsSync(path)) { errors.push(`bundles/${id}: missing bundle.yaml`); continue; }
+    const text = readFileSync(path, 'utf8');
+    if (topLevel(text, 'schema') !== 'youeye.bundle.v1') errors.push(`bundles/${id}: schema must be youeye.bundle.v1`);
+    if (topLevel(text, 'id') !== id) errors.push(`bundles/${id}: id must equal the folder name`);
+  }
+  const system = join(root, 'system');
+  for (const name of existsSync(system) ? readdirSync(system).filter(e => !e.startsWith('.')).sort(pathCompare) : []) {
+    const text = readFileSync(join(system, name), 'utf8');
+    if (topLevel(text, 'schema') !== 'youeye.system-app.v1') errors.push(`system/${name}: schema must be youeye.system-app.v1`);
+    if (`${topLevel(text, 'id')}.yaml` !== name) errors.push(`system/${name}: id must equal the file name`);
+    const found = images(text);
+    if (found.length !== 1 || !DIGEST_PINNED.test(found[0])) errors.push(`system/${name}: needs one digest-pinned image`);
   }
   return errors;
 }
@@ -246,7 +305,8 @@ function validateAssetProvenance(provenance, inventory) {
 export function validate({ root, catalogText, inventory, assetProvenance }) {
   const errors = [];
   try { buildContentInventory(root); } catch (error) { errors.push(error.message); }
-  errors.push(...validateNativeEntries(catalogText));
+  errors.push(...validateCatalogIndex(catalogText, root));
+  errors.push(...validateCatalogFiles(root));
   errors.push(...validateAssetInventory(inventory, root));
   errors.push(...validateAssetProvenance(assetProvenance, inventory));
   return errors;

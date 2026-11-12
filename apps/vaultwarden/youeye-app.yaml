@@ -1,113 +1,82 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "1.37.4"
-
-metadata:
-  id: "vaultwarden"
-  name: "Vaultwarden"
-  description: "Lightweight Bitwarden-compatible password manager"
-  icon: "lock"
-  iconUrl: "icon.svg"
-  category: "utilities"
-  website: "https://github.com/dani-garcia/vaultwarden"
-  developer: "Daniel García"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/dani-garcia/vaultwarden"
-  support: "https://vaultwarden.discourse.group"
-  docs: "https://github.com/dani-garcia/vaultwarden/wiki"
-  tagline: "Lightweight Bitwarden-compatible server"
-  tags: ["passwords", "security", "bitwarden"]
-  defaultSubdomain: "vault"
-
-detail:
-  releaseNotes: |
+schema: youeye.app.v1
+id: vaultwarden
+version: 1.37.4
+name: Vaultwarden
+subdomain: vault
+listing:
+  tagline: Lightweight Bitwarden-compatible server
+  description: Lightweight Bitwarden-compatible password manager
+  long_description: |
+    Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
+    Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
+  release_notes: |
     Vaultwarden 1.37.4 fresh-install manifest with an immutable server image,
     shared PostgreSQL storage, SMTP support, and native YouEye OpenID Connect
     sign-in with PKCE.
-  longDescription: |
-    Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
-    Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
+  category: utilities
+  tags: [passwords, security, bitwarden]
+  icon: lock
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/admin-secure-note.png"
-      caption: "Historical 1.37.1 personal vault with a demonstration secure note"
-    - path: "screenshots/user-vault.png"
-      caption: "Historical 1.37.1 separate user’s empty personal vault"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: shared
-  name: "vaultwarden"
-  user: "vaultwarden"
-
-secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "admin_token"
-    file: ".admin_token"
-    generator: "secretKey"
-    length: 48
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/vaultwarden/server@sha256:2bb2e0344616c62a6d76ea10558497499f8ed3f731400e143dc7bf17b757b5b9"
-    port: 80
-    network: internet
-    volumes:
-      - name: data
-        container: "/data"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/alive"
-      timeout: 120000
-
-sso:
-  type: oauth2
-  callback_path: /identity/connect/oidc-signin
-  setup:
-    method: env
-
-env_mapping:
-  DOMAIN: "${app.url}"
-  DATABASE_URL: "${database.dsn}"
-  ADMIN_TOKEN: "${secrets.admin_token}"
-  ROCKET_PORT: "80"
-  ROCKET_ADDRESS: "0.0.0.0"
-  SIGNUPS_ALLOWED: "true"
-  INVITATIONS_ALLOWED: "true"
-  SHOW_PASSWORD_HINT: "false"
-  SSO_ENABLED: "true"
-  SSO_ONLY: "false"
-  # Split-channel: SSO authority/discovery over the INTERNAL identity DNAT (${sso.issuer}
-  # = http://<app-gw>:3002/application/o/youeye-app-vaultwarden/). Vaultwarden's Rust
-  # openidconnect crate is STRICT: it discovers from SSO_AUTHORITY and requires the
-  # id_token `iss` to equal it. The CP discovery doc + id_token both emit this exact
-  # clientId-derived internal authority, so it validates — even under full isolation.
-  SSO_AUTHORITY: "${sso.issuer}"
-  SSO_CLIENT_ID: "${sso.client_id}"
-  SSO_CLIENT_SECRET: "${sso.client_secret}"
-  SSO_PKCE: "true"
-  # Vaultwarden adds the mandatory openid scope itself; list only the extra scopes
-  # advertised by YouEye ID so the authorization request contains no duplicate value.
-  SSO_SCOPES: "email profile"
+    - path: screenshots/admin-secure-note.png
+      caption: Historical 1.37.1 personal vault with a demonstration secure note
+    - {path: screenshots/user-vault.png, caption: Historical 1.37.1 separate user’s empty personal vault}
+  website: https://github.com/dani-garcia/vaultwarden
+  developer: Daniel García
+  license: AGPL-3.0
+  source_code: https://github.com/dani-garcia/vaultwarden
+  support: https://vaultwarden.discourse.group
+  docs: https://github.com/dani-garcia/vaultwarden/wiki
+image: docker.io/vaultwarden/server@sha256:2bb2e0344616c62a6d76ea10558497499f8ed3f731400e143dc7bf17b757b5b9
+port: 80
+health: /alive
+internet: true
+database: postgres
+data:
+  - /data
+env:
+  DOMAIN: ${app.url}
+  DATABASE_URL: ${database.url}?sslmode=disable
+  ADMIN_TOKEN: ${secret.admin_token}
+  ROCKET_PORT: '80'
+  ROCKET_ADDRESS: 0.0.0.0
+  # No local sign-up: accounts come from YouEye ID (SSO_SIGNUPS_ALLOWED, default true, is separate from
+  # SIGNUPS_ALLOWED in Vaultwarden 1.37) or from an invitation.
+  SIGNUPS_ALLOWED: 'false'
+  INVITATIONS_ALLOWED: 'true'
+  SHOW_PASSWORD_HINT: 'false'
   # The Control Panel stages its local root CA after the OCI health gate. Vaultwarden
   # 1.37's reqwest startup now honors SSL_CERT_FILE immediately, so point it at the
   # image's existing system bundle; the later CA injection updates this same bundle.
-  SSL_CERT_FILE: "/etc/ssl/certs/ca-certificates.crt"
-  REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
-  SMTP_HOST: "${smtp.host}"
-  SMTP_PORT: "${smtp.port}"
-  SMTP_USERNAME: "${smtp.user}"
-  SMTP_PASSWORD: "${smtp.password}"
-  SMTP_FROM: "${smtp.from}"
-  SMTP_SECURITY: "starttls"
-
-uninstall:
-  dropSharedDatabase: true
+  SSL_CERT_FILE: /etc/ssl/certs/ca-certificates.crt
+  REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
+secrets:
+  admin_token: {kind: key, length: 48}
+sso:
+  callback: /identity/connect/oidc-signin
+  env:
+    SSO_ENABLED: 'true'
+    SSO_ONLY: 'false'
+    # Never attach a YouEye ID sign-in to an existing password account with the same email (an invited
+    # address someone registered first). Invitations not yet accepted still link.
+    SSO_SIGNUPS_MATCH_EMAIL: 'false'
+    # Split-channel: SSO authority/discovery over the INTERNAL identity DNAT (${sso.issuer}
+    # = http://<app-gw>:3002/application/o/youeye-app-vaultwarden/). Vaultwarden's Rust
+    # openidconnect crate is STRICT: it discovers from SSO_AUTHORITY and requires the
+    # id_token `iss` to equal it. The CP discovery doc + id_token both emit this exact
+    # clientId-derived internal authority, so it validates — even under full isolation.
+    SSO_AUTHORITY: ${sso.issuer}
+    SSO_CLIENT_ID: ${sso.client_id}
+    SSO_CLIENT_SECRET: ${sso.client_secret}
+    SSO_PKCE: 'true'
+    # Vaultwarden adds the mandatory openid scope itself; list only the extra scopes
+    # advertised by YouEye ID so the authorization request contains no duplicate value.
+    SSO_SCOPES: email profile
+smtp:
+  env:
+    SMTP_HOST: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_USERNAME: ${smtp.user}
+    SMTP_PASSWORD: ${smtp.password}
+    SMTP_FROM: ${smtp.from}
+    SMTP_SECURITY: starttls

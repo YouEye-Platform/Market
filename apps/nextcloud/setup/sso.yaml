@@ -1,0 +1,69 @@
+schema: youeye.setup.v1
+for: sso
+steps:
+  - exec:
+      run:
+        - runuser
+        - -u
+        - www-data
+        - --
+        - php
+        - /var/www/html/occ
+        - config:system:set
+        - allow_local_remote_servers
+        - --value
+        - 'true'
+        - --type
+        - boolean
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'app:install', user_oidc]
+      timeout: 120
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'app:enable', user_oidc]
+  # A YouEye ID user whose username matches a local Nextcloud account (e.g. the install admin `admin`)
+  # is refused ("User conflict") instead of being signed in as that account. Admin rights come from
+  # YouEye ID's admin group only (group provisioning: YouEye ID group admin -> Nextcloud group admin).
+  - exec:
+      run:
+        - runuser
+        - -u
+        - www-data
+        - --
+        - php
+        - /var/www/html/occ
+        - config:system:set
+        - user_oidc
+        - soft_auto_provision
+        - --value=false
+        - --type=boolean
+  - exec:
+      run:
+        - runuser
+        - -u
+        - www-data
+        - --
+        - php
+        - /var/www/html/occ
+        - user_oidc:provider
+        - ${identity.name}
+        - --clientid=${sso.client_id}
+        - --clientsecret=${sso.client_secret}
+        - --discoveryuri=${sso.discovery_url}
+        - --scope=openid email profile groups
+        - --unique-uid=0
+        - --mapping-uid=preferred_username
+        - --mapping-display-name=name
+        - --mapping-email=email
+        - --mapping-groups=groups
+        - --group-provisioning=1
+        - --check-bearer=0
+  # YouEye ID only on the login page (it goes straight to YouEye ID). The install admin stays for recovery:
+  # /login?direct=1 shows the password form, and `occ user:resetpassword admin` resets it.
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', user_oidc, allow_multiple_user_backends, --value=0]
+remove:
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', user_oidc, allow_multiple_user_backends, --value=1]
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'user_oidc:provider:delete', --force, '${identity.name}']

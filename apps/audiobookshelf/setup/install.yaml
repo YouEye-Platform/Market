@@ -1,0 +1,14 @@
+# The root account, before the app has a route: until one exists Audiobookshelf offers its first-run
+# setup (POST /init) to every visitor. It is created whether or not YouEye ID sign-in is on, so the
+# credentials shown in the Control Panel always work.
+schema: youeye.setup.v1
+for: install
+steps:
+  - sleep: 10
+  - http:
+      method: POST
+      path: /init
+      body:
+        newRoot:
+          username: admin
+          password: ${secret.admin_password}

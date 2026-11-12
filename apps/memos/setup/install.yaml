@@ -1,0 +1,39 @@
+# The admin account, before the app has a route: Memos makes the first account created through
+# POST /api/v1/users an ADMIN, for any visitor, while it has no users (user_service.go CreateUser).
+# It is created whether or not YouEye ID sign-in is on, so the credentials shown in the Control Panel
+# work. Local sign-up is then turned off (disallowUserRegistration); setup/sso.yaml turns it back on
+# together with disallowPasswordAuth, which still refuses local sign-up but lets YouEye ID create
+# accounts.
+schema: youeye.setup.v1
+for: install
+steps:
+  - http:
+      method: POST
+      path: /api/v1/users
+      body:
+        username: admin
+        password: ${secret.admin_password}
+  - http:
+      method: POST
+      path: /api/v1/auth/signin
+      body:
+        passwordCredentials:
+          username: admin
+          password: ${secret.admin_password}
+        neverExpire: true
+      save: {bearerToken: accessToken}
+  - http:
+      method: GET
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      save: {general: $}
+  - http:
+      method: PATCH
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      body_from: general
+      set:
+        name: instance/settings/GENERAL
+        generalSetting.disallowUserRegistration: true

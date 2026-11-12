@@ -1,104 +1,74 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "3.22.0"
-
-metadata:
-  id: "mealie"
-  name: "Mealie"
-  description: "Recipe manager and meal planner with automatic import"
-  icon: "utensils"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://mealie.io"
-  developer: "Mealie contributors"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/mealie-recipes/mealie"
-  support: "https://github.com/mealie-recipes/mealie/discussions"
-  docs: "https://docs.mealie.io/"
-  tagline: "Recipes, meal plans, and shopping lists in one place"
-  tags: ["recipes", "cooking", "meal-planning", "food"]
-  defaultSubdomain: "recipes"
-
-detail:
-  releaseNotes: |
-    Mealie 3.22.0 improves recipe-import resilience with browser-signature
-    rotation and smarter retries, adds optional proxy and FlareSolverr support,
-    and enforces verified OIDC email identities by default.
-  longDescription: |
+schema: youeye.app.v1
+id: mealie
+version: 3.22.0
+name: Mealie
+subdomain: recipes
+listing:
+  tagline: Recipes, meal plans, and shopping lists in one place
+  description: Recipe manager and meal planner with automatic import
+  long_description: |
     Mealie is a self-hosted recipe manager and meal planner. Automatically import recipes
     from any URL, organize by category and tag, plan weekly meals with a drag-and-drop
     calendar, and generate shopping lists. Features include nutritional info, multi-user
     support, recipe sharing, and a mobile-friendly interface.
+  release_notes: |
+    Mealie 3.22.0 improves recipe-import resilience with browser-signature
+    rotation and smarter retries, adds optional proxy and FlareSolverr support,
+    and enforces verified OIDC email identities by default.
+  category: productivity
+  tags: [recipes, cooking, meal-planning, food]
+  icon: utensils
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-recipes-3.22.0.png"
-      caption: "Platform administrator viewing the accepted recipe library"
-    - path: "screenshots/standard-user-recipes-3.22.0.png"
-      caption: "Standard user using an independently provisioned recipe account"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: none
-
+    - path: screenshots/platform-admin-recipes-3.22.0.png
+      caption: Platform administrator viewing the accepted recipe library
+    - path: screenshots/standard-user-recipes-3.22.0.png
+      caption: Standard user using an independently provisioned recipe account
+  website: https://mealie.io
+  developer: Mealie contributors
+  license: AGPL-3.0
+  source_code: https://github.com/mealie-recipes/mealie
+  support: https://github.com/mealie-recipes/mealie/discussions
+  docs: https://docs.mealie.io/
+image: ghcr.io/mealie-recipes/mealie@sha256:36c28f0642fb6c75fae8997a2d55994631b9b4bcffba3016c208fc132a4c1e69
+port: 9000
+health: /api/app/about
+internet: true
+data:
+  - /app/data
+env:
+  BASE_URL: ${app.url}
+  TZ: ${platform.timezone}
+  # Mealie seeds this admin on first start; it cannot be turned off. It gets a generated password and,
+  # with password sign-in off (sso.env), cannot be used. Admins come from YouEye ID's admin group.
+  DEFAULT_EMAIL: changeme@example.com
+  DEFAULT_PASSWORD: ${secret.admin_password}
 secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
-credentials:
-  - label: "Admin Account"
-    username: "changeme@example.com"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "ghcr.io/mealie-recipes/mealie@sha256:36c28f0642fb6c75fae8997a2d55994631b9b4bcffba3016c208fc132a4c1e69"
-    port: 9000
-    network: internet
-    volumes:
-      - name: data
-        container: "/app/data"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/api/app/about"
-      timeout: 120000
-
+  admin_password: {length: 24}
 sso:
-  type: oauth2
-  callback_path: /login
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/login"
-
-env_mapping:
-  BASE_URL: "${app.url}"
-  TZ: "${platform.timezone}"
-  DEFAULT_EMAIL: "changeme@example.com"
-  DEFAULT_PASSWORD: "${secrets.admin_password}"
-  OIDC_AUTH_ENABLED: "true"
-  OIDC_SIGNUP_ENABLED: "true"
-  # Split-channel: discovery over the INTERNAL identity DNAT (${sso.discovery_url} =
-  # http://<app-gw>:3002/...), so it works under full network isolation. The discovery
-  # doc returns the matching internal issuer + EXTERNAL authorize endpoint for the browser.
-  OIDC_CONFIGURATION_URL: "${sso.discovery_url}"
-  OIDC_CLIENT_ID: "${sso.client_id}"
-  OIDC_CLIENT_SECRET: "${sso.client_secret}"
-  OIDC_AUTO_REDIRECT: "false"
-  OIDC_PROVIDER_NAME: "${identity.name}"
-  OIDC_USER_CLAIM: "preferred_username"
-  OIDC_GROUPS_CLAIM: "groups"
-  OIDC_ADMIN_GROUP: "admin"
-  SMTP_HOST: "${smtp.host}"
-  SMTP_PORT: "${smtp.port}"
-  SMTP_FROM_NAME: "${platform.site_name}"
-  SMTP_FROM_EMAIL: "${smtp.from}"
-  SMTP_USER: "${smtp.user}"
-  SMTP_PASSWORD: "${smtp.password}"
-  SMTP_AUTH_STRATEGY: "TLS"
+  callback: /login
+  env:
+    OIDC_AUTH_ENABLED: 'true'
+    OIDC_SIGNUP_ENABLED: 'true'
+    # Split-channel: discovery over the INTERNAL identity DNAT (${sso.discovery_url} =
+    # http://<app-gw>:3002/...), so it works under full network isolation. The discovery
+    # doc returns the matching internal issuer + EXTERNAL authorize endpoint for the browser.
+    OIDC_CONFIGURATION_URL: ${sso.discovery_url}
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    OIDC_AUTO_REDIRECT: 'false'
+    OIDC_PROVIDER_NAME: ${identity.name}
+    OIDC_USER_CLAIM: preferred_username
+    OIDC_GROUPS_CLAIM: groups
+    OIDC_ADMIN_GROUP: admin
+    # YouEye ID only: no password form. Recovery: set ALLOW_PASSWORD_LOGIN=true on the container.
+    ALLOW_PASSWORD_LOGIN: 'false'
+smtp:
+  env:
+    SMTP_HOST: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_FROM_NAME: ${platform.site_name}
+    SMTP_FROM_EMAIL: ${smtp.from}
+    SMTP_USER: ${smtp.user}
+    SMTP_PASSWORD: ${smtp.password}
+    SMTP_AUTH_STRATEGY: TLS

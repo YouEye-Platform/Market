@@ -1,0 +1,19 @@
+# The image's first start creates the admin "wallabag" with the password "wallabag". Replace it with the
+# generated secret before the app has a route, so the default login is never reachable; a failure fails
+# the install. Runs as nobody, like the image's own console calls (files under var/ stay nobody's).
+# Recovery: the same command in app-wallabag.
+schema: youeye.setup.v1
+for: install
+steps:
+  - exec:
+      run:
+        - s6-setuidgid
+        - nobody
+        - php
+        - /var/www/wallabag/bin/console
+        - fos:user:change-password
+        - wallabag
+        - ${secret.admin_password}
+        - --env=prod
+        - --no-interaction
+      timeout: 120

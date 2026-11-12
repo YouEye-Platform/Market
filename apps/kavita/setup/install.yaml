@@ -1,0 +1,41 @@
+# Kavita's OIDC behaviour beyond authority/client/secret lives in its server settings: turn on account
+# provisioning so YouEye ID users get a Kavita account with reading roles on their first sign-in. Signed in
+# as Kavita's first account (admin, made by the entrypoint). The authority, client and secret are posted back
+# unchanged (Kavita copies them from appsettings.json into its settings at startup; the secret comes masked
+# and Kavita keeps the stored one).
+# Kavita's role sync is not used: it would also take library access from the token, which YouEye ID cannot
+# know, so standard users would lose access to every library. Kavita admins are managed in Kavita.
+schema: youeye.setup.v1
+for: install
+steps:
+  - sleep: 10
+  - http:
+      container: kavita
+      method: POST
+      path: /api/Account/login
+      body:
+        username: admin
+        password: ${secret.admin_password}
+      save: {token: token}
+  - http:
+      container: kavita
+      method: GET
+      path: /api/Settings
+      headers:
+        Authorization: Bearer ${vars.token}
+      save: {settings: $}
+  - http:
+      container: kavita
+      method: POST
+      path: /api/Settings
+      headers:
+        Authorization: Bearer ${vars.token}
+      body_from: settings
+      set:
+        oidcConfig.providerName: ${identity.name}
+        oidcConfig.provisionAccounts: true
+        oidcConfig.requireVerifiedEmail: true
+        oidcConfig.syncUserSettings: false
+        oidcConfig.defaultRoles: [Login, Download, Change Password, Bookmark]
+        oidcConfig.autoLogin: false
+        oidcConfig.disablePasswordAuthentication: false

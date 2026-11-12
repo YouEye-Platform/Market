@@ -1,124 +1,78 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "1.29.1"
-
-metadata:
-  id: "freshrss"
-  name: "FreshRSS"
-  description: "Self-hosted RSS feed aggregator with extension support"
-  icon: "rss"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://freshrss.org"
-  developer: "FreshRSS contributors"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/FreshRSS/FreshRSS"
-  support: "https://github.com/FreshRSS/FreshRSS/issues"
-  docs: "https://freshrss.github.io/FreshRSS/"
-  tagline: "A fast, private feed reader for every device"
-  tags: ["rss", "news", "feeds", "reader"]
-  defaultSubdomain: "freshrss"
-
-detail:
-  releaseNotes: |
-    FreshRSS 1.29.1 is the current upstream bug-fix release. It improves cookie
-    compatibility and shared-query search, accepts text feed-list imports, adds
-    periodic SQLite export tooling, and improves browser and theme support.
-  longDescription: |
+schema: youeye.app.v1
+id: freshrss
+version: 1.29.1
+name: FreshRSS
+listing:
+  tagline: A fast, private feed reader for every device
+  description: Self-hosted RSS feed aggregator with extension support
+  long_description: |
     FreshRSS is a self-hosted RSS and Atom feed aggregator. Lightweight, easy to set up,
     and packed with features: multi-user support, OPML import/export, full-text search,
     keyboard shortcuts, mobile-friendly responsive design, and a rich extension system.
+  release_notes: |
+    FreshRSS 1.29.1 is the current upstream bug-fix release. It improves cookie
+    compatibility and shared-query search, accepts text feed-list imports, adds
+    periodic SQLite export tooling, and improves browser and theme support.
+  category: productivity
+  tags: [rss, news, feeds, reader]
+  icon: rss
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-feed.png"
-      caption: "Platform administrator reading the current FreshRSS release feed"
-    - path: "screenshots/standard-user-subscriptions.png"
-      caption: "Standard user managing an isolated feed subscription"
-
-database:
-  mode: none
-
-secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-  - name: "oidc_crypto_key"
-    file: ".oidc_crypto_key"
-    generator: "secretKey"
-    length: 32
-
-credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/freshrss/freshrss@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d"
-    port: 80
-    network: internet
-    volumes:
-      - name: data
-        container: "/var/www/FreshRSS/data"
-        type: data
-      - name: extensions
-        container: "/var/www/FreshRSS/extensions"
-        type: data
-      # Retain the Apache runtime directory that the official image creates at
-      # build, then seed it through the generated configuration below.
-      - name: apache-runtime
-        container: "/run"
-        type: config
-    healthCheck:
-      type: "http"
-      path: "/i/"
-      timeout: 120000
-
-sso:
-  type: oauth2
-  callback_path: /i/oidc/
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/i/oidc/"
-
+    - path: screenshots/platform-admin-feed.png
+      caption: Platform administrator reading the current FreshRSS release feed
+    - path: screenshots/standard-user-subscriptions.png
+      caption: Standard user managing an isolated feed subscription
+  website: https://freshrss.org
+  developer: FreshRSS contributors
+  license: AGPL-3.0
+  source_code: https://github.com/FreshRSS/FreshRSS
+  support: https://github.com/FreshRSS/FreshRSS/issues
+  docs: https://freshrss.github.io/FreshRSS/
+image: docker.io/freshrss/freshrss@sha256:ab6b363102ccdbc39f6a62db926f567c61a5289bf25ba460f1c34423d8cc1a4d
+port: 80
+health: /i/
+internet: true
+data:
+  - /var/www/FreshRSS/data
+  - /var/www/FreshRSS/extensions
+  - {path: /run, kind: config}
 # FreshRSS OIDC runs on the Debian image only (Alpine lacks mod_auth_openidc).
-# HTTP-auth mode automatically provisions new OIDC identities as standard users.
-# The bootstrap "admin" account remains the initial FreshRSS administrator; role
-# promotion is a FreshRSS-side setting rather than an OIDC group claim.
-env_mapping:
-  CRON_MIN: "2,32"
-  TZ: "${platform.timezone}"
-  FRESHRSS_INSTALL: "--default-user admin --api-enabled --base-url ${app.url} --auth-type http_auth"
-  FRESHRSS_USER: "--user admin --password ${secrets.admin_password} --language ${platform.locale}"
-  OIDC_ENABLED: "1"
-  OIDC_PROVIDER_METADATA_URL: "${sso.discovery_url}"
-  OIDC_CLIENT_ID: "${sso.client_id}"
-  OIDC_CLIENT_SECRET: "${sso.client_secret}"
-  OIDC_CLIENT_CRYPTO_KEY: "${secrets.oidc_crypto_key}"
-  OIDC_REMOTE_USER_CLAIM: "preferred_username"
-  OIDC_SCOPES: "openid email profile"
-  OIDC_X_FORWARDED_HEADERS: "X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto"
-
-configFiles:
-  - container: "main"
-    path: "/run/apache2/.keep"
-    permission: "0o644"
-    directoryPermission: "0o755"
+# HTTP-auth mode creates a FreshRSS user on a person's first visit; config-user.custom.php makes
+# that user an admin when YouEye ID sends freshrss_role=admin (sso.role_claim; mod_auth_openidc
+# passes claims to PHP as OIDC_CLAIM_<name>). FreshRSS sets is_admin only when it creates a user.
+# The install needs a default user, and FreshRSS treats its default user as an admin whatever is_admin
+# says (FreshRSS_Auth::hasAccess). It is "_youeye": with http_auth the FreshRSS user is the YouEye ID
+# username, and YouEye ID usernames start with a letter, so nobody can sign in as it. Admin rights come
+# from YouEye ID's admin group only (freshrss_role).
+env:
+  CRON_MIN: 2,32
+  TZ: ${platform.timezone}
+  FRESHRSS_INSTALL: --default-user _youeye --api-enabled --base-url ${app.url} --auth-type http_auth
+  FRESHRSS_USER: --user _youeye --language ${platform.locale}
+secrets:
+  oidc_crypto_key: {kind: key}
+files:
+  - path: /run/apache2/.keep
+    dir_mode: '0755'
     template: |
       FreshRSS Apache runtime directory
-  # FreshRSS loads this documented custom-user template inside createUser().
-  # It gives only the bootstrap account administrator rights; OIDC-created
-  # accounts inherit an explicit standard-user role.
-  - container: "main"
-    path: "/var/www/FreshRSS/data/config-user.custom.php"
-    permission: "0o644"
-    directoryPermission: "0o770"
+  - path: /var/www/FreshRSS/data/config-user.custom.php
+    dir_mode: '0770'
     template: |
       <?php
+      $youeye_role = $_SERVER['OIDC_CLAIM_freshrss_role'] ?? $_SERVER['REDIRECT_OIDC_CLAIM_freshrss_role'] ?? getenv('OIDC_CLAIM_freshrss_role');
       return [
-        'is_admin' => $new_user_name === 'admin',
+        'is_admin' => $youeye_role === 'admin',
       ];
+sso:
+  callback: /i/oidc/
+  role_claim: {claim: freshrss_role, admin_value: admin, default_value: user}
+  env:
+    OIDC_ENABLED: '1'
+    OIDC_PROVIDER_METADATA_URL: ${sso.discovery_url}
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    OIDC_CLIENT_CRYPTO_KEY: ${secret.oidc_crypto_key}
+    OIDC_REMOTE_USER_CLAIM: preferred_username
+    OIDC_SCOPES: openid email profile freshrss_role
+    OIDC_X_FORWARDED_HEADERS: X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto

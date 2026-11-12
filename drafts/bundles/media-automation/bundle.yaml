@@ -1,0 +1,24 @@
+schema: youeye.bundle.v1
+id: media-automation
+name: Media Automation
+description: A complete self-hosted media stack — request, download, organise, and stream movies and TV.
+icon: clapperboard
+category: media
+summary: Installs Prowlarr, qBittorrent, Sonarr, Radarr and Jellyseerr, shares one media library between them, and wires the
+  connections so requests flow from Jellyseerr through Sonarr and Radarr to your downloader and into Jellyfin for streaming.
+members:
+  - prowlarr
+  - qbittorrent
+  - sonarr
+  - radarr
+  - jellyfin
+  - jellyseerr
+connections:
+  - {from: sonarr, to: prowlarr}
+  - {from: sonarr, to: qbittorrent}
+  - {from: radarr, to: prowlarr}
+  - {from: radarr, to: qbittorrent}
+  - {from: jellyseerr, to: sonarr}
+  - {from: jellyseerr, to: radarr}
+  - {from: jellyseerr, to: jellyfin}
+shared: [media]

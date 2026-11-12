@@ -1,0 +1,8 @@
+# FreshRSS writes its base URL into data/config.php at install only (the image runs do-install.php,
+# which changes nothing once installed), so a new box address needs cli/reconfigure.php. It runs as
+# www-data so config.php stays writable by the web server.
+schema: youeye.setup.v1
+for: url-change
+steps:
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/FreshRSS/cli/reconfigure.php, --base-url, '${app.url}']

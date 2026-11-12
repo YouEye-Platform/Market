@@ -1,88 +1,68 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "2.5.0"
-
-metadata:
-  id: "vikunja"
-  name: "Vikunja"
-  description: "Full-featured task manager with lists, kanban, and gantt"
-  icon: "check-square"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://vikunja.io"
-  developer: "Vikunja team and contributors"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/go-vikunja/vikunja"
-  support: "https://community.vikunja.io/"
-  docs: "https://vikunja.io/docs/"
-  tagline: "The flexible task manager you control"
-  tags: ["tasks", "todo", "kanban", "project-management"]
-  defaultSubdomain: "tasks"
-
-detail:
-  releaseNotes: |
-    Vikunja 2.5.0 fixes a share-link authorization vulnerability and improves
-    multi-task quick add, CalDAV, notifications, and imports. Upstream recommends
-    updating to this release for the security correction.
-  longDescription: |
+schema: youeye.app.v1
+id: vikunja
+version: 2.5.0
+name: Vikunja
+subdomain: tasks
+listing:
+  tagline: The flexible task manager you control
+  description: Full-featured task manager with lists, kanban, and gantt
+  long_description: |
     Vikunja is an open-source, self-hosted to-do app. Organize tasks with lists, kanban boards,
     gantt charts, and table views. Features include labels, priorities, due dates, reminders,
     assignees, comments, attachments, and CalDAV sync. Supports team collaboration with
     shared projects.
+
+    Sign-in: everyone signs in with YouEye ID as a regular Vikunja user; Vikunja cannot take roles from
+    YouEye ID. Instance admins are set on the box with `vikunja user set-admin` in the app's container.
+  release_notes: |
+    Vikunja 2.5.0 fixes a share-link authorization vulnerability and improves
+    multi-task quick add, CalDAV, notifications, and imports. Upstream recommends
+    updating to this release for the security correction.
+  category: productivity
+  tags: [tasks, todo, kanban, project-management]
+  icon: check-square
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-project.png"
-      caption: "Platform administrator creating and reviewing a task project"
-    - path: "screenshots/standard-user-project.png"
-      caption: "Standard user working in an independently isolated task project"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: none
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/vikunja/vikunja@sha256:22df4c1bc8843c28d383bc5f52b59e7b601bf5f6560b36b29c0a500833c77fa3"
-    port: 3456
-    network: internet
-    volumes:
-      - name: data
-        container: "/app/vikunja/files"
-        type: data
-      - name: db
-        container: "/db"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/api/v1/info"
-      timeout: 120000
-
+    - path: screenshots/platform-admin-project.png
+      caption: Platform administrator creating and reviewing a task project
+    - path: screenshots/standard-user-project.png
+      caption: Standard user working in an independently isolated task project
+  website: https://vikunja.io
+  developer: Vikunja team and contributors
+  license: AGPL-3.0
+  source_code: https://github.com/go-vikunja/vikunja
+  support: https://community.vikunja.io/
+  docs: https://vikunja.io/docs/
+image: docker.io/vikunja/vikunja@sha256:22df4c1bc8843c28d383bc5f52b59e7b601bf5f6560b36b29c0a500833c77fa3
+port: 3456
+health: /api/v1/info
+internet: true
+data:
+  - /app/vikunja/files
+  - /db
+env:
+  VIKUNJA_SERVICE_PUBLICURL: ${app.url}
+  VIKUNJA_SERVICE_TIMEZONE: ${platform.timezone}
+  # No local sign-up (the /register route is not registered); YouEye ID still creates accounts.
+  VIKUNJA_SERVICE_ENABLEREGISTRATION: 'false'
 sso:
-  type: oauth2
-  callback_path: /auth/openid/authentik
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/auth/openid/authentik"
-
-env_mapping:
-  VIKUNJA_SERVICE_PUBLICURL: "${app.url}"
-  VIKUNJA_SERVICE_TIMEZONE: "${platform.timezone}"
-  VIKUNJA_AUTH_OPENID_ENABLED: "true"
-  VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME: "${identity.name}"
-  # Vikunja passes authurl to go-oidc NewProvider(), so despite its name this
-  # must be the issuer. Discovery returns the public browser authorization URL
-  # and internal server-side token/userinfo endpoints.
-  VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL: "${sso.issuer}"
-  VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTID: "${sso.client_id}"
-  VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTSECRET: "${sso.client_secret}"
-  VIKUNJA_MAILER_ENABLED: "true"
-  VIKUNJA_MAILER_HOST: "${smtp.host}"
-  VIKUNJA_MAILER_PORT: "${smtp.port}"
-  VIKUNJA_MAILER_USERNAME: "${smtp.user}"
-  VIKUNJA_MAILER_PASSWORD: "${smtp.password}"
-  VIKUNJA_MAILER_FROMEMAIL: "${smtp.from}"
+  callback: /auth/openid/authentik
+  env:
+    VIKUNJA_AUTH_OPENID_ENABLED: 'true'
+    # Everyone signs in with YouEye ID: no local passwords.
+    VIKUNJA_AUTH_LOCAL_ENABLED: 'false'
+    VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME: ${identity.name}
+    # Vikunja passes authurl to go-oidc NewProvider(), so despite its name this
+    # must be the issuer. Discovery returns the public browser authorization URL
+    # and internal server-side token/userinfo endpoints.
+    VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL: ${sso.issuer}
+    VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTID: ${sso.client_id}
+    VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTSECRET: ${sso.client_secret}
+smtp:
+  env:
+    VIKUNJA_MAILER_ENABLED: 'true'
+    VIKUNJA_MAILER_HOST: ${smtp.host}
+    VIKUNJA_MAILER_PORT: ${smtp.port}
+    VIKUNJA_MAILER_USERNAME: ${smtp.user}
+    VIKUNJA_MAILER_PASSWORD: ${smtp.password}
+    VIKUNJA_MAILER_FROMEMAIL: ${smtp.from}

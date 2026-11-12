@@ -80,7 +80,9 @@ test('the snapshot lists the catalog, manifests, images and notices', () => {
   const paths = snapshot.content.files.map(f => f.path);
   assert.deepEqual(paths, [...paths].sort());
   for (const path of ['catalog.yaml', 'store.yaml', 'RETIRED.md', 'asset-inventory.json', 'asset-provenance.json',
-    'apps/immich/youeye-app.yaml', 'apps/immich/icon.svg', 'system/caddy.yaml']) assert.ok(paths.includes(path), path);
+    'apps/immich/youeye-app.yaml', 'apps/immich/setup/sso.yaml', 'apps/immich/icon.svg', 'bundles/private-search/bundle.yaml',
+    'system/caddy.yaml']) assert.ok(paths.includes(path), path);
+  assert.ok(!paths.some(p => p.startsWith('integrations/') || p.startsWith('updates/') || p.startsWith('drafts/')));
   for (const asset of inventory.assets) assert.ok(paths.includes(asset.path), asset.path);
   assert.ok(paths.some(p => /^apps\/[^/]+\/ASSET-NOTICES\.md$/.test(p)));
   assert.ok(!paths.some(p => p.split('/').some(part => part.startsWith('.'))));
@@ -112,7 +114,7 @@ test('manifest, image and added or removed files change the content identity', (
     assert.notEqual(buildSnapshot(directory).content.sha256, snapshot.content.sha256, input.path);
     writeFileSync(file, bytes);
   }
-  for (const area of ['apps', 'bundles', 'integrations', 'system', 'updates']) {
+  for (const area of ['apps', 'bundles', 'system']) {
     const added = join(directory, area, 'added-fixture.txt');
     mkdirSync(join(directory, area), { recursive: true });
     writeFileSync(added, 'fixture\n');
@@ -126,14 +128,36 @@ test('manifest, image and added or removed files change the content identity', (
   assert.throws(() => buildSnapshot(directory), /Canonical catalog input is missing: store\.yaml/);
 });
 
-test('native entries name only the app id', () => {
-  const native = catalogText.match(/^  - id: notes\n    integration: native\n/m);
-  assert.ok(native, 'notes is an id-only native entry');
-  for (const extra of ['repo: YouEye-Platform/Notes', 'branch: main', 'manifest: youeye-app.yaml', 'path: apps/notes', 'latestVersion: "1.0.0"']) {
-    const input = validInput();
-    input.catalogText = catalogText.replace(native[0], `${native[0]}    ${extra}\n`);
-    assert.match(validate(input).join('\n'), new RegExp(`native notes: only id and integration are allowed, found ${extra.split(':')[0]}`), extra);
-  }
+test('the catalog index names native apps by id and nothing discoverable', () => {
+  assert.match(catalogText, /^native: \[notes, wiki, search, translate, weather, cinema\]$/m);
+  const check = (text) => validate({ ...validInput(), catalogText: text }).join('\n');
+  assert.match(check(catalogText.replace('native: [notes,', 'native: [Notes,')), /invalid native app id Notes/);
+  assert.match(check(catalogText.replace('native: [notes,', 'native: [jellyfin, notes,')), /native jellyfin is also an apps\/ folder/);
+  assert.match(check(catalogText.replace(/^native:.*$/m, '')), /native must list the native app ids/);
+  assert.match(check(`${catalogText}apps:\n  - id: notes\n    branch: main\n`), /apps is not part of youeye\.catalog\.v1[\s\S]*names a repository, branch/);
+  assert.match(check(`${catalogText}bundles: [private-search]\n`), /bundles is not part of youeye\.catalog\.v1/);
+  assert.match(check(catalogText.replace('schema: youeye.catalog.v1', 'apiVersion: v1')), /schema must be youeye\.catalog\.v1/);
+});
+
+test('app, bundle and system files are checked for schema, id and pinned images', (t) => {
+  const directory = fixture(t);
+  const input = () => ({ ...validInput(), root: directory });
+  const edit = (path, change) => {
+    const file = join(directory, path);
+    const original = readFileSync(file, 'utf8');
+    writeFileSync(file, change(original));
+    const errors = validate(input()).join('\n');
+    writeFileSync(file, original);
+    return errors;
+  };
+  assert.deepEqual(validate(input()), []);
+  assert.match(edit('apps/mealie/youeye-app.yaml', t => t.replace('id: mealie', 'id: other')), /apps\/mealie: id must equal the folder name/);
+  assert.match(edit('apps/mealie/youeye-app.yaml', t => t.replace(/@sha256:[0-9a-f]{64}/, ':latest')), /apps\/mealie: image is not digest-pinned/);
+  assert.match(edit('apps/mealie/youeye-app.yaml', t => t.replace('schema: youeye.app.v1', 'apiVersion: v1')), /apps\/mealie: schema must be youeye\.app\.v1/);
+  assert.match(edit('apps/sonarr/youeye-app.yaml', t => t.replace('setup/connect-prowlarr.yaml', 'setup/connect-missing.yaml')), /setup\/connect-missing\.yaml does not exist/);
+  assert.match(edit('apps/jellyfin/setup/sso.yaml', t => t.replace('schema: youeye.setup.v1', 'schema: other')), /jellyfin\/setup\/sso\.yaml: schema must be youeye\.setup\.v1/);
+  assert.match(edit('bundles/private-search/bundle.yaml', t => t.replace('id: private-search', 'id: other')), /bundles\/private-search: id must equal/);
+  assert.match(edit('system/caddy.yaml', t => t.replace(/@sha256:[0-9a-f]{64}/, ':2.11.4')), /system\/caddy\.yaml: needs one digest-pinned image/);
 });
 
 test('provenance rejects missing, duplicate, surplus, stale or malformed records', () => {
@@ -201,10 +225,10 @@ test('release CLI writes the same snapshot and tar from any checkout', (t) => {
   assert.deepEqual(readFileSync(join(first, 'out/catalog.tar')), buildCatalogTar(root, snapshot));
 
   const broken = fixture(t);
-  writeFileSync(join(broken, 'catalog.yaml'), catalogText.replace(/^(  - id: notes\n    integration: native\n)/m, '$1    branch: dev\n'));
+  writeFileSync(join(broken, 'catalog.yaml'), catalogText.replace('native: [notes,', 'native: [Notes,'));
   const refused = cli(broken, 'release', 'out');
   assert.equal(refused.status, 1);
-  assert.match(refused.stderr, /native notes: only id and integration are allowed, found branch/);
+  assert.match(refused.stderr, /invalid native app id Notes/);
   assert.equal(cli(broken, 'release').status, 1);
   assert.equal(cli(broken, 'unknown').status, 1);
 });

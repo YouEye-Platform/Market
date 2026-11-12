@@ -1,0 +1,16 @@
+# The admin account, before the app has a route: until an admin exists Immich's web app offers admin
+# sign-up to every visitor (POST /api/auth/admin-sign-up works only while there is no admin). It is
+# created whether or not YouEye ID sign-in is on. With sign-in on, setup/sso.yaml turns password login
+# off; recovery: `immich-admin enable-password-login` and `immich-admin reset-admin-password` in
+# app-immich-main.
+schema: youeye.setup.v1
+for: install
+steps:
+  - sleep: 10
+  - http:
+      method: POST
+      path: /api/auth/admin-sign-up
+      body:
+        email: admin@youeye.local
+        password: ${secret.admin_password}
+        name: YouEye Admin
