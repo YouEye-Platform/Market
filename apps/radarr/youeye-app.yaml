@@ -1,185 +1,51 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "6.4.4.10685"
-forwardAuth: enabled
-
-metadata:
-  id: "radarr"
-  name: "Radarr"
-  description: "Smart PVR for your movie collection"
-  icon: "film"
-  iconUrl: "icon.svg"
-  category: "media"
-  website: "https://radarr.video"
-  developer: "Team Radarr"
-  license: "GPL-3.0-only"
-  sourceCode: "https://github.com/Radarr/Radarr"
-  support: "https://wiki.servarr.com/radarr"
-  docs: "https://wiki.servarr.com/radarr"
-  tagline: "Your movie library, automated"
-  tags: ["media", "movies", "pvr", "automation", "arr"]
-  defaultSubdomain: "radarr"
-
-detail:
-  releaseNotes: |
-    Radarr 6.4.4.10685 improves allowed-host checks and logging, corrects
-    iOS modals and automatic theme changes, and adds movie-file quality filtering.
-  longDescription: |
+schema: youeye.app.v1
+id: radarr
+version: 6.4.4.10685
+name: Radarr
+listing:
+  tagline: Your movie library, automated
+  description: Smart PVR for your movie collection
+  long_description: |
     Radarr is a movie collection manager for Usenet and BitTorrent users. It watches your
     indexers (via Prowlarr) for the films on your wanted list, grabs them through your
     download client, then renames and organises them into your library — automatically.
     Quality profiles, custom formats, and release-upgrade handling are all built in.
+  release_notes: |
+    Radarr 6.4.4.10685 improves allowed-host checks and logging, corrects
+    iOS modals and automatic theme changes, and adds movie-file quality filtering.
+  category: media
+  tags: [media, movies, pvr, automation, arr]
+  icon: film
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-public-domain-movie-6.3.0.10514.png"
-      caption: "Historical 6.3.0.10514 movie view; artwork and synopsis redacted"
-    - path: "screenshots/standard-profile-public-domain-movie-6.3.0.10514.png"
-      caption: "Historical 6.3.0.10514 persisted movie view; artwork and synopsis redacted"
-
-database:
-  mode: none
-
+    - path: screenshots/platform-admin-public-domain-movie-6.3.0.10514.png
+      caption: Historical 6.3.0.10514 movie view; artwork and synopsis redacted
+    - path: screenshots/standard-profile-public-domain-movie-6.3.0.10514.png
+      caption: Historical 6.3.0.10514 persisted movie view; artwork and synopsis redacted
+  website: https://radarr.video
+  developer: Team Radarr
+  license: GPL-3.0-only
+  source_code: https://github.com/Radarr/Radarr
+  support: https://wiki.servarr.com/radarr
+  docs: https://wiki.servarr.com/radarr
+image: docker.io/linuxserver/radarr@sha256:a466ac12c33425ec22ec4bb0d71c3edb79fd5e5f845bba0e2901c1a6aa59b075
+port: 7878
+health: /ping
+internet: true
+data:
+  - {path: /config, kind: config}
+  - {path: /custom-cont-init.d, kind: config}
+shared:
+  media: /data
+env:
+  PUID: '0'
+  PGID: '0'
+  TZ: Etc/UTC
 secrets:
-  - name: "api_key"
-    file: ".api_key"
-    generator: "secretKey"
-    length: 32
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/linuxserver/radarr@sha256:a466ac12c33425ec22ec4bb0d71c3edb79fd5e5f845bba0e2901c1a6aa59b075"
-    port: 7878
-    network: internet
-    volumes:
-      - name: config
-        container: "/config"
-        type: config
-      - name: data
-        container: "/data"
-        type: media
-        storageGroup: media   # shared with qBittorrent + Sonarr for instant hardlink imports
-      - name: bootstrap
-        container: "/custom-cont-init.d"
-        type: config
-    healthCheck:
-      type: "http"
-      path: "/ping"
-      timeout: 120000
-
-# How the wire-runner reads this app's API key (for connection wiring).
-apiKey:
-  file: "/config/config.xml"
-  pattern: "<ApiKey>([^<]+)</ApiKey>"
-
-provides:
-  - type: pvr
-    description: "Movie PVR (Radarr)"
-    port: 7878
-    scope: service
-
-wants:
-  - appId: prowlarr
-    name: "Prowlarr"
-    description: "Manage indexers for Radarr in Prowlarr"
-    scope: service
-    # On approval, register Radarr as an Application in Prowlarr (${wire.to}) so Prowlarr
-    # syncs indexers to Radarr (${wire.from}). API-key only; idempotent (delete-then-add).
-    wire:
-      api:
-        steps:
-          - method: GET
-            url: "http://${wire.to.host}:9696/api/v1/applications"
-            headers: { X-Api-Key: "${wire.to.apiKey}" }
-            forEach: "app"
-            condition: "app.name equals 'Radarr'"
-            action:
-              method: DELETE
-              url: "http://${wire.to.host}:9696/api/v1/applications/${app.id}"
-              headers: { X-Api-Key: "${wire.to.apiKey}" }
-          - method: POST
-            url: "http://${wire.to.host}:9696/api/v1/applications"
-            headers: { X-Api-Key: "${wire.to.apiKey}", Content-Type: "application/json" }
-            body:
-              name: "Radarr"
-              implementation: "Radarr"
-              configContract: "RadarrSettings"
-              syncLevel: "fullSync"
-              tags: []
-              fields:
-                - { name: "prowlarrUrl", value: "http://${wire.to.host}:9696" }
-                - { name: "baseUrl", value: "http://${wire.from.host}:7878" }
-                - { name: "apiKey", value: "${wire.from.apiKey}" }
-                - { name: "syncCategories", value: [2000, 2010, 2020, 2030, 2040, 2045, 2050, 2060, 2070, 2080] }
-            ignoreError: true
-  - appId: qbittorrent
-    name: "qBittorrent"
-    description: "Send movie downloads to qBittorrent"
-    scope: service
-    # On approval: (cli) configure qBittorrent (${wire.to}) for local-subnet API access +
-    # shared /data/torrents save path (idempotent, guarded — qBittorrent has no API key, so
-    # its config is edited in-container); then (api) register qBittorrent as Radarr's
-    # (${wire.from}) download client + add the movie root folder. API-key only on the Radarr side.
-    wire:
-      cli:
-        steps:
-          - timeout: 60000
-            exec: |
-              CONF=/config/qBittorrent/qBittorrent.conf
-              if [ -f "$CONF" ] && ! grep -q AuthSubnetWhitelistEnabled "$CONF"; then
-                s6-svc -d /run/service/svc-qbittorrent 2>/dev/null; sleep 3
-                sed -i 's#^Session.DefaultSavePath=.*#Session\\DefaultSavePath=/data/torrents/#' "$CONF"
-                sed -i 's#^Session.TempPath=.*#Session\\TempPath=/data/torrents/incomplete/#' "$CONF"
-                sed -i 's#^Downloads.SavePath=.*#Downloads\\SavePath=/data/torrents/#' "$CONF"
-                sed -i 's#^Downloads.TempPath=.*#Downloads\\TempPath=/data/torrents/incomplete/#' "$CONF"
-                printf '%s\n' 'WebUI\LocalHostAuth=false' 'WebUI\AuthSubnetWhitelistEnabled=true' 'WebUI\AuthSubnetWhitelist=10.0.0.0/8' >> "$CONF"
-                s6-svc -u /run/service/svc-qbittorrent 2>/dev/null; sleep 8
-              fi
-              mkdir -p /data/torrents /data/torrents/incomplete /data/media/tv /data/media/movies
-      api:
-        steps:
-          - method: GET
-            url: "http://${wire.from.host}:7878/api/v3/downloadclient"
-            headers: { X-Api-Key: "${wire.from.apiKey}" }
-            forEach: "client"
-            condition: "client.name equals 'qBittorrent'"
-            action:
-              method: DELETE
-              url: "http://${wire.from.host}:7878/api/v3/downloadclient/${client.id}"
-              headers: { X-Api-Key: "${wire.from.apiKey}" }
-          - method: POST
-            url: "http://${wire.from.host}:7878/api/v3/downloadclient"
-            headers: { X-Api-Key: "${wire.from.apiKey}", Content-Type: "application/json" }
-            body:
-              enable: true
-              protocol: "torrent"
-              priority: 1
-              name: "qBittorrent"
-              implementation: "QBittorrent"
-              configContract: "QBittorrentSettings"
-              tags: []
-              fields:
-                - { name: "host", value: "${wire.to.host}" }
-                - { name: "port", value: 8080 }
-                - { name: "movieCategory", value: "radarr" }
-            ignoreError: true
-          - method: POST
-            url: "http://${wire.from.host}:7878/api/v3/rootfolder"
-            headers: { X-Api-Key: "${wire.from.apiKey}", Content-Type: "application/json" }
-            body: { path: "/data/media/movies" }
-            ignoreError: true
-
-env_mapping:
-  PUID: "0"
-  PGID: "0"
-  TZ: "Etc/UTC"
-
-configFiles:
-  - container: "main"
-    path: "/config/config.xml"
-    permission: "0o600"
-    directoryPermission: "0o700"
+  api_key: {kind: key}
+files:
+  - path: /config/config.xml
+    mode: '0600'
     template: |
       <Config>
         <BindAddress>*</BindAddress>
@@ -187,7 +53,7 @@ configFiles:
         <SslPort>9898</SslPort>
         <EnableSsl>False</EnableSsl>
         <LaunchBrowser>False</LaunchBrowser>
-        <ApiKey>${secrets.api_key}</ApiKey>
+        <ApiKey>${secret.api_key}</ApiKey>
         <AuthenticationMethod>External</AuthenticationMethod>
         <AuthenticationRequired>Enabled</AuthenticationRequired>
         <Branch>master</Branch>
@@ -195,11 +61,24 @@ configFiles:
         <UrlBase></UrlBase>
         <InstanceName>Radarr</InstanceName>
       </Config>
-  - container: "main"
-    path: "/custom-cont-init.d/10-youeye-media-paths"
-    permission: "0o700"
-    directoryPermission: "0o700"
+  - path: /custom-cont-init.d/10-youeye-media-paths
+    mode: '0700'
     template: |
       #!/usr/bin/with-contenv bash
       set -euo pipefail
       install -d -m 0775 /data/torrents /data/torrents/incomplete /data/media/tv /data/media/movies
+provides:
+  - {type: pvr, description: Movie PVR (Radarr), port: 7878, scope: service}
+connects:
+  - app: prowlarr
+    name: Prowlarr
+    description: Manage indexers for Radarr in Prowlarr
+    scope: service
+    setup: setup/connect-prowlarr.yaml
+  - app: qbittorrent
+    name: qBittorrent
+    description: Send movie downloads to qBittorrent
+    scope: service
+    setup: setup/connect-qbittorrent.yaml
+# How connected apps read this app's API key (${peer.api_key} in their connect setup).
+api_key: {secret: api_key}

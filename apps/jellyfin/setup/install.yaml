@@ -1,0 +1,49 @@
+# Jellyfin's first-run wizard, before the app has a route: until it is completed the /Startup API is open
+# to every visitor (policy FirstTimeSetupOrElevated). It runs whether or not YouEye ID sign-in is on, so
+# the admin account exists and the credentials shown in the Control Panel work. Setting the admin user and
+# completing the wizard must succeed; the language and remote-access steps may fail.
+# The admin is named "YouEye Admin": the SSO plugin signs a YouEye ID user in as the local user with the
+# same name (case-insensitive), and YouEye ID usernames cannot contain a space, so no YouEye ID user can
+# become this account. Admin rights for YouEye ID users come from the admin group only (adminRoles).
+schema: youeye.setup.v1
+for: install
+steps:
+  - sleep: 10
+  - http:
+      method: POST
+      path: /Startup/Configuration
+      headers:
+        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+      body:
+        UICulture: en-US
+        MetadataCountryCode: US
+        PreferredMetadataLanguage: en
+      allow_failure: true
+  - http:
+      method: GET
+      path: /Startup/User
+      headers:
+        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+      allow_failure: true
+  - http:
+      method: POST
+      path: /Startup/User
+      headers:
+        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+      body:
+        Name: YouEye Admin
+        Password: ${secret.admin_password}
+  - http:
+      method: POST
+      path: /Startup/RemoteAccess
+      headers:
+        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+      body:
+        EnableRemoteAccess: true
+        EnableAutomaticPortMapping: false
+      allow_failure: true
+  - http:
+      method: POST
+      path: /Startup/Complete
+      headers:
+        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"

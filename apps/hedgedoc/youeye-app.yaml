@@ -1,99 +1,66 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "1.12.0"
-
-metadata:
-  id: "hedgedoc"
-  name: "HedgeDoc"
-  description: "Collaborative real-time markdown editor"
-  icon: "file-edit"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://hedgedoc.org"
-  developer: "HedgeDoc contributors"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/hedgedoc/hedgedoc"
-  support: "https://community.hedgedoc.org/"
-  docs: "https://docs.hedgedoc.org/"
-  tagline: "Ideas grow better together in real-time Markdown"
-  tags: ["markdown", "collaboration", "notes", "documents"]
-  defaultSubdomain: "hedgedoc"
-
-detail:
-  releaseNotes: |
-    HedgeDoc 1.12.0 fixes real-time reconnection issues that could lose edits,
-    restores opening links in new tabs and simplifies single-provider login.
-    The official container includes the required Node runtime (20.17 or newer).
-  longDescription: |
+schema: youeye.app.v1
+id: hedgedoc
+version: 1.12.0
+name: HedgeDoc
+listing:
+  tagline: Ideas grow better together in real-time Markdown
+  description: Collaborative real-time markdown editor
+  long_description: |
     HedgeDoc is a collaborative, real-time markdown editor. Write documents together with
     your team in real-time, see changes instantly, and present slides directly from your
     notes. Features include syntax highlighting, math equations, diagrams, multiple
     export formats, and collaborative writing workflows.
+  release_notes: |
+    HedgeDoc 1.12.0 fixes real-time reconnection issues that could lose edits,
+    restores opening links in new tabs and simplifies single-provider login.
+    The official container includes the required Node runtime (20.17 or newer).
+  category: productivity
+  tags: [markdown, collaboration, notes, documents]
+  icon: file-edit
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-note-1.11.1.png"
-      caption: "Historical 1.11.1 collaborative editor example (branding and instance name redacted)"
-    - path: "screenshots/standard-user-note-1.11.1.png"
-      caption: "Historical 1.11.1 shared document example (branding and instance name redacted)"
-
-database:
-  mode: shared
-  name: "hedgedoc"
-  user: "hedgedoc"
-
+    - path: screenshots/platform-admin-note-1.11.1.png
+      caption: Historical 1.11.1 collaborative editor example (branding and instance name redacted)
+    - path: screenshots/standard-user-note-1.11.1.png
+      caption: Historical 1.11.1 shared document example (branding and instance name redacted)
+  website: https://hedgedoc.org
+  developer: HedgeDoc contributors
+  license: AGPL-3.0
+  source_code: https://github.com/hedgedoc/hedgedoc
+  support: https://community.hedgedoc.org/
+  docs: https://docs.hedgedoc.org/
+image: quay.io/hedgedoc/hedgedoc@sha256:1df4cbc99611ccc9761fd46b08b91e4fc787e9adc5b3f190d1b897a29b825452
+port: 3000
+health: /
+internet: true
+database: postgres
+data:
+  - /hedgedoc/public/uploads
+env:
+  CMD_DOMAIN: ${app.fqdn}
+  CMD_PROTOCOL_USESSL: 'true'
+  CMD_URL_ADDPORT: 'false'
+  CMD_DB_URL: ${database.url}?sslmode=disable
+  CMD_SESSION_SECRET: ${secret.session_secret}
+  CMD_ALLOW_ANONYMOUS: 'false'
+  CMD_ALLOW_ANONYMOUS_EDITS: 'true'
+  # No local sign-up; YouEye ID creates accounts.
+  CMD_ALLOW_EMAIL_REGISTER: 'false'
 secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "session_secret"
-    file: ".session_secret"
-    generator: "secretKey"
-    length: 32
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "quay.io/hedgedoc/hedgedoc@sha256:5aff8d48f1d64a36e21e442216513a9d6bed02bad8dcf9a37f303c76356a727a"
-    port: 3000
-    network: internet
-    volumes:
-      - name: uploads
-        container: "/hedgedoc/public/uploads"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/"
-      timeout: 120000
-
+  session_secret: {kind: key}
 sso:
-  type: oauth2
-  callback_path: /auth/oauth2/callback
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/auth/oauth2/callback"
-
-env_mapping:
-  CMD_DOMAIN: "${app.fqdn}"
-  CMD_PROTOCOL_USESSL: "true"
-  CMD_URL_ADDPORT: "false"
-  CMD_DB_URL: "${database.dsn}"
-  CMD_SESSION_SECRET: "${secrets.session_secret}"
-  CMD_ALLOW_ANONYMOUS: "false"
-  CMD_ALLOW_ANONYMOUS_EDITS: "true"
-  CMD_OAUTH2_PROVIDERNAME: "${identity.name}"
-  CMD_OAUTH2_CLIENT_ID: "${sso.client_id}"
-  CMD_OAUTH2_CLIENT_SECRET: "${sso.client_secret}"
-  CMD_OAUTH2_AUTHORIZATION_URL: "${identity.externalUrl}/application/o/authorize/"
-  CMD_OAUTH2_TOKEN_URL: "${identity.internalUrl}/application/o/token"
-  CMD_OAUTH2_USER_PROFILE_URL: "${identity.internalUrl}/application/o/userinfo"
-  CMD_OAUTH2_SCOPE: "openid email profile"
-  CMD_OAUTH2_USER_PROFILE_USERNAME_ATTR: "preferred_username"
-  CMD_OAUTH2_USER_PROFILE_DISPLAY_NAME_ATTR: "name"
-  CMD_OAUTH2_USER_PROFILE_EMAIL_ATTR: "email"
-  CMD_OAUTH2_USER_PROFILE_ID_ATTR: "sub"
-
-uninstall:
-  dropSharedDatabase: true
+  callback: /auth/oauth2/callback
+  env:
+    # Everyone signs in with YouEye ID: no email/password login.
+    CMD_EMAIL: 'false'
+    CMD_OAUTH2_PROVIDERNAME: ${identity.name}
+    CMD_OAUTH2_CLIENT_ID: ${sso.client_id}
+    CMD_OAUTH2_CLIENT_SECRET: ${sso.client_secret}
+    CMD_OAUTH2_AUTHORIZATION_URL: ${identity.external_url}/application/o/authorize/
+    CMD_OAUTH2_TOKEN_URL: ${identity.internal_url}/application/o/token
+    CMD_OAUTH2_USER_PROFILE_URL: ${identity.internal_url}/application/o/userinfo
+    CMD_OAUTH2_SCOPE: openid email profile
+    CMD_OAUTH2_USER_PROFILE_USERNAME_ATTR: preferred_username
+    CMD_OAUTH2_USER_PROFILE_DISPLAY_NAME_ATTR: name
+    CMD_OAUTH2_USER_PROFILE_EMAIL_ATTR: email
+    CMD_OAUTH2_USER_PROFILE_ID_ATTR: sub

@@ -1,96 +1,62 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "2.3.4"
-
-metadata:
-  id: "miniflux"
-  name: "Miniflux"
-  description: "Minimalist and opinionated RSS reader"
-  icon: "rss"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://miniflux.app"
-  developer: "Frédéric Guillot and contributors"
-  license: "Apache-2.0"
-  sourceCode: "https://github.com/miniflux/v2"
-  support: "https://github.com/miniflux/v2/issues"
-  docs: "https://miniflux.app/docs/"
-  tagline: "A fast, focused feed reader without distractions"
-  tags: ["rss", "news", "feeds", "minimalist"]
-  defaultSubdomain: "feeds"
-
-detail:
-  releaseNotes: |
-    Miniflux 2.3.4 adds Gotify notifications and rewrite-rule validation, reduces
-    database and memory usage, and strengthens reserved-address, WebAuthn redirect,
-    proxy, local-authentication and embedded-content protections.
-  longDescription: |
+schema: youeye.app.v1
+id: miniflux
+version: 2.3.4
+name: Miniflux
+subdomain: feeds
+listing:
+  tagline: A fast, focused feed reader without distractions
+  description: Minimalist and opinionated RSS reader
+  long_description: |
     Miniflux is a minimalist and opinionated feed reader. Built with Go, it's fast,
     lightweight, and focused on simplicity. Features include keyboard shortcuts, automatic
     HTTPS detection, content scraping for truncated feeds, legacy reader API compatibility,
     integration with read-it-later services, and a clean dark mode.
+
+    Sign-in: everyone signs in with YouEye ID and is a regular Miniflux user; Miniflux cannot take roles
+    from YouEye ID. The Miniflux admin is the setup account shown under Credentials.
+  release_notes: |
+    Miniflux 2.3.4 adds Gotify notifications and rewrite-rule validation, reduces
+    database and memory usage, and strengthens reserved-address, WebAuthn redirect,
+    proxy, local-authentication and embedded-content protections.
+  category: productivity
+  tags: [rss, news, feeds, minimalist]
+  icon: rss
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-feed.png"
-      caption: "Historical 2.3.3 example: administrator reading the upstream release feed"
-    - path: "screenshots/standard-user-subscriptions.png"
-      caption: "Historical 2.3.3 example: standard user managing a release feed subscription"
-
-database:
-  mode: shared
-  name: "miniflux"
-  user: "miniflux"
-
+    - path: screenshots/platform-admin-feed.png
+      caption: 'Historical 2.3.3 example: administrator reading the upstream release feed'
+    - path: screenshots/standard-user-subscriptions.png
+      caption: 'Historical 2.3.3 example: standard user managing a release feed subscription'
+  website: https://miniflux.app
+  developer: Frédéric Guillot and contributors
+  license: Apache-2.0
+  source_code: https://github.com/miniflux/v2
+  support: https://github.com/miniflux/v2/issues
+  docs: https://miniflux.app/docs/
+image: docker.io/miniflux/miniflux@sha256:ef6cf5a911b7276225d8e0e7a1077013a202b1d6a019526aaa250ad06942cbbc
+port: 8080
+health: /healthcheck
+internet: true
+database: postgres
+env:
+  DATABASE_URL: ${database.url}?sslmode=disable
+  RUN_MIGRATIONS: '1'
+  CREATE_ADMIN: '1'
+  ADMIN_USERNAME: admin
+  ADMIN_PASSWORD: ${secret.admin_password}
+  BASE_URL: ${app.url}
 secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
+  admin_password: {length: 24}
 credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/miniflux/miniflux@sha256:ef6cf5a911b7276225d8e0e7a1077013a202b1d6a019526aaa250ad06942cbbc"
-    port: 8080
-    network: internet
-    healthCheck:
-      type: "http"
-      path: "/healthcheck"
-      timeout: 120000
-
+  - {label: Admin Account, username: admin, password: admin_password}
 sso:
-  type: oauth2
-  callback_path: /oauth2/oidc/callback
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/oauth2/oidc/callback"
-
-env_mapping:
-  DATABASE_URL: "${database.dsn}"
-  RUN_MIGRATIONS: "1"
-  CREATE_ADMIN: "1"
-  ADMIN_USERNAME: "admin"
-  ADMIN_PASSWORD: "${secrets.admin_password}"
-  BASE_URL: "${app.url}"
-  OAUTH2_PROVIDER: "oidc"
-  OAUTH2_CLIENT_ID: "${sso.client_id}"
-  OAUTH2_CLIENT_SECRET: "${sso.client_secret}"
-  OAUTH2_REDIRECT_URL: "${app.url}/oauth2/oidc/callback"
-  # Miniflux passes this value to go-oidc NewProvider(), which expects an
-  # issuer and performs discovery itself despite the environment key's name.
-  OAUTH2_OIDC_DISCOVERY_ENDPOINT: "${sso.issuer}"
-  OAUTH2_USER_CREATION: "1"
-
-uninstall:
-  dropSharedDatabase: true
+  callback: /oauth2/oidc/callback
+  env:
+    OAUTH2_PROVIDER: oidc
+    OAUTH2_CLIENT_ID: ${sso.client_id}
+    OAUTH2_CLIENT_SECRET: ${sso.client_secret}
+    OAUTH2_REDIRECT_URL: ${app.url}/oauth2/oidc/callback
+    # Miniflux passes this value to go-oidc NewProvider(), which expects an
+    # issuer and performs discovery itself despite the environment key's name.
+    OAUTH2_OIDC_DISCOVERY_ENDPOINT: ${sso.issuer}
+    OAUTH2_USER_CREATION: '1'

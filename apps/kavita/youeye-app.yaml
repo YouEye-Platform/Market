@@ -1,123 +1,57 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "0.9.0.2"
-
-metadata:
-  id: "kavita"
-  name: "Kavita"
-  description: "Reading server for manga, comics, and ebooks"
-  icon: "book-open"
-  iconUrl: "icon.svg"
-  category: "media"
-  website: "https://www.kavitareader.com"
-  developer: "Kavita project and contributors"
-  license: "GPL-3.0"
-  sourceCode: "https://github.com/Kareadita/Kavita"
-  support: "https://github.com/Kareadita/Kavita/issues"
-  docs: "https://wiki.kavitareader.com"
-  tagline: "Your digital reading library, on every device"
-  tags: ["reading", "manga", "comics", "ebooks", "library"]
-  defaultSubdomain: "kavita"
-
-detail:
-  releaseNotes: |
-    Kavita 0.9.0.2 is a critical security hotfix for CVE-2026-47202,
-    which affects every earlier release. It also strengthens OpenID Connect
-    validation and includes the fixes delivered throughout the 0.9 release.
-  longDescription: |
+schema: youeye.app.v1
+id: kavita
+version: 0.9.0.2
+name: Kavita
+listing:
+  tagline: Your digital reading library, on every device
+  description: Reading server for manga, comics, and ebooks
+  long_description: |
     Kavita is a fast, feature-rich, cross-platform reading server. Supports manga, comics,
     and ebooks in multiple formats (CBZ, CBR, ZIP, EPUB, PDF). Features include reading
     progress tracking, library management, metadata handling, OPDS support, and a responsive
     web reader for personal reading libraries.
+  release_notes: |
+    Kavita 0.9.0.2 is a critical security hotfix for CVE-2026-47202,
+    which affects every earlier release. It also strengthens OpenID Connect
+    validation and includes the fixes delivered throughout the 0.9 release.
+  category: media
+  tags: [reading, manga, comics, ebooks, library]
+  icon: book-open
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-reader-0.9.0.2.png"
-      caption: "Platform administrator reading the accepted public-domain ebook"
-    - path: "screenshots/standard-user-reader-0.9.0.2.png"
-      caption: "Standard user reading the shared public-domain library"
-
-database:
-  mode: none
-
+    - path: screenshots/platform-admin-reader-0.9.0.2.png
+      caption: Platform administrator reading the accepted public-domain ebook
+    - path: screenshots/standard-user-reader-0.9.0.2.png
+      caption: Standard user reading the shared public-domain library
+  website: https://www.kavitareader.com
+  developer: Kavita project and contributors
+  license: GPL-3.0
+  source_code: https://github.com/Kareadita/Kavita
+  support: https://github.com/Kareadita/Kavita/issues
+  docs: https://wiki.kavitareader.com
+image: docker.io/library/caddy@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+port: 5000
+health: {path: /api/health, timeout: 180}
+internet: true
+data:
+  - {path: /etc/caddy, kind: config}
+# Kavita reads its OIDC authority, client and secret from config/appsettings.json at startup (the
+# entrypoint writes them from env); the rest of its OIDC behaviour is set through its settings API
+# (setup/install.yaml). Its .NET client needs HTTPS metadata and endpoints, so the authority is YouEye ID's
+# public per-app address: fetched there, the discovery document lists public endpoints and the app's own
+# issuer (which its tokens carry). Kavita's settings API would refuse this authority (it requires
+# issuer == authority), which is why it is written to appsettings.json. The app's own public address
+# cannot serve the metadata: every app route is behind YouEye's access gate. The main container is a
+# Caddy front that proxies every request to Kavita, so the install health check also proves that path.
+env:
+  YOUEYE_KAVITA_HOST: ${sidecar.kavita.host}
 secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
+  admin_password: {length: 24}
 credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "kavita"
-    type: oci
-    image: "docker.io/jvmilazz0/kavita@sha256:ca6af7a18d7124d014702983c2364e485294f808c1552e9555f2595b7cda7982"
-    command: "/bin/bash /kavita/config/youeye-entrypoint.sh"
-    port: 5000
-    network: internet
-    volumes:
-      - name: config
-        container: "/kavita/config"
-        type: config
-      - name: library
-        container: "/manga"
-        type: media
-    healthCheck:
-      type: "http"
-      path: "/api/health"
-      timeout: 120000
-
-  # Keep the primary gateway after Kavita so its install-time health check also
-  # proves the reverse-proxy path, rather than only proving static metadata.
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/library/caddy@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648"
-    port: 5000
-    network: internet
-    environment:
-      # This is intentionally container-local rather than global env_mapping.
-      # The platform reserves global containers.* mappings for inter-app bridges.
-      YOUEYE_KAVITA_HOST: "${containers.kavita.internal_host}"
-    volumes:
-      - name: gateway-config
-        container: "/etc/caddy"
-        type: config
-    healthCheck:
-      type: "http"
-      path: "/api/health"
-      timeout: 180000
-
-sso:
-  type: oauth2
-  callback_path: /signin-oidc
-  setup:
-    method: env
-  redirectUris:
-    - url: "${install.url}/signin-oidc"
-
-# Kavita reads these values directly from config/appsettings.json during startup,
-# rather than through ASP.NET environment overrides. Its .NET OIDC client also
-# rejects the platform's internal HTTP token and key endpoints when they appear in
-# discovery. The app-owned Caddy gateway therefore serves an HTTPS metadata URL
-# with public back-channel endpoints while retaining the platform's internal issuer
-# for exact token validation. It proxies every application request to Kavita.
-env_mapping:
-  YOUEYE_ADMIN_PASSWORD: "${secrets.admin_password}"
-  YOUEYE_OIDC_AUTHORITY: "${app.url}/youeye-oidc/"
-  YOUEYE_OIDC_CLIENT_ID: "${sso.client_id}"
-  YOUEYE_OIDC_CLIENT_SECRET: "${sso.client_secret}"
-  YOUEYE_OIDC_ISSUER: "${sso.issuer}"
-  YOUEYE_IDENTITY_EXTERNAL_URL: "${identity.externalUrl}"
-  YOUEYE_SSO_SLUG: "${sso.slug}"
-
-configFiles:
-  - container: "main"
-    path: "/etc/caddy/Caddyfile"
-    permission: "0o600"
-    directoryPermission: "0o700"
+  - {label: Admin Account, username: admin, password: admin_password}
+files:
+  - path: /etc/caddy/Caddyfile
+    mode: '0600'
     template: |
       {
         admin off
@@ -125,17 +59,11 @@ configFiles:
       }
 
       :5000 {
-        @oidc_metadata path /youeye-oidc/.well-known/openid-configuration
-        header @oidc_metadata Content-Type application/json
-        respond @oidc_metadata `{"issuer":"{$YOUEYE_OIDC_ISSUER}","authorization_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/authorize/","token_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/token","userinfo_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/userinfo","end_session_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/{$YOUEYE_SSO_SLUG}/end-session/","introspection_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/introspect/","revocation_endpoint":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/application/o/revoke/","jwks_uri":"{$YOUEYE_IDENTITY_EXTERNAL_URL}/oauth/jwks","response_types_supported":["code"],"id_token_signing_alg_values_supported":["RS256"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post"],"subject_types_supported":["public"],"scopes_supported":["openid","profile","email","groups"]}` 200
-
         reverse_proxy {$YOUEYE_KAVITA_HOST}:5000
       }
-
-  - container: "kavita"
-    path: "/kavita/config/youeye-entrypoint.sh"
-    permission: "0o700"
-    directoryPermission: "0o700"
+  - container: kavita
+    path: /kavita/config/youeye-entrypoint.sh
+    mode: '0700'
     template: |
       #!/bin/bash
       set -euo pipefail
@@ -166,7 +94,7 @@ configFiles:
         $settings =~ s/,\s*"OpenIdConnectSettings"\s*:\s*\{.*?\}\s*(?=\})//s;
         $settings =~ s/\s*\}\s*$// or die "invalid appsettings";
         $settings .= ",\n  \"OpenIdConnectSettings\": {\n";
-        $settings .= "    \"Authority\": " . json_quote($ENV{YOUEYE_OIDC_AUTHORITY}) . ",\n";
+        $settings .= "    \"Authority\": " . json_quote($ENV{YOUEYE_OIDC_CLIENT_ID} ? $ENV{YOUEYE_OIDC_AUTHORITY} : "") . ",\n";
         $settings .= "    \"ClientId\": " . json_quote($ENV{YOUEYE_OIDC_CLIENT_ID}) . ",\n";
         $settings .= "    \"Secret\": " . json_quote($ENV{YOUEYE_OIDC_CLIENT_SECRET}) . ",\n";
         $settings .= "    \"CustomScopes\": []\n  }\n}\n";
@@ -219,3 +147,21 @@ configFiles:
 
       bootstrap_admin &
       exec ./Kavita
+sso:
+  callback: /signin-oidc
+sidecars:
+  # Kavita itself runs behind the main Caddy gateway. Its entrypoint writes the OIDC values from its env
+  # and creates the first (admin) account.
+  - name: kavita
+    image: docker.io/jvmilazz0/kavita@sha256:ca6af7a18d7124d014702983c2364e485294f808c1552e9555f2595b7cda7982
+    port: 5000
+    data:
+      - {path: /kavita/config, kind: config}
+      - {path: /manga, kind: media}
+    command: [/bin/bash, /kavita/config/youeye-entrypoint.sh]
+    health: /api/health
+    env:
+      YOUEYE_ADMIN_PASSWORD: ${secret.admin_password}
+      YOUEYE_OIDC_AUTHORITY: ${identity.external_url}/application/o/${sso.slug}/
+      YOUEYE_OIDC_CLIENT_ID: ${sso.client_id}
+      YOUEYE_OIDC_CLIENT_SECRET: ${sso.client_secret}

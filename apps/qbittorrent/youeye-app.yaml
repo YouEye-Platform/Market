@@ -1,100 +1,60 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "5.3.0"
-
-metadata:
-  id: "qbittorrent"
-  name: "qBittorrent"
-  description: "Free and open-source BitTorrent client"
-  icon: "download"
-  iconUrl: "icon.svg"
-  category: "downloaders"
-  website: "https://www.qbittorrent.org"
-  developer: "The qBittorrent project"
-  license: "GPL-3.0-or-later"
-  sourceCode: "https://github.com/qbittorrent/qBittorrent"
-  support: "https://github.com/qbittorrent/qBittorrent/wiki"
-  docs: "https://github.com/qbittorrent/qBittorrent/wiki"
-  tagline: "A fast, lightweight BitTorrent client"
-  tags: ["downloader", "torrent", "bittorrent", "arr"]
-  defaultSubdomain: "qbittorrent"
-
-detail:
-  releaseNotes: |
-    qBittorrent 5.3.0, packaged by LinuxServer 5.3.0_v2.1.2-ls484.
-    Includes libtorrent 2.1.2. Persistent configuration and shared media paths
-    are retained. The WebUI uses one shared generated credential.
-  longDescription: |
+schema: youeye.app.v1
+id: qbittorrent
+version: 5.3.0
+name: qBittorrent
+listing:
+  tagline: A fast, lightweight BitTorrent client
+  description: Free and open-source BitTorrent client
+  long_description: |
     qBittorrent is a free, open-source BitTorrent client with no ads. It ships a built-in
     search engine, RSS downloading, bandwidth scheduling, and a polished web UI. As the
     download client for the *arr stack it receives grabs from Sonarr and Radarr and saves
     them into shared storage, so your media apps can import finished downloads with instant
     hardlinks. YouEye generates the first WebUI administrator password and writes
     only qBittorrent's supported salted PBKDF2 hash before the service starts.
+  release_notes: |
+    qBittorrent 5.3.0, packaged by LinuxServer 5.3.0_v2.1.2-ls484.
+    Includes libtorrent 2.1.2. Persistent configuration and shared media paths
+    are retained. The WebUI uses one shared generated credential.
+  category: downloaders
+  tags: [downloader, torrent, bittorrent, arr]
+  icon: download
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-completed-download-5.2.3.png"
-      caption: "Historical 5.2.3: platform administrator verifying a completed Big Buck Bunny entry"
-    - path: "screenshots/standard-profile-completed-download-5.2.3.png"
-      caption: "Historical 5.2.3: standard platform profile viewing the completed download"
-
-database:
-  mode: none
-
+    - path: screenshots/platform-admin-completed-download-5.2.3.png
+      caption: 'Historical 5.2.3: platform administrator verifying a completed Big Buck Bunny entry'
+    - path: screenshots/standard-profile-completed-download-5.2.3.png
+      caption: 'Historical 5.2.3: standard platform profile viewing the completed download'
+  website: https://www.qbittorrent.org
+  developer: The qBittorrent project
+  license: GPL-3.0-or-later
+  source_code: https://github.com/qbittorrent/qBittorrent
+  support: https://github.com/qbittorrent/qBittorrent/wiki
+  docs: https://github.com/qbittorrent/qBittorrent/wiki
+image: docker.io/linuxserver/qbittorrent@sha256:0f8c20d15d18f5bb0b29ed4811c82c462960b5d3c441d07b59f38c2d337ad20c
+port: 8080
+health: /
+internet: true
+data:
+  - {path: /config, kind: config}
+  - {path: /custom-cont-init.d, kind: config}
+shared:
+  media: /data
+env:
+  PUID: '0'
+  PGID: '0'
+  TZ: Etc/UTC
+  WEBUI_PORT: '8080'
+  TORRENTING_PORT: '6881'
+  YOUEYE_QBITTORRENT_PASSWORD: ${secret.admin_password}
+  YOUEYE_QBITTORRENT_URL: ${app.url}
 secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
+  admin_password: {length: 24}
 credentials:
-  - label: "WebUI Administrator"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/linuxserver/qbittorrent@sha256:0f8c20d15d18f5bb0b29ed4811c82c462960b5d3c441d07b59f38c2d337ad20c"
-    port: 8080
-    network: internet
-    volumes:
-      - name: config
-        container: "/config"
-        type: config
-      - name: data
-        container: "/data"
-        type: media
-        storageGroup: media   # shared with Sonarr + Radarr for instant hardlink imports
-      - name: bootstrap
-        container: "/custom-cont-init.d"
-        type: config
-    healthCheck:
-      type: "http"
-      path: "/"
-      timeout: 120000
-
-provides:
-  - type: download-client
-    description: "BitTorrent download client (qBittorrent)"
-    port: 8080
-    scope: service
-
-env_mapping:
-  PUID: "0"
-  PGID: "0"
-  TZ: "Etc/UTC"
-  WEBUI_PORT: "8080"
-  TORRENTING_PORT: "6881"
-  YOUEYE_QBITTORRENT_PASSWORD: "${secrets.admin_password}"
-  YOUEYE_QBITTORRENT_URL: "${app.url}"
-
-configFiles:
-  - container: "main"
-    path: "/custom-cont-init.d/10-youeye-webui-credential"
-    permission: "0o700"
-    directoryPermission: "0o700"
+  - {label: WebUI Administrator, username: admin, password: admin_password}
+files:
+  - path: /custom-cont-init.d/10-youeye-webui-credential
+    mode: '0700'
     template: |
       #!/usr/bin/with-contenv bash
       set -euo pipefail
@@ -104,6 +64,7 @@ configFiles:
       import hashlib
       import os
       from pathlib import Path
+      import re
       import secrets
       from urllib.parse import urlparse
 
@@ -155,6 +116,37 @@ configFiles:
           marker_path.write_text("ready\n")
           marker_path.chmod(0o600)
 
+      # On every start: the WebUI answers only for its current address (host header check), and the
+      # address in YOUEYE_QBITTORRENT_URL changes when the box's address does.
+      # qBittorrent 5 moves the WebUI settings from [Preferences] (WebUI\ServerDomains=) into its own [WebUI]
+      # section (ServerDomains=) on first start, and reads only that one; both forms are kept current.
+      text = config_path.read_text()
+      lines = text.split("\n")
+      section, webui_at, prefs_at, webui_set, prefs_set = None, None, None, False, False
+      for index, entry in enumerate(lines):
+          if re.match(r"^\[.*\]$", entry):
+              section = entry
+              webui_at = index if entry == "[WebUI]" else webui_at
+              prefs_at = index if entry == "[Preferences]" else prefs_at
+          elif section == "[WebUI]" and entry.startswith("ServerDomains="):
+              lines[index], webui_set = f"ServerDomains={hostname}", True
+          elif section == "[Preferences]" and entry.startswith("WebUI\\ServerDomains="):
+              lines[index], prefs_set = f"WebUI\\ServerDomains={hostname}", True
+      if webui_at is not None:
+          if not webui_set:
+              lines.insert(webui_at + 1, f"ServerDomains={hostname}")
+      elif not prefs_set:
+          if prefs_at is not None:
+              lines.insert(prefs_at + 1, f"WebUI\\ServerDomains={hostname}")
+          else:
+              lines += ["", "[Preferences]", f"WebUI\\ServerDomains={hostname}"]
+      updated = "\n".join(lines)
+      if updated != text:
+          temporary = config_path.with_suffix(".tmp")
+          temporary.write_text(updated)
+          temporary.chmod(0o600)
+          temporary.replace(config_path)
+
       for path in (
           Path("/data/torrents"),
           Path("/data/torrents/incomplete"),
@@ -163,3 +155,7 @@ configFiles:
       ):
           path.mkdir(mode=0o775, parents=True, exist_ok=True)
       PY
+provides:
+  - {type: download-client, description: BitTorrent download client (qBittorrent), port: 8080, scope: service}
+# Connected apps (Sonarr, Radarr) sign in to the WebUI with this (${peer.api_key} in their connect setup).
+api_key: {secret: admin_password}

@@ -1,122 +1,70 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "34.0.2"
-
-metadata:
-  id: "nextcloud"
-  name: "Nextcloud"
-  description: "Cloud storage, collaboration, and file sharing"
-  icon: "cloud"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://nextcloud.com"
-  developer: "Nextcloud GmbH"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/nextcloud/server"
-  support: "https://help.nextcloud.com"
-  docs: "https://docs.nextcloud.com"
-  tagline: "Your files, contacts and calendars at home"
-  tags: ["cloud", "storage", "files", "collaboration", "office"]
-  defaultSubdomain: "cloud"
-
-detail:
-  releaseNotes: |
-    Nextcloud 34.0.2 fresh-install manifest with immutable Nextcloud and Valkey
-    images. The official entrypoint owns first-install configuration while
-    YouEye supplies trusted-domain, public URL, SMTP, and identity settings.
-  longDescription: |
+schema: youeye.app.v1
+id: nextcloud
+version: 34.0.2
+name: Nextcloud
+subdomain: cloud
+listing:
+  tagline: Your files, contacts and calendars at home
+  description: Cloud storage, collaboration, and file sharing
+  long_description: |
     Nextcloud is a suite of client-server software for creating and using file hosting services.
     Features file sync, calendars, contacts, mail, talk, office document editing, and hundreds
     of community apps.
+  release_notes: |
+    Nextcloud 34.0.2 fresh-install manifest with immutable Nextcloud and Valkey
+    images. The official entrypoint owns first-install configuration while
+    YouEye supplies trusted-domain, public URL, SMTP, and identity settings.
+  category: productivity
+  tags: [cloud, storage, files, collaboration, office]
+  icon: cloud
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/admin-files.png"
-      caption: "Administrator file workspace with representative acceptance data"
-    - path: "screenshots/user-files.png"
-      caption: "A separate standard user's isolated Nextcloud file workspace"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: shared
-  name: "nextcloud"
-  user: "nextcloud"
-
+    - {path: screenshots/admin-files.png, caption: Administrator file workspace with representative acceptance data}
+    - {path: screenshots/user-files.png, caption: A separate standard user's isolated Nextcloud file workspace}
+  website: https://nextcloud.com
+  developer: Nextcloud GmbH
+  license: AGPL-3.0
+  source_code: https://github.com/nextcloud/server
+  support: https://help.nextcloud.com
+  docs: https://docs.nextcloud.com
+image: docker.io/library/nextcloud@sha256:3323e178371b1b0d03f9b3fdbe1831ff78335f07f25116d0d598048ce459e329
+port: 80
+health: {path: /status.php, timeout: 300}
+internet: true
+database: postgres
+data:
+  - /var/www/html
+env:
+  POSTGRES_HOST: ${database.host}
+  POSTGRES_DB: ${database.name}
+  POSTGRES_USER: ${database.user}
+  POSTGRES_PASSWORD: ${database.password}
+  NEXTCLOUD_ADMIN_USER: admin
+  NEXTCLOUD_ADMIN_PASSWORD: ${secret.admin_password}
+  NEXTCLOUD_TRUSTED_DOMAINS: ${app.fqdn} localhost
+  NEXTCLOUD_TRUSTED_PROXIES: 10.76.0.0/16
+  OVERWRITEPROTOCOL: https
+  OVERWRITEHOST: ${app.fqdn}
+  OVERWRITECLIURL: https://${app.fqdn}
+  REDIS_HOST: ${sidecar.valkey.host}
+  REDIS_PORT: '6379'
 secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
+  admin_password: {length: 24}
 credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "valkey"
-    type: oci
-    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
-
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/library/nextcloud@sha256:3323e178371b1b0d03f9b3fdbe1831ff78335f07f25116d0d598048ce459e329"
-    port: 80
-    network: internet
-    volumes:
-      - name: html
-        container: "/var/www/html"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/status.php"
-      timeout: 300000
-
-env_mapping:
-  POSTGRES_HOST: "${database.host}"
-  POSTGRES_DB: "${database.name}"
-  POSTGRES_USER: "${database.user}"
-  POSTGRES_PASSWORD: "${database.password}"
-  NEXTCLOUD_ADMIN_USER: "admin"
-  NEXTCLOUD_ADMIN_PASSWORD: "${secrets.admin_password}"
-  NEXTCLOUD_TRUSTED_DOMAINS: "${app.fqdn} localhost"
-  NEXTCLOUD_TRUSTED_PROXIES: "10.76.0.0/16"
-  OVERWRITEPROTOCOL: "https"
-  OVERWRITEHOST: "${app.fqdn}"
-  OVERWRITECLIURL: "https://${app.fqdn}"
-  REDIS_HOST: "${containers.valkey.internal_host}"
-  REDIS_PORT: "6379"
-  SMTP_HOST: "${smtp.host}"
-  SMTP_PORT: "${smtp.port}"
-  SMTP_NAME: "${smtp.user}"
-  SMTP_PASSWORD: "${smtp.password}"
-  MAIL_FROM_ADDRESS: "${smtp.from}"
-  SMTP_SECURE: "tls"
-
-# The official entrypoint consumes the domain env mapping on first install.
-# After a server URL change, keep config.php aligned through occ without
-# pre-creating /var/www/html/config (which blocks Nextcloud's bootstrap), then
-# flush Valkey's persisted OIDC discovery cache.
-reconfigure:
-  commands:
-    - container: main
-      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set trusted_domains 0 --value=localhost"'
-    - container: main
-      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set trusted_domains 1 --value=''$OVERWRITEHOST''"'
-    - container: main
-      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwritehost --value=''$OVERWRITEHOST''"'
-    - container: main
-      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwriteprotocol --value=https"'
-    - container: main
-      command: 'su -s /bin/sh www-data -c "php /var/www/html/occ config:system:set overwrite.cli.url --value=''https://$OVERWRITEHOST''"'
-    - container: valkey
-      command: "valkey-cli FLUSHALL"
-
-uninstall:
-  dropSharedDatabase: true
+  - {label: Admin Account, username: admin, password: admin_password}
+sso:
+  callback: /apps/user_oidc/code
+  # No entry path: user_oidc's provider id is not fixed (it changes when sign-in is turned off and on).
+  # With one provider and allow_multiple_user_backends=0 (setup/sso.yaml), Nextcloud's /login goes
+  # straight to YouEye ID, so the app's own address is the entry.
+smtp:
+  env:
+    SMTP_HOST: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_NAME: ${smtp.user}
+    SMTP_PASSWORD: ${smtp.password}
+    MAIL_FROM_ADDRESS: ${smtp.from}
+    SMTP_SECURE: tls
+sidecars:
+  - name: valkey
+    image: docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec

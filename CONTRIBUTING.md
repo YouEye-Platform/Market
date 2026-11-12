@@ -20,7 +20,7 @@ A release holds three files:
 - `catalog-snapshot.json`: the content record. It lists every catalog file with
   its SHA-256 digest: `catalog.yaml`, `store.yaml`, `RETIRED.md`,
   `asset-inventory.json`, `asset-provenance.json`, and every file under `apps/`,
-  `bundles/`, `integrations/`, `system/` and `updates/` (manifests, icons,
+  `bundles/` and `system/` (manifests, setup files, icons,
   screenshots, notices), sorted by path. It carries no version, branch,
   repository or host, so the same commit gives the same bytes everywhere.
 - `catalog.tar`: a plain ustar archive of exactly those files, in that order,
@@ -33,7 +33,7 @@ node scripts/catalog-snapshot.mjs validate
 node scripts/catalog-snapshot.mjs release <output directory>
 ```
 
-Native apps are named by id only (`- id: notes` with `integration: native`). The
+Native apps are named by id only (`native: [notes, …]` in `catalog.yaml`). The
 box finds each native app's release through its channel index, so the catalog
 names no repository or branch and is identical on every host.
 

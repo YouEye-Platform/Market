@@ -1,0 +1,122 @@
+# Memos v0.30 API notes (changed from the pre-0.24 API this integration first targeted):
+#   - the admin account `admin` is created by setup/install.yaml; this file only configures sign-in
+#   - signin is POST /api/v1/auth/signin with body {passwordCredentials:{username,password}};
+#     the access token is returned in the RESPONSE BODY (accessToken), not a cookie
+#   - identity providers live at /api/v1/identity-providers (hyphenated); the resource
+#     `name` is `identity-providers/<id>`, so DELETE /api/v1/${provider.name} resolves correctly
+#   - split-channel OIDC: authUrl (browser) stays external; token/userinfo are called
+#     server-side and now go through the internal identity DNAT (${identity.internal_url}
+#     = http://<app-gw>:3002), which is domain-free, CA-free, and survives full network
+#     isolation. Memos does no id_token `iss` validation, so the external/internal split is safe.
+schema: youeye.setup.v1
+for: sso
+steps:
+  - http:
+      method: POST
+      path: /api/v1/auth/signin
+      body:
+        passwordCredentials:
+          username: admin
+          password: ${secret.admin_password}
+        neverExpire: true
+      save: {bearerToken: accessToken}
+  - http:
+      method: GET
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      save: {general: $}
+  - http:
+      method: PATCH
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      body_from: general
+      set:
+        name: instance/settings/GENERAL
+        generalSetting.disallowPasswordAuth: false
+        # Registration stays closed while password sign-in is briefly on (a re-run starts with it open).
+        generalSetting.disallowUserRegistration: true
+  - http:
+      method: DELETE
+      path: /api/v1/${item.name}
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      for_each:
+        path: /api/v1/identity-providers
+        items: identityProviders
+        where: {type: OAUTH2}
+  # A fixed provider id: Memos links each user to the provider's id, so the replacement keeps every
+  # YouEye ID user attached to their Memos account (a generated id would orphan them on every re-run).
+  - http:
+      method: POST
+      path: /api/v1/identity-providers?identityProviderId=youeye
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      body:
+        title: ${identity.name}
+        type: OAUTH2
+        identifierFilter: ''
+        config:
+          oauth2Config:
+            clientId: ${sso.client_id}
+            clientSecret: ${sso.client_secret}
+            authUrl: ${identity.external_url}/application/o/authorize/
+            tokenUrl: ${identity.internal_url}/application/o/token
+            userInfoUrl: ${identity.internal_url}/application/o/userinfo
+            scopes: [openid, profile, email]
+            fieldMapping:
+              identifier: preferred_username
+              displayName: name
+              email: email
+  # Password sign-in off for regular users (Memos still lets ADMIN accounts use passwords, so the setup
+  # account above keeps working for re-runs and recovery). It is turned back on around the provider
+  # replacement above: Memos refuses to delete its only identity provider while password sign-in is off.
+  # Registration on, for YouEye ID only: Memos refuses every sign-up while disallowUserRegistration is
+  # set (YouEye ID's included), and refuses local sign-up while disallowPasswordAuth is set.
+  - http:
+      method: PATCH
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      body_from: general
+      set:
+        name: instance/settings/GENERAL
+        generalSetting.disallowPasswordAuth: true
+        generalSetting.disallowUserRegistration: false
+remove:
+  - http:
+      method: POST
+      path: /api/v1/auth/signin
+      body:
+        passwordCredentials:
+          username: admin
+          password: ${secret.admin_password}
+        neverExpire: true
+      save: {bearerToken: accessToken}
+  - http:
+      method: GET
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      save: {general: $}
+  - http:
+      method: PATCH
+      path: /api/v1/instance/settings/GENERAL
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      body_from: general
+      set:
+        name: instance/settings/GENERAL
+        generalSetting.disallowPasswordAuth: false
+        # Local sign-up off again (as after install).
+        generalSetting.disallowUserRegistration: true
+  - http:
+      method: DELETE
+      path: /api/v1/${item.name}
+      headers:
+        Authorization: Bearer ${vars.bearerToken}
+      for_each:
+        path: /api/v1/identity-providers
+        items: identityProviders
+        where: {title: '${identity.name}'}

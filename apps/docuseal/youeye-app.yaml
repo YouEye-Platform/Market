@@ -1,82 +1,58 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "3.3.3"
-
-metadata:
-  id: "docuseal"
-  name: "DocuSeal"
-  description: "Digital document signing and form filling platform"
-  icon: "pen-tool"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://www.docuseal.com"
-  developer: "DocuSeal LLC and contributors"
-  license: "AGPL-3.0-only"
-  sourceCode: "https://github.com/docusealco/docuseal"
-  support: "https://github.com/docusealco/docuseal/issues"
-  docs: "https://www.docuseal.com/docs"
-  tagline: "Create, fill, and sign documents on your own server"
-  tags: ["documents", "signing", "pdf", "forms"]
-  defaultSubdomain: "sign"
-
-detail:
-  releaseNotes: |
-    DocuSeal 3.3.3 adds direct DOCX uploads in the open-source app.
-    Includes the preceding mobile builder, navigation, and security improvements.
-  longDescription: |
+schema: youeye.app.v1
+id: docuseal
+version: 3.3.3
+name: DocuSeal
+subdomain: sign
+listing:
+  tagline: Create, fill, and sign documents on your own server
+  description: Digital document signing and form filling platform
+  long_description: |
     DocuSeal is an open-source platform for digital document signing. Create fillable PDF
     forms, send them for signature, and track completion. Features include drag-and-drop
     form builder, multiple signature types, email notifications, API access, and audit
     trails.
+  release_notes: |
+    DocuSeal 3.3.3 adds direct DOCX uploads in the open-source app.
+    Includes the preceding mobile builder, navigation, and security improvements.
+  category: productivity
+  tags: [documents, signing, pdf, forms]
+  icon: pen-tool
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-template-3.2.0.png"
-      caption: "Historical 3.2.0 demonstration: administrator builds a signing template"
-    - path: "screenshots/standard-user-signing-3.2.0.png"
-      caption: "Historical 3.2.0 demonstration: recipient completes a test signature"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: none
-
-secrets:
-  - name: "secret_key"
-    file: ".secret_key"
-    generator: "secretKey"
-    length: 64
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/docuseal/docuseal@sha256:516d993ae9af884334100ee784f8d1c1b2a4fa83b155e5bc8df236fbf7544a89"
-    port: 3000
-    network: internet
-    volumes:
-      - name: data
-        container: "/data"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/up"
-      timeout: 300000
-
+    - path: screenshots/platform-admin-template-3.2.0.png
+      caption: 'Historical 3.2.0 demonstration: administrator builds a signing template'
+    - path: screenshots/standard-user-signing-3.2.0.png
+      caption: 'Historical 3.2.0 demonstration: recipient completes a test signature'
+  website: https://www.docuseal.com
+  developer: DocuSeal LLC and contributors
+  license: AGPL-3.0-only
+  source_code: https://github.com/docusealco/docuseal
+  support: https://github.com/docusealco/docuseal/issues
+  docs: https://www.docuseal.com/docs
+image: docker.io/docuseal/docuseal@sha256:516d993ae9af884334100ee784f8d1c1b2a4fa83b155e5bc8df236fbf7544a89
+port: 3000
+health: {path: /up, timeout: 300}
+internet: true
+data:
+  - /data
 # NOTE: DocuSeal SSO/SAML is a Pro/Enterprise feature — the OSS image has NO external
 # IdP login and its self-hosted user model exposes only the administrator role. Platform
 # Access must allow LAN access to the working local login (all_users/publicAccess=true).
 # DocuSeal keeps separate local credentials; recipients use scoped signing links.
 # Outbound email is routed through the platform SMTP relay.
 # Document-event webhooks can be added later in DocuSeal's admin UI.
-env_mapping:
-  HOST: "${app.fqdn}"
-  FORCE_SSL: "true"
-  SECRET_KEY_BASE: "${secrets.secret_key}"
-  SMTP_ADDRESS: "${smtp.host}"
-  SMTP_PORT: "${smtp.port}"
-  SMTP_USERNAME: "${smtp.user}"
-  SMTP_PASSWORD: "${smtp.password}"
-  SMTP_FROM: "${smtp.from}"
-  SMTP_AUTHENTICATION: "plain"
-  SMTP_ENABLE_STARTTLS: "true"
+env:
+  HOST: ${app.fqdn}
+  FORCE_SSL: 'true'
+  SECRET_KEY_BASE: ${secret.secret_key}
+secrets:
+  secret_key: {kind: key, length: 64}
+smtp:
+  env:
+    SMTP_ADDRESS: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_USERNAME: ${smtp.user}
+    SMTP_PASSWORD: ${smtp.password}
+    SMTP_FROM: ${smtp.from}
+    SMTP_AUTHENTICATION: plain
+    SMTP_ENABLE_STARTTLS: 'true'

@@ -1,93 +1,56 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "2026.10.19"
-
-metadata:
-  id: "searxng"
-  name: "SearXNG"
-  description: "Privacy-respecting metasearch engine"
-  icon: "search"
-  iconUrl: "icon.svg"
-  category: "search"
-  website: "https://docs.searxng.org"
-  developer: "SearXNG contributors"
-  license: "AGPL-3.0"
-  sourceCode: "https://github.com/searxng/searxng"
-  support: "https://github.com/searxng/searxng/issues"
-  docs: "https://docs.searxng.org"
-  tagline: "Private metasearch across dozens of search engines"
-  tags: ["search", "privacy", "metasearch"]
-  defaultSubdomain: "searx"
-
-detail:
-  releaseNotes: |
+schema: youeye.app.v1
+id: searxng
+version: 2026.10.19
+name: SearXNG
+subdomain: searx
+listing:
+  tagline: Private metasearch across dozens of search engines
+  description: Privacy-respecting metasearch engine
+  long_description: |
+    SearXNG is a free, privacy-respecting metasearch engine that aggregates
+    results from dozens of independent search services. It does not profile
+    users, and supports web, image, news, map, video, JSON, and RSS results.
+  release_notes: |
     SearXNG 2026.10.19 from upstream revision 81371861f, with the existing
     immutable Valkey sidecar. Uses the upstream valkey settings and preserves
     the existing configuration storage layout for upgrades. Both multi-architecture OCI sources are
     immutable and the JSON/RSS search formats remain enabled for integrations.
-  longDescription: |
-    SearXNG is a free, privacy-respecting metasearch engine that aggregates
-    results from dozens of independent search services. It does not profile
-    users, and supports web, image, news, map, video, JSON, and RSS results.
+  category: search
+  tags: [search, privacy, metasearch]
+  icon: search
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/admin-search-results.png"
-      caption: "Administrator search results aggregated from multiple engines"
-    - path: "screenshots/user-search-home.png"
-      caption: "Standard-user private search home page"
-
-database:
-  mode: none
-
+    - path: screenshots/admin-search-results.png
+      caption: Administrator search results aggregated from multiple engines
+    - {path: screenshots/user-search-home.png, caption: Standard-user private search home page}
+  website: https://docs.searxng.org
+  developer: SearXNG contributors
+  license: AGPL-3.0
+  source_code: https://github.com/searxng/searxng
+  support: https://github.com/searxng/searxng/issues
+  docs: https://docs.searxng.org
+image: docker.io/searxng/searxng@sha256:5ed0323b5f5f8701264ef65e239a2bd83cb57098f2b971fa30bf79c06eeae271
+port: 8080
+health: /
+internet: true
+data:
+  - {path: /etc/searxng, kind: config}
+env:
+  SEARXNG_BASE_URL: ${app.url}
+  SEARXNG_SECRET: ${secret.secret_key}
+  SEARXNG_VALKEY_URL: valkey://${sidecar.redis.host}:6379/0
+  SEARXNG_DEFAULT_LANG: ${platform.locale}
 secrets:
-  - name: "secret_key"
-    file: ".secret_key"
-    generator: "secretKey"
-    length: 32
-
-containers:
-  - name: "redis"
-    type: oci
-    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
-
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/searxng/searxng@sha256:5ed0323b5f5f8701264ef65e239a2bd83cb57098f2b971fa30bf79c06eeae271"
-    port: 8080
-    network: internet
-    volumes:
-      - name: config
-        container: "/etc/searxng"
-        type: config
-    healthCheck:
-      type: "http"
-      path: "/"
-      timeout: 120000
-
-provides:
-  - type: search-engine
-    description: "Privacy-respecting metasearch engine"
-    port: 8080
-    scope: service   # one shared SearXNG instance serves the whole server
-
-env_mapping:
-  SEARXNG_BASE_URL: "${app.url}"
-  SEARXNG_SECRET: "${secrets.secret_key}"
-  SEARXNG_VALKEY_URL: "valkey://${containers.redis.internal_host}:6379/0"
-  SEARXNG_DEFAULT_LANG: "${platform.locale}"
-
-configFiles:
-  - container: "main"
-    path: "/etc/searxng/settings.yml"
-    permission: "0o600"
-    directoryPermission: "0o700"
+  secret_key: {kind: key}
+files:
+  - path: /etc/searxng/settings.yml
+    mode: '0600'
     template: |
       use_default_settings: true
       general:
         instance_name: "SearXNG"
       server:
-        secret_key: "${secrets.secret_key}"
+        secret_key: "${secret.secret_key}"
         bind_address: "0.0.0.0"
         port: 8080
         base_url: "${app.url}"
@@ -102,9 +65,14 @@ configFiles:
           - json
           - rss
       valkey:
-        url: "valkey://${containers.redis.internal_host}:6379/0"
+        url: "valkey://${sidecar.redis.host}:6379/0"
       ui:
         static_use_hash: true
         default_theme: simple
         theme_args:
           simple_style: dark
+sidecars:
+  - name: redis
+    image: docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec
+provides:
+  - {type: search-engine, description: Privacy-respecting metasearch engine, port: 8080, scope: service}

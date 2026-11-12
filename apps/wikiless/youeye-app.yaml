@@ -1,74 +1,50 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "0.1.3"
-forwardAuth: enabled
-
-metadata:
-  id: "wikiless"
-  name: "Wikiless"
-  description: "Privacy-respecting Wikipedia frontend"
-  icon: "book-open"
-  iconUrl: "icon.svg"
-  category: "search"
-  website: "https://wikiless.tiekoetter.com"
-  developer: "Wikiless contributors; maintained by tiekoetter"
-  license: "AGPL-3.0-only"
-  sourceCode: "https://github.com/tiekoetter/Wikiless"
-  support: "https://github.com/tiekoetter/Wikiless/issues"
-  docs: "https://github.com/tiekoetter/Wikiless/wiki"
-  tagline: "Read Wikipedia through a private, JavaScript-free frontend"
-  tags: ["wikipedia", "privacy", "wiki", "knowledge", "no-javascript"]
-  defaultSubdomain: "wikiless"
-
-detail:
-  releaseNotes: |
-    Wikiless 0.1.3 at upstream revision e9e618fe refreshes its dependency stack,
-    Node.js 26.12 runtime, proxy handling and Wikimedia request identification.
-    The image is pinned to its immutable Linux amd64 manifest.
-  longDescription: |
+schema: youeye.app.v1
+id: wikiless
+version: 0.1.3
+name: Wikiless
+listing:
+  tagline: Read Wikipedia through a private, JavaScript-free frontend
+  description: Privacy-respecting Wikipedia frontend
+  long_description: |
     Wikiless is a free, open-source alternative frontend for Wikipedia. It proxies
     article pages and media through your own server, strips tracking-oriented browser
     behavior, requires no client-side JavaScript, and provides a lightweight reading
     experience with language and theme preferences. It can also offer a useful route
     to Wikipedia content where the original site is blocked.
+  release_notes: |
+    Wikiless 0.1.3 at upstream revision e9e618fe refreshes its dependency stack,
+    Node.js 26.12 runtime, proxy handling and Wikimedia request identification.
+    The image is pinned to its immutable Linux amd64 manifest.
+  category: search
+  tags: [wikipedia, privacy, wiki, knowledge, no-javascript]
+  icon: book-open
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-article-0.1.3.png"
-      caption: "Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md"
-    - path: "screenshots/standard-user-article-0.1.3.png"
-      caption: "Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md"
-
-database:
-  mode: none
-
-containers:
-  - name: "redis"
-    type: oci
-    image: "docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec"
-    volumes:
-      - name: cache
-        container: "/data"
-        type: cache
-
-  - name: "main"
-    type: oci
-    primary: true
-    image: "ghcr.io/tiekoetter/wikiless@sha256:ef1d1400078019a9d7e39e300373e10b160cc8b785c7b175e80270846a031df6"
-    port: 8080
-    network: internet
-    volumes:
-      - name: media-cache
-        container: "/wikiless/media"
-        type: cache
-    healthCheck:
-      type: "http"
-      path: "/health"
-      timeout: 120000
-
-env_mapping:
-  REDIS_URL: "redis://${containers.redis.internal_host}:6379"
-  DOMAIN: "${app.fqdn}"
-  DEFAULT_LANG: "en"
-  THEME: "dark"
-  NONSSL_PORT: "8080"
-  wikimedia_useragent: "Wikiless/0.1.3 (https://github.com/tiekoetter/Wikiless)"
+    - path: screenshots/platform-admin-article-0.1.3.png
+      caption: Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md
+    - path: screenshots/standard-user-article-0.1.3.png
+      caption: Historical 0.1.3 article-text presentation, cropped; see ASSET-NOTICES.md
+  website: https://wikiless.tiekoetter.com
+  developer: Wikiless contributors; maintained by tiekoetter
+  license: AGPL-3.0-only
+  source_code: https://github.com/tiekoetter/Wikiless
+  support: https://github.com/tiekoetter/Wikiless/issues
+  docs: https://github.com/tiekoetter/Wikiless/wiki
+image: ghcr.io/tiekoetter/wikiless@sha256:ef1d1400078019a9d7e39e300373e10b160cc8b785c7b175e80270846a031df6
+port: 8080
+health: /health
+internet: true
+data:
+  - {path: /wikiless/media, kind: cache}
+env:
+  REDIS_URL: redis://${sidecar.redis.host}:6379
+  DOMAIN: ${app.fqdn}
+  DEFAULT_LANG: en
+  THEME: dark
+  NONSSL_PORT: '8080'
+  wikimedia_useragent: Wikiless/0.1.3 (https://github.com/tiekoetter/Wikiless)
+sidecars:
+  - name: redis
+    image: docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec
+    data:
+      - {path: /data, kind: cache}

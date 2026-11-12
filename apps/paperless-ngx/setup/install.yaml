@@ -1,0 +1,28 @@
+# Runs before the app has a route. Two things:
+# - Close first-run sign-up. Paperless opens /accounts/signup/ to anyone while it has no users (besides
+#   `consumer`/`AnonymousUser`) and no documents, and makes that first account a superuser; it ignores
+#   PAPERLESS_ACCOUNT_ALLOW_SIGNUPS in that state (paperless/adapter.py, is_open_for_signup and save_user).
+#   An inactive placeholder user with an unusable password closes it; nobody can sign in as it. The name
+#   starts with "_", which YouEye ID usernames cannot.
+# - The group new YouEye ID accounts join (PAPERLESS_SOCIAL_ACCOUNT_DEFAULT_GROUPS): every permission on
+#   documents and mail, none on users and groups. Admins are superusers through YouEye ID's admin group.
+schema: youeye.setup.v1
+for: install
+steps:
+  - exec:
+      run:
+        - runuser
+        - -u
+        - paperless
+        - --
+        - python3
+        - /usr/src/paperless/src/manage.py
+        - shell
+        - -c
+        - >-
+          from django.contrib.auth.models import Group, Permission, User;
+          u, _ = User.objects.get_or_create(username='_youeye_signup_closed');
+          u.is_active = False; u.is_staff = False; u.is_superuser = False; u.set_unusable_password(); u.save();
+          g, _ = Group.objects.get_or_create(name='youeye-users');
+          g.permissions.set(Permission.objects.filter(content_type__app_label__in=['documents', 'paperless_mail']))
+      timeout: 120

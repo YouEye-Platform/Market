@@ -1,93 +1,58 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "2.6.14"
-
-metadata:
-  id: "wallabag"
-  name: "Wallabag"
-  description: "Read-it-later app to save and archive web articles"
-  icon: "bookmark"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://wallabag.org"
-  developer: "wallabag contributors"
-  license: "MIT"
-  sourceCode: "https://github.com/wallabag/wallabag"
-  support: "https://github.com/wallabag/wallabag/discussions"
-  docs: "https://doc.wallabag.org/"
-  tagline: "Save web pages now and read them later"
-  tags: ["bookmarks", "articles", "reading", "archive"]
-  defaultSubdomain: "wallabag"
-
-detail:
-  releaseNotes: |
-    wallabag 2.6.14 updates dependencies and its container base, adds an
-    annotations filter to the entries API, fixes short-article reading times,
-    and corrects multi-URL API saving.
-  longDescription: |
+schema: youeye.app.v1
+id: wallabag
+version: 2.6.14
+name: Wallabag
+listing:
+  tagline: Save web pages now and read them later
+  description: Read-it-later app to save and archive web articles
+  long_description: |
     Wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
+  release_notes: |
+    wallabag 2.6.14 updates dependencies and its container base, adds an
+    annotations filter to the entries API, fixes short-article reading times,
+    and corrects multi-URL API saving.
+  category: productivity
+  tags: [bookmarks, articles, reading, archive]
+  icon: bookmark
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-library-2.6.14.png"
-      caption: "Historical 2.6.14 application administrator user-management screen"
-    - path: "screenshots/standard-user-library-2.6.14.png"
-      caption: "Historical 2.6.14 standard-user quickstart screen"
-
-capabilities:
-  smtp: true
-
-database:
-  mode: none
-
-secrets:
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-  - name: "secret_key"
-    file: ".secret_key"
-    generator: "secretKey"
-    length: 32
-
-credentials:
-  - label: "Admin Account"
-    username: "wallabag"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "main"
-    type: oci
-    primary: true
-    image: "docker.io/wallabag/wallabag@sha256:82ade66b403d67c05732f9f08003034509f6499e9f487b858c0b77524b28545d"
-    command: >-
-      /bin/sh -lc '(sleep 45; until php /var/www/wallabag/bin/console fos:user:change-password wallabag "$YOUEYE_ADMIN_PASSWORD" --env=prod --no-interaction >/dev/null 2>&1; do sleep 2; done) & exec /entrypoint.sh wallabag'
-    port: 80
-    network: internet
-    volumes:
-      - name: data
-        container: "/var/www/wallabag/data"
-        type: data
-      - name: images
-        container: "/var/www/wallabag/web/assets/images"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/api/version"
-      timeout: 180000
-
+    - path: screenshots/platform-admin-library-2.6.14.png
+      caption: Historical 2.6.14 application administrator user-management screen
+    - path: screenshots/standard-user-library-2.6.14.png
+      caption: Historical 2.6.14 standard-user quickstart screen
+  website: https://wallabag.org
+  developer: wallabag contributors
+  license: MIT
+  source_code: https://github.com/wallabag/wallabag
+  support: https://github.com/wallabag/wallabag/discussions
+  docs: https://doc.wallabag.org/
+image: docker.io/wallabag/wallabag@sha256:82ade66b403d67c05732f9f08003034509f6499e9f487b858c0b77524b28545d
+port: 80
+health: {path: /api/version, timeout: 180}
+internet: true
+data:
+  - /var/www/wallabag/data
+  - /var/www/wallabag/web/assets/images
 # NOTE: Wallabag has NO external OIDC/SAML login in the OSS build (FOSUserBundle local
 # accounts only; its OAuth2 server only ISSUES API tokens). Users keep a local Wallabag
-# login (admin user "wallabag"). Outbound email (2FA, password reset) goes through the
-# platform SMTP relay. The MAILER_DSN credential values must be URL-safe.
-env_mapping:
-  SYMFONY__ENV__DOMAIN_NAME: "${app.url}"
-  SYMFONY__ENV__SERVER_NAME: "Wallabag"
-  SYMFONY__ENV__FOSUSER_REGISTRATION: "false"
-  SYMFONY__ENV__SECRET: "${secrets.secret_key}"
-  YOUEYE_ADMIN_PASSWORD: "${secrets.admin_password}"
-  POPULATE_DATABASE: "true"
-  SYMFONY__ENV__MAILER_DSN: "smtp://${smtp.user}:${smtp.password}@${smtp.host}:${smtp.port}"
-  SYMFONY__ENV__FROM_EMAIL: "${smtp.from}"
-  SYMFONY__ENV__TWOFACTOR_SENDER: "${smtp.from}"
+# login (admin user "wallabag"; the image creates it with password "wallabag", and setup/install.yaml
+# replaces that with the generated secret before the app has a route). Outbound email (2FA, password
+# reset) goes through the platform SMTP relay. The MAILER_DSN credential values must be URL-safe.
+env:
+  SYMFONY__ENV__DOMAIN_NAME: ${app.url}
+  SYMFONY__ENV__SERVER_NAME: Wallabag
+  SYMFONY__ENV__FOSUSER_REGISTRATION: 'false'
+  SYMFONY__ENV__SECRET: ${secret.secret_key}
+  POPULATE_DATABASE: 'true'
+secrets:
+  admin_password: {length: 24}
+  secret_key: {kind: key}
+credentials:
+  - {label: Admin Account, username: wallabag, password: admin_password}
+smtp:
+  env:
+    SYMFONY__ENV__MAILER_DSN: smtp://${smtp.user}:${smtp.password}@${smtp.host}:${smtp.port}
+    SYMFONY__ENV__FROM_EMAIL: ${smtp.from}
+    SYMFONY__ENV__TWOFACTOR_SENDER: ${smtp.from}

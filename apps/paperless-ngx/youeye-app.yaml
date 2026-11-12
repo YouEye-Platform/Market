@@ -1,137 +1,92 @@
-apiVersion: v1
-kind: app
-integration: basic
-version: "3.3.4"
-
-metadata:
-  id: "paperless-ngx"
-  name: "Paperless-NGX"
-  description: "Document management with OCR and auto-tagging"
-  icon: "file-text"
-  iconUrl: "icon.svg"
-  category: "productivity"
-  website: "https://docs.paperless-ngx.com"
-  developer: "Paperless-ngx community"
-  license: "GPL-3.0"
-  sourceCode: "https://github.com/paperless-ngx/paperless-ngx"
-  support: "https://github.com/paperless-ngx/paperless-ngx/discussions"
-  docs: "https://docs.paperless-ngx.com"
-  tagline: "Scan, OCR and organize your documents"
-  tags: ["documents", "ocr", "archival", "scanning"]
-  defaultSubdomain: "docs"
-
-detail:
-  releaseNotes: |
-    Paperless-NGX 3.3.4 updates trust and security dependencies, following recent
-    document-permission and search fixes. Uses one task worker and one OCR thread
-    for predictable resource use. Historical screenshots show version 3.0.5.
-  longDescription: |
+schema: youeye.app.v1
+id: paperless-ngx
+version: 3.3.4
+name: Paperless-NGX
+subdomain: docs
+listing:
+  tagline: Scan, OCR and organize your documents
+  description: Document management with OCR and auto-tagging
+  long_description: |
     Paperless-NGX is a document management system that transforms your physical documents
     into a searchable online archive. Features automatic OCR, smart tagging, full-text search,
     and a modern web interface.
+  release_notes: |
+    Paperless-NGX 3.3.4 updates trust and security dependencies, following recent
+    document-permission and search fixes. Uses one task worker and one OCR thread
+    for predictable resource use. Historical screenshots show version 3.0.5.
+  category: productivity
+  tags: [documents, ocr, archival, scanning]
+  icon: file-text
+  icon_file: icon.svg
   screenshots:
-    - path: "screenshots/platform-admin-document-3.0.5.png"
-      caption: "Historical 3.0.5: platform administrator reviewing an OCR-indexed and tagged document"
-    - path: "screenshots/standard-user-document-3.0.5.png"
-      caption: "Historical 3.0.5: standard platform user reviewing an independently indexed document"
-
-capabilities:
-  smtp: true
-
+    - path: screenshots/platform-admin-document-3.0.5.png
+      caption: 'Historical 3.0.5: platform administrator reviewing an OCR-indexed and tagged document'
+    - path: screenshots/standard-user-document-3.0.5.png
+      caption: 'Historical 3.0.5: standard platform user reviewing an independently indexed document'
+  website: https://docs.paperless-ngx.com
+  developer: Paperless-ngx community
+  license: GPL-3.0
+  source_code: https://github.com/paperless-ngx/paperless-ngx
+  support: https://github.com/paperless-ngx/paperless-ngx/discussions
+  docs: https://docs.paperless-ngx.com
+image: ghcr.io/paperless-ngx/paperless-ngx@sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8
+port: 8000
+health: {path: /, timeout: 180}
+internet: true
 database:
-  mode: shared
-  name: "paperless"
-  user: "paperless"
-
+  postgres: {name: paperless, user: paperless}
+data:
+  - /usr/src/paperless/data
+  - {path: /usr/src/paperless/media, kind: media}
+  - /usr/src/paperless/consume
+  - /usr/src/paperless/export
+env:
+  PAPERLESS_REDIS: redis://${sidecar.valkey.host}:6379
+  PAPERLESS_DBENGINE: postgresql
+  PAPERLESS_DBHOST: ${database.host}
+  PAPERLESS_DBPORT: '5432'
+  PAPERLESS_DBNAME: ${database.name}
+  PAPERLESS_DBUSER: ${database.user}
+  PAPERLESS_DBPASS: ${database.password}
+  PAPERLESS_SECRET_KEY: ${secret.secret_key}
+  PAPERLESS_URL: ${app.url}
+  PAPERLESS_TIME_ZONE: ${platform.timezone}
+  PAPERLESS_WEBSERVER_WORKERS: '1'
+  PAPERLESS_TASK_WORKERS: '1'
+  PAPERLESS_THREADS_PER_WORKER: '1'
+  PAPERLESS_OCR_LANGUAGE: eng
+  PAPERLESS_CONSUMER_POLLING_INTERVAL: '30'
+  PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+  PAPERLESS_SOCIAL_AUTO_SIGNUP: 'true'
+  PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: 'true'
+  PAPERLESS_ACCOUNT_DEFAULT_HTTP_PROTOCOL: https
 secrets:
-  - name: "db_password"
-    file: ".db_password"
-    generator: "password"
-    length: 32
-  - name: "secret_key"
-    file: ".secret_key"
-    generator: "secretKey"
-    length: 50
-  - name: "admin_password"
-    file: ".admin_password"
-    generator: "password"
-    length: 24
-
-credentials:
-  - label: "Admin Account"
-    username: "admin"
-    passwordSecret: "admin_password"
-
-containers:
-  - name: "valkey"
-    type: oci
-    image: "docker.io/valkey/valkey@sha256:ee91f7a174ac4d6a6b0685b3a60e321f0a9dbbb691f9b0e285be2ba1d1be8328"
-    volumes:
-      - name: valkey-data
-        container: "/data"
-        type: data
-
-  - name: "main"
-    type: oci
-    primary: true
-    image: "ghcr.io/paperless-ngx/paperless-ngx@sha256:b3f480cc5a8beb3ad45cb484b7c606f93240ae58fbfaf4f609be1cfa248267e8"
-    port: 8000
-    network: internet
-    volumes:
-      - name: data
-        container: "/usr/src/paperless/data"
-        type: data
-      - name: media
-        container: "/usr/src/paperless/media"
-        type: media
-      - name: consume
-        container: "/usr/src/paperless/consume"
-        type: data
-      - name: export
-        container: "/usr/src/paperless/export"
-        type: data
-    healthCheck:
-      type: "http"
-      path: "/"
-      timeout: 180000
-
+  secret_key: {kind: key, length: 50}
 sso:
-  type: oauth2
-  callback_path: /accounts/oidc/authentik/login/callback/
-  setup:
-    method: env
-
-env_mapping:
-  PAPERLESS_REDIS: "redis://${containers.valkey.internal_host}:6379"
-  PAPERLESS_DBENGINE: "postgresql"
-  PAPERLESS_DBHOST: "${database.host}"
-  PAPERLESS_DBPORT: "5432"
-  PAPERLESS_DBNAME: "${database.name}"
-  PAPERLESS_DBUSER: "${database.user}"
-  PAPERLESS_DBPASS: "${database.password}"
-  PAPERLESS_SECRET_KEY: "${secrets.secret_key}"
-  PAPERLESS_URL: "${app.url}"
-  PAPERLESS_TIME_ZONE: "${platform.timezone}"
-  PAPERLESS_ADMIN_USER: "admin"
-  PAPERLESS_ADMIN_PASSWORD: "${secrets.admin_password}"
-  PAPERLESS_WEBSERVER_WORKERS: "1"
-  PAPERLESS_TASK_WORKERS: "1"
-  PAPERLESS_THREADS_PER_WORKER: "1"
-  PAPERLESS_OCR_LANGUAGE: "eng"
-  PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
-  PAPERLESS_APPS: "allauth.socialaccount.providers.openid_connect"
-  PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"${platform.site_name}","client_id":"${sso.client_id}","secret":"${sso.client_secret}","settings":{"server_url":"${identity.internalUrl}/application/o/youeye-app-paperless-ngx/.well-known/openid-configuration","token_auth_method":"client_secret_basic"}}],"SCOPE":["openid","profile","email"]}}'
-  PAPERLESS_SOCIAL_AUTO_SIGNUP: "true"
-  PAPERLESS_SOCIALACCOUNT_ALLOW_SIGNUPS: "true"
-  PAPERLESS_ACCOUNT_DEFAULT_HTTP_PROTOCOL: "https"
-  PAPERLESS_DISABLE_REGULAR_LOGIN: "false"
-  PAPERLESS_REDIRECT_LOGIN_TO_SSO: "false"
-  PAPERLESS_EMAIL_HOST: "${smtp.host}"
-  PAPERLESS_EMAIL_PORT: "${smtp.port}"
-  PAPERLESS_EMAIL_HOST_USER: "${smtp.user}"
-  PAPERLESS_EMAIL_HOST_PASSWORD: "${smtp.password}"
-  PAPERLESS_EMAIL_FROM: "${smtp.from}"
-  PAPERLESS_EMAIL_USE_TLS: "true"
-
-uninstall:
-  dropSharedDatabase: true
+  callback: /accounts/oidc/authentik/login/callback/
+  env:
+    PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"YouEye ID","client_id":"${sso.client_id}","secret":"${sso.client_secret}","settings":{"server_url":"${identity.internal_url}/application/o/youeye-app-paperless-ngx/.well-known/openid-configuration","token_auth_method":"client_secret_basic"}}],"SCOPE":["openid","profile","email","groups"]}}'
+    PAPERLESS_REDIRECT_LOGIN_TO_SSO: 'false'
+    # No local accounts: everyone signs in with YouEye ID. On every sign-in Paperless makes a person a
+    # superuser (and staff) exactly when YouEye ID's groups claim has `admin`. New accounts join `youeye-users`
+    # (document permissions; created by setup/install.yaml, which also closes first-run sign-up with an
+    # inactive placeholder user). Recovery: `manage.py createsuperuser` in app-paperless-ngx-main.
+    # The provider name is fixed text: this value is JSON, and the box's display name could break it.
+    PAPERLESS_DISABLE_REGULAR_LOGIN: 'true'
+    PAPERLESS_SOCIAL_ACCOUNT_SYNC_SUPERUSER_GROUP: admin
+    PAPERLESS_SOCIAL_ACCOUNT_SYNC_STAFF_GROUP: admin
+    PAPERLESS_SOCIAL_ACCOUNT_SYNC_GROUPS_CLAIM: groups
+    PAPERLESS_SOCIAL_ACCOUNT_DEFAULT_GROUPS: youeye-users
+smtp:
+  env:
+    PAPERLESS_EMAIL_HOST: ${smtp.host}
+    PAPERLESS_EMAIL_PORT: ${smtp.port}
+    PAPERLESS_EMAIL_HOST_USER: ${smtp.user}
+    PAPERLESS_EMAIL_HOST_PASSWORD: ${smtp.password}
+    PAPERLESS_EMAIL_FROM: ${smtp.from}
+    PAPERLESS_EMAIL_USE_TLS: 'true'
+sidecars:
+  - name: valkey
+    image: docker.io/valkey/valkey@sha256:ee91f7a174ac4d6a6b0685b3a60e321f0a9dbbb691f9b0e285be2ba1d1be8328
+    data:
+      - /data
