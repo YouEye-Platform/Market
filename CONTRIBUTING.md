@@ -9,10 +9,11 @@ Changes must be reviewed locally with `pnpm test`. Do not publish a branch, tag,
 ## Catalog releases
 
 A catalog release is `catalog-v<version>`. `VERSION` holds the release line
-(`X.Y.Z`); every release is `X.Y.Z-rc.N`, where the release tool picks the next
-free `N` from this repository's release tags. A release keeps its version on
-every channel (dev, alpha, beta, stable); promotion copies the same bytes and
-never rebuilds. Nothing in the repository carries the release version.
+(`X.Y.Z`); every build is released as `X.Y.Z-dev.N`, where the release tool picks
+the next free `N` from this repository's release tags. Promotion releases the
+same bytes as `X.Y.Z-alpha.N`, `X.Y.Z-beta.N` and `X.Y.Z` on alpha, beta and
+stable, and never rebuilds. Nothing in the repository carries the release
+version.
 
 A release holds three files:
 
