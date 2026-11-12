@@ -9,7 +9,7 @@ The Market is a plain YAML catalog. Each release packs it into `catalog.tar`; th
 | Path | Purpose |
 |---|---|
 | `catalog.yaml` | Root catalog: categories, curated rows, bundles, integrations, and app entries |
-| `VERSION` | Release line (`X.Y.Z`); releases are `catalog-vX.Y.Z-rc.N` |
+| `VERSION` | Release line (`X.Y.Z`); builds are released as `catalog-vX.Y.Z-dev.N` |
 | `asset-inventory.json` | Asset digest inventory; intentionally not an assertion of ownership or rights |
 | `store.yaml` | Store metadata for the official YouEye Market source |
 | `apps/<app-id>/youeye-app.yaml` | Full manifest for a container app installed by Control Panel |
