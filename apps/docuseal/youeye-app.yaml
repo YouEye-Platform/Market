@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: docuseal
 version: 3.3.3
 name: DocuSeal
-subdomain: sign
 listing:
   tagline: Create, fill, and sign documents on your own server
   description: Digital document signing and form filling platform

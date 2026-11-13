@@ -319,6 +319,26 @@
       "ownershipStatus": "unverified"
     },
     {
+      "path": "apps/razzia/icon.svg",
+      "sha256": "sha256:7594a69ec11c73e9f8c04d189bd3ac6d5533bfe00f65dedb4d420478ea4bcadb",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/razzia/screenshots/host-lobby-waiting-for-players.png",
+      "sha256": "sha256:2936087462830118ad45a479bfa4f3d016cdfd7f00017ab776dab7fe060d2e70",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/razzia/screenshots/join-with-game-pin.png",
+      "sha256": "sha256:e238a23bb7d0c8efe2346805e39a9537da932de3d1af926ff395df3ba4b1ec01",
+      "ownershipStatus": "unverified"
+    },
+    {
+      "path": "apps/razzia/screenshots/question-on-the-big-screen.png",
+      "sha256": "sha256:408416fe45c63463153b07ba986cd7c95e4c3960b22814358485c9a0f4ee569f",
+      "ownershipStatus": "unverified"
+    },
+    {
       "path": "apps/searxng/icon.svg",
       "sha256": "sha256:e0f4c72fe58055043d04446350e7d3e6a25105e507519b1ceacffd5b9aa89593",
       "ownershipStatus": "unverified"

@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: vikunja
 version: 2.5.0
 name: Vikunja
-subdomain: tasks
 listing:
   tagline: The flexible task manager you control
   description: Full-featured task manager with lists, kanban, and gantt
@@ -13,7 +12,8 @@ listing:
     shared projects.
 
     Sign-in: everyone signs in with YouEye ID as a regular Vikunja user; Vikunja cannot take roles from
-    YouEye ID. Instance admins are set on the box with `vikunja user set-admin` in the app's container.
+    YouEye ID. Instance admin (the admin panel) is a paid licence feature of Vikunja, so this install has none;
+    whoever creates a project owns it and shares it with others.
   release_notes: |
     Vikunja 2.5.0 fixes a share-link authorization vulnerability and improves
     multi-task quick add, CalDAV, notifications, and imports. Upstream recommends

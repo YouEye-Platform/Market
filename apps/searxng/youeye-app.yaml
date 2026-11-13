@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: searxng
 version: 2026.10.19
 name: SearXNG
-subdomain: searx
 listing:
   tagline: Private metasearch across dozens of search engines
   description: Privacy-respecting metasearch engine

@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: miniflux
 version: 2.3.4
 name: Miniflux
-subdomain: feeds
 listing:
   tagline: A fast, focused feed reader without distractions
   description: Minimalist and opinionated RSS reader

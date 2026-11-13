@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: stirling-pdf
 version: 2.14.3
 name: Stirling-PDF
-subdomain: pdf
 listing:
   tagline: A private, self-hosted toolkit for everyday PDF work
   description: All-in-one PDF toolkit for merging, splitting, and converting

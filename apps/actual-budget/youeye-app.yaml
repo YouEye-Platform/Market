@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: actual-budget
 version: 26.8.1
 name: Actual Budget
-subdomain: budget
 listing:
   tagline: A private, local-first envelope budget for every device
   description: Privacy-focused envelope budgeting with bank sync
