@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: linkwarden
 version: 2.16.0
 name: Linkwarden
-subdomain: links
 listing:
   tagline: Bookmarks evolved, preserved, and shared
   description: Collaborative bookmark manager with web archiving

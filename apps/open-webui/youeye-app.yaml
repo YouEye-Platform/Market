@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: open-webui
 version: 0.11.0
 name: Open WebUI
-subdomain: chat
 listing:
   tagline: Chat with the model group selected in YouEye AI Settings
   description: A polished chat workspace for your YouEye AI models

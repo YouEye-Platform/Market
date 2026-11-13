@@ -32,7 +32,7 @@ function block(text, key) {
 
 // Accepted apps passed their own fresh-install acceptance; new apps start in REMAINING_DEBT.
 const ACCEPTED = new Set(['actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
-const REMAINING_DEBT = new Set([]);
+const REMAINING_DEBT = new Set(['razzia']);
 
 test('catalog index, app folders, setup files, bundles and system apps are structurally valid', () => {
   assert.ok(apps.length > 0);
@@ -56,7 +56,7 @@ test('accepted apps have complete store listings with local icons and captioned 
     const icon = listing.match(/^  icon_file:\s*["']?([^"'\s]+)/m)?.[1];
     if (icon && (/^https?:/.test(icon) || !existsSync(join(root, 'apps', id, icon)))) problems.push(`${id}: icon ${icon} is not a local file`);
     const shots = [...listing.matchAll(/path:\s*["']?([^,"'}\s]+)["']?,?\s*caption:\s*["']?([^}\n]+?)["']?\s*}?$/gm)];
-    if (shots.length < 2) problems.push(`${id}: needs administrator and standard-user screenshots`);
+    if (shots.length < 2) problems.push(`${id}: needs at least two captioned screenshots`);
     for (const [, path, caption] of shots) {
       if (dirname(path) !== 'screenshots' || !existsSync(join(root, 'apps', id, path))) problems.push(`${id}: screenshot ${path} missing`);
       if (caption.trim().length < 12) problems.push(`${id}: weak caption for ${path}`);

@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: mealie
 version: 3.22.0
 name: Mealie
-subdomain: recipes
 listing:
   tagline: Recipes, meal plans, and shopping lists in one place
   description: Recipe manager and meal planner with automatic import

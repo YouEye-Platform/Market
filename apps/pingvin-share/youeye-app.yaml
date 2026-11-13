@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: pingvin-share
 version: 1.22.1
 name: Pingvin Share X
-subdomain: share
 listing:
   tagline: Secure, expiring file transfers from your own server
   description: Lightweight file sharing with expiring links

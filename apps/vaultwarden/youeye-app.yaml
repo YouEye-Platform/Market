@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: vaultwarden
 version: 1.37.4
 name: Vaultwarden
-subdomain: vault
 listing:
   tagline: Lightweight Bitwarden-compatible server
   description: Lightweight Bitwarden-compatible password manager

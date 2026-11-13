@@ -1,0 +1,74 @@
+schema: youeye.app.v1
+id: razzia
+version: 4.0.2
+name: Razzia
+listing:
+  tagline: Host live quiz games for a room full of players
+  description: Self-hosted live quiz game with a host screen and player phones
+  long_description: |
+    Razzia is an open-source live quiz game. The host builds quizzes in the manager, starts a
+    game and shows the questions on a big screen; players join from their phones with the room
+    code and answer against the clock. Single-answer, multiple-answer and estimation rounds,
+    images, audio and video in questions, a live leaderboard, and saved results.
+
+    To host, open /manager on the app's address and enter the manager password that YouEye
+    generates (no username; find it under the app's credentials). Players open the app's address
+    and type the game PIN shown on the host screen.
+
+    Razzia has its own protection (the manager password for hosting, a game PIN for playing), so
+    it installs with public access: guests join from their phones without a YouEye account. To
+    keep it to your household instead, turn public access off in the install dialog or later in
+    Razzia's access settings. Quizzes, uploaded media and results are kept with the app. A
+    running game lives in memory, so restarting or updating the app ends it.
+  release_notes: |
+    Razzia 4.0.2. Quizzes, media and results live in the app's config volume; the manager
+    password and the session-signing key are generated at install, so manager and player
+    sessions survive a restart.
+  category: social
+  tags: [quiz, game, party, trivia, events]
+  icon: gamepad-2
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/join-with-game-pin.png
+      caption: Players join from their phone by typing the game PIN
+    - path: screenshots/host-lobby-waiting-for-players.png
+      caption: The host screen shows the PIN and QR code while players join
+    - path: screenshots/question-on-the-big-screen.png
+      caption: A question on the big screen with the timer and four answers
+  website: https://github.com/Ralex91/Razzia
+  developer: Ralex and contributors
+  license: MIT
+  source_code: https://github.com/Ralex91/Razzia
+  support: https://github.com/Ralex91/Razzia/issues
+  docs: https://github.com/Ralex91/Razzia/tree/4.0.2/docs
+# Research at 4.0.2 (commit 8345663):
+# - One image (alpine + s6): nginx on :3000 serves the web build and proxies /api and /ws (Socket.IO) to the
+#   Node socket server on 127.0.0.1:3001. Caddy's plain reverse_proxy carries the WebSocket upgrade.
+# - /api/health answers {"status":"ok"} from the socket server through nginx, so it checks both processes.
+# - CONFIG_PATH=/app/config is set by the image (docker/s6/socket/run); quizzes, results, media and branding
+#   live there, created on first start with an example quiz.
+# - No user accounts and no OIDC: one shared MANAGER_PASSWORD unlocks hosting (POST /api/auth/manager);
+#   players get anonymous JWT sessions. Without MANAGER_PASSWORD manager access is refused, so there is no
+#   open admin window. JWT_SECRET must be at least 32 characters; unset, a new one per start logs everyone out.
+# - The server makes no outbound requests (quiz images given by URL load in the players' browsers).
+# - Access: the app has its own protection (manager password, game PIN), so it installs with public access
+#   (owner rule 2026-11-13). The manager login has no rate limit upstream; the 24-character generated
+#   password makes guessing impractical.
+# - Screenshots: the official README previews at tag 4.0.2 (.github/previews/1-3.png, MIT repository).
+image: docker.io/ralex91/razzia@sha256:e880097d232d42cba882391831ea4cad617f5a9c82947e2fc96595d0d9d5b11d
+port: 3000
+health: /api/health
+# Incus mounts an empty tmpfs on /run, so the image's /run/nginx is gone and nginx cannot write its pid file
+# (Docker keeps it). Recreate it, then start the image's own CMD.
+command: [/bin/sh, -c, mkdir -p /run/nginx && exec s6-svscan /etc/s6]
+data:
+  - {path: /app/config, kind: data}
+env:
+  MANAGER_PASSWORD: ${secret.manager_password}
+  JWT_SECRET: ${secret.jwt_secret}
+secrets:
+  manager_password: {length: 24}
+  jwt_secret: {kind: hex, length: 32}
+public_access: true
+credentials:
+  - {label: Manager password for hosting games, username: not needed, password: manager_password}

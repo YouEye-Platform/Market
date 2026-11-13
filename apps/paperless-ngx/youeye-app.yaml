@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: paperless-ngx
 version: 3.3.4
 name: Paperless-NGX
-subdomain: docs
 listing:
   tagline: Scan, OCR and organize your documents
   description: Document management with OCR and auto-tagging

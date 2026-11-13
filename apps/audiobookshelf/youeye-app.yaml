@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: audiobookshelf
 version: 2.36.0
 name: Audiobookshelf
-subdomain: audiobooks
 listing:
   tagline: Your audiobooks and podcasts, on your server
   description: Audiobook and podcast server with progress tracking

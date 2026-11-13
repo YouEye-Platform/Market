@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: nextcloud
 version: 34.0.2
 name: Nextcloud
-subdomain: cloud
 listing:
   tagline: Your files, contacts and calendars at home
   description: Cloud storage, collaboration, and file sharing

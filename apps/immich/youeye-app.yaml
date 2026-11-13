@@ -2,7 +2,6 @@ schema: youeye.app.v1
 id: immich
 version: 3.1.0
 name: Immich
-subdomain: photos
 listing:
   tagline: Self-hosted photo and video backup
   description: Self-hosted photo and video management
