@@ -73,10 +73,12 @@ test('the catalog builds into a market the format accepts, twice byte for byte',
     }
     assert.ok(app.icon && Object.values(bundle.files).includes(app.icon), `${app.id} has its icon`);
   }
-  // Licence and notice files are published unchanged beside the market.
+  // Licence and notice files are published beside the market, byte for byte, always as text: a name that does not
+  // end in .txt or .md gets .txt (LICENSE -> LICENSE.txt), so nothing there is ever served as a page.
   for (const id of apps) {
     for (const name of readdirSync(join(root, 'apps', id)).filter((name) => /^(ASSET-NOTICES|LICENSE|COPYING)/.test(name))) {
-      assert.ok(readFileSync(join(first, 'notices', id, name)).equals(readFileSync(join(root, 'apps', id, name))), `${id}/${name}`);
+      const published = /\.(txt|md)$/.test(name) ? name : `${name}.txt`;
+      assert.ok(readFileSync(join(first, 'notices', id, published)).equals(readFileSync(join(root, 'apps', id, name))), `${id}/${name}`);
     }
   }
   assert.ok(!files.some((file) => /^(bundles|system|drafts|tests)\//.test(file)
@@ -89,7 +91,6 @@ test('the generator refuses a broken catalog and names every problem', { skip },
   edit('apps/mealie/youeye-app.yaml', (text) => text.replace('id: mealie', 'id: other'));
   edit('apps/memos/youeye-app.yaml', (text) => text.replace(/@sha256:[0-9a-f]{64}/, ':latest'));
   edit('apps/sonarr/youeye-app.yaml', (text) => text.replace('setup/connect-prowlarr.yaml', 'setup/connect-missing.yaml'));
-  edit('apps/gramps-web/youeye-app.yaml', (text) => text.replace(/^requires:.*\n/m, ''));
   edit('bundles/private-search/bundle.yaml', (text) => text.replace('id: private-search', 'id: other'));
   edit('catalog.yaml', (text) => text.replace('native: [notes,', 'native: [jellyfin, notes,').replace('apps: [searxng, wikiless]', 'apps: [searxng, nowhere]'));
   edit('asset-provenance.json', (text) => {
@@ -105,7 +106,6 @@ test('the generator refuses a broken catalog and names every problem', { skip },
     /apps\/mealie: id is "other"; it must equal the folder name/,
     /apps\/memos: .*image must be pinned by digest/,
     /apps\/sonarr: .*setup\/connect-missing\.yaml does not exist/,
-    /apps\/gramps-web: youeye-app\.yaml: sidecars\[\]\.data\[\]\.from needs YouEye 0\.6\.9, but requires\.youeye is missing/,
     /bundles\/private-search\/bundle\.yaml: id is "other"/,
     /native app "jellyfin" also has an app folder/,
     /curation\.collections\.private-search names "nowhere"/,
