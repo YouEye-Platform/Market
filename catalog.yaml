@@ -1,6 +1,5 @@
-# Market index. Apps are discovered from apps/<id>/youeye-app.yaml, bundles from
-# bundles/<id>/bundle.yaml and system apps from system/<id>.yaml; only what cannot be discovered
-# is written here.
+# Market index. Apps are discovered from apps/<id>/youeye-app.yaml and bundles from
+# bundles/<id>/bundle.yaml; only what cannot be discovered is written here.
 schema: youeye.catalog.v1
 
 # Category pills, section headers, ordering and fallback tile colours (`icon` is a Lucide name).

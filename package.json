@@ -1,11 +1,9 @@
 {
   "name": "youeye-market",
   "private": true,
-  "description": "YouEye Market catalog and per-app manifests. Tests are dependency-free (node:test).",
+  "description": "YouEye Market catalog and per-app manifests. Tests use node:test; the build and its tests use the generator of a YouEye checkout (YOUEYE_ROOT).",
   "scripts": {
     "test": "node --test tests/*.spec.mjs",
-    "catalog:generate": "node scripts/catalog-snapshot.mjs generate",
-    "catalog:validate": "node scripts/catalog-snapshot.mjs validate",
-    "catalog:release": "node scripts/catalog-snapshot.mjs release"
+    "build": "if [ -z \"$YOUEYE_ROOT\" ]; then echo 'build: set YOUEYE_ROOT to a YouEye checkout; the generator is control-panel/scripts/market-build.ts there' >&2; exit 1; fi; repo=\"$PWD\"; rm -rf out && cd \"$YOUEYE_ROOT/control-panel\" && node --import tsx scripts/market-build.ts \"$repo\" --out \"$repo/out\""
   }
 }

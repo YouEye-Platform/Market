@@ -4,34 +4,17 @@
 
 YouEye Market is source metadata: it curates catalog entries, manifests, wiring recipes, and presentation assets. It does not build, package, mirror, upload, or distribute application binaries or OCI images. Third-party application versions and image digests are selected and preserved in their own manifests; catalog snapshots never rewrite them.
 
-Changes must be reviewed locally with `pnpm test`. Do not publish a branch, tag, release, artifact, image, or other binary from this repository unless an authorized release owner separately approves that action.
+Changes must be reviewed locally with `YOUEYE_ROOT=<YouEye checkout> npm test`. Do not publish a branch, tag, release, artifact, image, or other binary from this repository unless an authorized release owner separately approves that action.
 
-## Catalog releases
+## Publishing
 
-A catalog release is `catalog-v<version>`. `VERSION` holds the release line
-(`X.Y.Z`); every build is released as `X.Y.Z-dev.N`, where the release tool picks
-the next free `N` from this repository's release tags. Promotion releases the
-same bytes as `X.Y.Z-alpha.N`, `X.Y.Z-beta.N` and `X.Y.Z` on alpha, beta and
-stable, and never rebuilds. Nothing in the repository carries the release
-version.
-
-A release holds three files:
-
-- `catalog-snapshot.json`: the content record. It lists every catalog file with
-  its SHA-256 digest: `catalog.yaml`, `store.yaml`, `RETIRED.md`,
-  `asset-inventory.json`, `asset-provenance.json`, and every file under `apps/`,
-  `bundles/` and `system/` (manifests, setup files, icons,
-  screenshots, notices), sorted by path. It carries no version, branch,
-  repository or host, so the same commit gives the same bytes everywhere.
-- `catalog.tar`: a plain ustar archive of exactly those files, in that order,
-  with paths relative to the repository root (mode 0644, uid/gid 0, mtime 0).
-  YouEye reads the official Market from this archive, never from Git.
-- `product-release.json`: binds both files by SHA-256 and the source git tree.
-
-```bash
-node scripts/catalog-snapshot.mjs validate
-node scripts/catalog-snapshot.mjs release <output directory>
-```
+There are no Market releases and no Market version. A push to `dev` or `main` is
+published as static files: the generator in the YouEye repository
+(`control-panel/scripts/market-build.ts`) turns the commit into `market.json`, an
+index, one small file per app and the pictures, and the CEO's publish tool puts
+them on `market.youeye.me` (`/dev/` for `dev`, `/` for `main`). Boxes pick up the
+change on their next check. Build it locally with `YOUEYE_ROOT=<YouEye checkout> npm
+run build`.
 
 Native apps are named by id only (`native: [notes, …]` in `catalog.yaml`). The
 box finds each native app's release through its channel index, so the catalog
@@ -52,23 +35,20 @@ because a change is being promoted. Escalate a specific unresolved rights questi
 with evidence and a proposed resolution. Authorization to publish is not proof
 of third-party rights, and inventory hashes are not ownership assertions.
 
-`asset-inventory.json` remains a deterministic inventory (`node
-scripts/catalog-snapshot.mjs generate` rewrites it). Validation preserves exact
-content and asset hashes. Provenance work belongs to app changes, rather than a
-repeated human sign-off for unchanged assets at each release.
+Provenance work belongs to app changes, rather than a repeated human sign-off
+for unchanged assets at each publication.
 
 ### Provenance records and validation
 
 `asset-provenance.json` records exactly one `path`, `sha256`, HTTPS `source`,
-`evidence` and explanatory `notes` entry per inventoried asset. Evidence is
+`evidence` and explanatory `notes` entry per picture under `apps/`. Evidence is
 `exact-source` for a byte-matched source, `project-reference` when only the
 application project is established, or `local-capture` for repository screenshots.
 Record uncertainty in notes; a project reference is not proof of icon origin.
 These records make research visible, not a licence or ownership determination.
 
-Validation rejects missing, duplicate, unknown or stale
-records and malformed metadata. The provenance file itself is bound into the
-canonical snapshot hash. Changes to assets require corresponding record updates;
-unchanged evidence carries through releases. `asset-approvals.json`, reviewer
+The generator refuses missing, duplicate, unknown or stale
+records and malformed metadata. Changes to assets require corresponding record
+updates; unchanged evidence carries through. `asset-approvals.json`, reviewer
 identities and per-release human approval records are no longer required.
 

@@ -1,5 +1,0 @@
-schema: youeye.system-app.v1
-id: pihole
-version: 2026.05.0
-name: Pi-hole
-image: docker.io/pihole/pihole@sha256:70a9c11171ded2eee735d88c127996da209284a329d50f5ae59c06b861d401b3

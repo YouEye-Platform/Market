@@ -2,24 +2,23 @@
 
 Official app catalog for the [YouEye](https://github.com/YouEye-Platform/YouEye) self-hosted platform.
 
-The Market is a plain YAML catalog. Each release packs it into `catalog.tar`; the YouEye Control Panel reads that archive, shows the available apps, and uses the manifests in it to install and update containers.
+The Market is a plain YAML catalog. There are no Market releases: a push to `dev` or `main` is published as static files (`market.youeye.me/dev/` and `market.youeye.me/`), which the YouEye Control Panel reads to show the available apps and to install and update containers.
 
 ## What Is In This Repo
 
 | Path | Purpose |
 |---|---|
 | `catalog.yaml` | Root catalog (`youeye.catalog.v1`): categories, curated rows and native app ids |
-| `VERSION` | Release line (`X.Y.Z`); builds are released as `catalog-vX.Y.Z-dev.N` |
-| `asset-inventory.json` | Asset digest inventory; intentionally not an assertion of ownership or rights |
-| `store.yaml` | Store metadata for the official YouEye Market source |
+| `asset-provenance.json` | One source record per icon and screenshot; not an assertion of ownership or rights |
+| `store.yaml` | The market's name, publisher and homepage |
 | `apps/<app-id>/youeye-app.yaml` | App manifest (`youeye.app.v1`, see YouEye `docs/app-manifest.md`) |
 | `apps/<app-id>/setup/*.yaml` | Optional setup files (`youeye.setup.v1`): SSO through an admin API or CLI, install steps, URL changes, connections |
 | `apps/<app-id>/icon.*` | App icon shown in Market and launch surfaces |
 | `bundles/<bundle-id>/bundle.yaml` | Curated multi-app install recipes (`youeye.bundle.v1`); every folder here is offered |
-| `drafts/` | Kept but not released (e.g. the hidden media-automation bundle) |
-| `system/<id>.yaml` | Pinned system images used by Control Panel for core infrastructure (`youeye.system-app.v1`) |
+| `apps/<app-id>/ASSET-NOTICES.md`, `LICENSE*`, `COPYING*` | Licence and notice files, published unchanged under `notices/<app-id>/` |
+| `drafts/` | Kept but not published (e.g. the hidden media-automation bundle) |
 | `RETIRED.md` | Delisted app decisions and their explicit re-entry gates |
-| `tests/*.spec.mjs` | Dependency-free catalog validation tests |
+| `tests/*.spec.mjs` | Catalog tests (`node:test`; the build test runs the generator from `YOUEYE_ROOT`) |
 
 ## App Types
 
@@ -38,8 +37,6 @@ The Market is a plain YAML catalog. Each release packs it into `catalog.tar`; th
 
 **Bundles** install several apps together and approve their connections, which run the members' `setup/connect-<app>.yaml` files.
 
-**System manifests** describe pinned infrastructure images. Control Panel still owns deployment policy, secrets, routes, volumes, and health checks.
-
 ## Catalog Layout
 
 Apps are discovered from `apps/*/youeye-app.yaml`; `catalog.yaml` holds only what cannot be
@@ -52,22 +49,24 @@ discovered:
 
 ## Validation
 
-The catalog tests use Node's built-in test runner and do not install extra dependencies.
+The Market is built by the generator in the YouEye repository
+(`control-panel/scripts/market-build.ts`), which checks every manifest, setup file,
+bundle, picture and provenance record with the Control Panel's own parser. Point
+`YOUEYE_ROOT` at a YouEye checkout (with `control-panel/node_modules` installed):
 
 ```bash
-pnpm test
+YOUEYE_ROOT=../YouEye npm test        # catalog tests, including a full build
+YOUEYE_ROOT=../YouEye npm run build   # writes the static market into out/
 ```
 
-`pnpm catalog:validate` checks the app folders and catalog index, the asset
-inventory and asset provenance. `pnpm catalog:release <dir>` writes the release's
-`catalog-snapshot.json` and `catalog.tar`; both depend only on the repository
-content. Third-party manifest versions and OCI digests are hashed, never
-rewritten. See [CONTRIBUTING.md](CONTRIBUTING.md).
+The output depends only on the repository content and the commit. Third-party
+manifest versions and OCI digests are copied, never rewritten. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Contributing and releases
+## Contributing and publishing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution scope, asset provenance,
-catalog releases.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution scope, asset provenance
+and publishing.
 
 ## License
 

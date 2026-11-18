@@ -1,16 +1,16 @@
 // Structural checks of the youeye.app.v1 catalog. Dependency-free (node:test only), so these are
-// text checks; the full check of every manifest and setup file is the Control Panel's own
-// validator (parseApp, parseSetup), run over the catalog in the YouEye repository.
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+// text checks; the full check of every manifest, setup file, bundle, picture and provenance record
+// is the Market generator in the YouEye repository (tests/market-build.spec.mjs runs it).
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { appFolders, validateCatalogFiles, validateCatalogIndex } from '../scripts/catalog-snapshot.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const catalog = readFileSync(join(root, 'catalog.yaml'), 'utf8');
-const apps = appFolders(root);
+const apps = readdirSync(join(root, 'apps'))
+  .filter((entry) => !entry.startsWith('.') && statSync(join(root, 'apps', entry)).isDirectory()).sort();
 const manifest = (id) => readFileSync(join(root, 'apps', id, 'youeye-app.yaml'), 'utf8');
 const setupFiles = (id) => {
   const directory = join(root, 'apps', id, 'setup');
@@ -33,11 +33,6 @@ function block(text, key) {
 // Accepted apps passed their own fresh-install acceptance; new apps start in REMAINING_DEBT.
 const ACCEPTED = new Set(['bazarr', 'calibre-web-automated', 'ghostfolio', 'trek', 'gramps-web', 'homebox', 'actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
 const REMAINING_DEBT = new Set(['razzia']);
-
-test('catalog index, app folders, setup files, bundles and system apps are structurally valid', () => {
-  assert.ok(apps.length > 0);
-  assert.deepEqual([...validateCatalogIndex(catalog, root), ...validateCatalogFiles(root)], []);
-});
 
 test('the completeness baseline accounts for every app folder exactly once', () => {
   const overlap = [...ACCEPTED].filter((id) => REMAINING_DEBT.has(id));
