@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: radarr
-version: 6.4.4.10685
+version: 7.0.3.10918
 name: Radarr
 listing:
   tagline: Your movie library, automated
@@ -11,24 +11,27 @@ listing:
     download client, then renames and organises them into your library — automatically.
     Quality profiles, custom formats, and release-upgrade handling are all built in.
   release_notes: |
-    Radarr 6.4.4.10685 improves allowed-host checks and logging, corrects
-    iOS modals and automatic theme changes, and adds movie-file quality filtering.
+    Radarr 7.0.3 is a new major version on .NET 10. The first start migrates the
+    database, which can take a while on a big library and cannot be undone. Movies,
+    settings and connections are kept. Radarr 7's own OIDC sign-in admits a single
+    user, so Radarr stays behind YouEye's access gate as before.
   category: media
   tags: [media, movies, pvr, automation, arr]
   icon: film
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-public-domain-movie-6.3.0.10514.png
-      caption: Historical 6.3.0.10514 movie view; artwork and synopsis redacted
-    - path: screenshots/standard-profile-public-domain-movie-6.3.0.10514.png
-      caption: Historical 6.3.0.10514 persisted movie view; artwork and synopsis redacted
+    - path: screenshots/wiki-importing-existing.png
+      caption: "Importing an existing movie library"
+    - path: screenshots/radarr-movies.png
+      caption: "Movie library with an open movie (Big Buck Bunny)"
   website: https://radarr.video
   developer: Team Radarr
   license: GPL-3.0-only
   source_code: https://github.com/Radarr/Radarr
   support: https://wiki.servarr.com/radarr
   docs: https://wiki.servarr.com/radarr
-image: docker.io/linuxserver/radarr@sha256:a466ac12c33425ec22ec4bb0d71c3edb79fd5e5f845bba0e2901c1a6aa59b075
+# 7.0.3.10918-ls328, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/radarr@sha256:044788f5508b7f67a3e0368cdd142c77c4d4cd5aec2efaba53e1a68b6b6231e7
 port: 7878
 health: /ping
 internet: true

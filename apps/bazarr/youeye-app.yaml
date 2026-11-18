@@ -1,0 +1,96 @@
+schema: youeye.app.v1
+id: bazarr
+version: 1.6.2
+name: Bazarr
+# Its connect files post form data (form:), which YouEye reads from 0.6.9.
+requires: { youeye: ">=0.6.9" }
+listing:
+  tagline: Subtitles for your movies and series, found automatically
+  description: Subtitle manager for Sonarr and Radarr
+  long_description: |
+    Bazarr finds and downloads subtitles in the languages you choose for everything Sonarr and Radarr manage.
+    It watches your library, searches the subtitle providers you enable, upgrades subtitles when better ones
+    appear, and saves them next to the video files, where Jellyfin picks them up.
+
+    Connect it to Sonarr and Radarr from their connection cards. A fresh Bazarr downloads nothing until you pick
+    your languages and at least one subtitle provider in its settings (many providers need a free account of
+    their own). Bazarr has no accounts: YouEye's access gate decides who can open it.
+  release_notes: |
+    Bazarr 1.6.2 is the first version in the YouEye Market: subtitle search, upgrades and language profiles for
+    Sonarr and Radarr, writing into the shared media folder.
+  category: media
+  tags: [media, subtitles, tv, movies, arr, automation]
+  icon: captions
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/bazarr-screenshot.png
+      caption: "Series view with missing and downloaded subtitles per episode"
+    - path: screenshots/languages-profiles.png
+      caption: "Settings: a language profile"
+  website: https://www.bazarr.media
+  developer: morpheus65535 and Bazarr contributors
+  license: GPL-3.0-only
+  source_code: https://github.com/morpheus65535/bazarr
+  support: https://github.com/morpheus65535/bazarr/discussions
+  docs: https://wiki.bazarr.media
+# v1.6.2-ls372, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/bazarr@sha256:832820dec70bce9e912c6eee7a95baf6551e03dbc63325a7208daaa455423752
+port: 6767
+# Unauthenticated (bazarr/api/system/ping.py); answers once config and database are loaded.
+health: /api/system/ping
+internet: true
+data:
+  - {path: /config, kind: config}
+  - {path: /custom-cont-init.d, kind: config}
+# The same shared root as Sonarr, Radarr, qBittorrent and Jellyfin: Bazarr gets /data/media/... paths from Sonarr and
+# Radarr and writes .srt files next to the videos, so no path mappings are needed.
+shared:
+  media: /data
+env:
+  PUID: '0'
+  PGID: '0'
+  TZ: Etc/UTC
+secrets:
+  # Bazarr's own key format (32 hex characters); hex keeps it URL-safe.
+  api_key: {kind: hex, length: 16}
+# Bazarr keeps every setting in /config/config/config.yaml and rewrites it on each save, so a files: template for it
+# would wipe the user's settings on every update. Instead this per-start script edits only the keys YouEye owns:
+# auth.type None (the YouEye gate is the only login, like the arr apps' External), the API key, and the bind address.
+files:
+  - path: /custom-cont-init.d/10-youeye-bazarr
+    mode: '0700'
+    template: |
+      #!/usr/bin/with-contenv bash
+      set -euo pipefail
+      install -d -m 0775 /data/media/tv /data/media/movies
+      install -d /config/config
+      # PyYAML is vendored in Bazarr's libs folder, not installed in the image's Python (live test, 1.6.2).
+      YOUEYE_API_KEY='${secret.api_key}' PYTHONPATH=/app/bazarr/bin/libs python3 - <<'PY'
+      import os, yaml
+      p = '/config/config/config.yaml'
+      c = (yaml.safe_load(open(p)) if os.path.exists(p) else None) or {}
+      auth = c.setdefault('auth', {})
+      auth['apikey'] = os.environ['YOUEYE_API_KEY']
+      auth['type'] = None
+      g = c.setdefault('general', {})
+      g['ip'] = '*'
+      g['port'] = 6767
+      g['base_url'] = ''
+      with open(p + '.tmp', 'w') as f:
+          yaml.safe_dump(c, f, default_flow_style=False)
+      os.replace(p + '.tmp', p)
+      PY
+provides:
+  - {type: subtitles, description: Subtitle manager (Bazarr), port: 6767, scope: service}
+connects:
+  - app: sonarr
+    name: Sonarr
+    description: Fetch subtitles for your TV series
+    scope: service
+    setup: setup/connect-sonarr.yaml
+  - app: radarr
+    name: Radarr
+    description: Fetch subtitles for your movies
+    scope: service
+    setup: setup/connect-radarr.yaml
+api_key: {secret: api_key}

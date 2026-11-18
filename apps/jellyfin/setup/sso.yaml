@@ -6,7 +6,7 @@ steps:
       method: POST
       path: /Users/AuthenticateByName
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
       body:
         Username: YouEye Admin
         Pw: ${secret.admin_password}
@@ -26,15 +26,17 @@ steps:
         - Name: Jellyfin Stable
           Url: https://repo.jellyfin.org/files/plugin/manifest.json
           Enabled: true
-        - Name: SSO Authentication
-          Url: https://raw.githubusercontent.com/9p4/jellyfin-plugin-sso/manifest-release/manifest.json
+        # The 9p4 plugin was archived on 2026-05-12 (last build for 10.11). MaxRink's fork keeps its GUID, routes and
+        # config fields and builds for ABI 12.0.0.0; the version is pinned in the install step below.
+        - Name: SSO-Auth
+          Url: https://raw.githubusercontent.com/MaxRink/jellyfin-plugin-sso/manifest-release/manifest.json
           Enabled: true
   - http:
       method: POST
-      path: /Packages/Installed/SSO%20Authentication?assemblyGuid=505ce9d1-d916-42fa-86ca-673ef241d7df&repositoryUrl=https%3A%2F%2Fraw.githubusercontent.com%2F9p4%2Fjellyfin-plugin-sso%2Fmanifest-release%2Fmanifest.json
+      # Pinned: SSO-Auth 6.1.0.0 (targetAbi 12.0.0.0, zip MD5 297c1d7eb6d9c324a4337f8f567ad3d8, which Jellyfin checks).
+      path: /Packages/Installed/SSO-Auth?assemblyGuid=505ce9d1-d916-42fa-86ca-673ef241d7df&version=6.1.0.0&repositoryUrl=https%3A%2F%2Fraw.githubusercontent.com%2FMaxRink%2Fjellyfin-plugin-sso%2Fmanifest-release%2Fmanifest.json
       headers:
         Authorization: MediaBrowser Token="${vars.jellyfinToken}"
-      allow_failure: true
   - http:
       method: POST
       path: /System/Restart
@@ -46,22 +48,22 @@ steps:
       method: POST
       path: /Users/AuthenticateByName
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
       body:
         Username: YouEye Admin
         Pw: ${secret.admin_password}
       save: {jellyfinToken: AccessToken}
   - http:
       method: GET
-      path: /sso/OID/Del/${sso.slug}?api_key=${vars.jellyfinToken}
+      path: /sso/OID/Del/${sso.slug}
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0", Token="${vars.jellyfinToken}"
       allow_failure: true
   - http:
       method: POST
-      path: /sso/OID/Add/${sso.slug}?api_key=${vars.jellyfinToken}
+      path: /sso/OID/Add/${sso.slug}
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0", Token="${vars.jellyfinToken}"
       body:
         oidEndpoint: ${sso.issuer}
         oidClientId: ${sso.client_id}
@@ -106,13 +108,13 @@ remove:
       method: POST
       path: /Users/AuthenticateByName
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
       body:
         Username: YouEye Admin
         Pw: ${secret.admin_password}
       save: {jellyfinToken: AccessToken}
   - http:
       method: GET
-      path: /sso/OID/Del/${sso.slug}?api_key=${vars.jellyfinToken}
+      path: /sso/OID/Del/${sso.slug}
       headers:
-        X-Emby-Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0"
+        Authorization: MediaBrowser Client="YouEye", Device="Server", DeviceId="youeye-setup", Version="1.0.0", Token="${vars.jellyfinToken}"

@@ -19,17 +19,18 @@ listing:
   icon: tv
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-series-library-4.0.19.2979.png
-      caption: Historical 4.0.19.2979 series view; artwork and synopsis redacted
-    - path: screenshots/standard-profile-series-library-4.0.19.2979.png
-      caption: Historical 4.0.19.2979 persisted series view; artwork and synopsis redacted
+    - path: screenshots/sonarr-add-series.png
+      caption: "Adding a new series"
+    - path: screenshots/sonarr-download-clients.png
+      caption: "Download client settings with qBittorrent connected"
   website: https://sonarr.tv
   developer: Team Sonarr
   license: GPL-3.0-only
   source_code: https://github.com/Sonarr/Sonarr
   support: https://wiki.servarr.com/sonarr
   docs: https://wiki.servarr.com/sonarr
-image: docker.io/linuxserver/sonarr@sha256:c5a8178dc6d1f2e2c34b5e254716230d9769af34b4090e61cc116dc055a3083f
+# 4.0.20.3014-ls5, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/sonarr@sha256:c7d1df25e428da6c9ace05daea0d34e59522978a3843ea1944812f855af4086c
 port: 8989
 health: /ping
 internet: true

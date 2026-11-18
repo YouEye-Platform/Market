@@ -21,17 +21,18 @@ listing:
   icon: download
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-completed-download-5.2.3.png
-      caption: 'Historical 5.2.3: platform administrator verifying a completed Big Buck Bunny entry'
-    - path: screenshots/standard-profile-completed-download-5.2.3.png
-      caption: 'Historical 5.2.3: standard platform profile viewing the completed download'
+    - path: screenshots/qbittorrent-webui-login.png
+      caption: "qBittorrent web interface sign-in (its own password, shown under Credentials)"
+    - path: screenshots/sonarr-download-clients.png
+      caption: "Sonarr sending downloads to qBittorrent once the connection is approved"
   website: https://www.qbittorrent.org
   developer: The qBittorrent project
   license: GPL-3.0-or-later
   source_code: https://github.com/qbittorrent/qBittorrent
   support: https://github.com/qbittorrent/qBittorrent/wiki
   docs: https://github.com/qbittorrent/qBittorrent/wiki
-image: docker.io/linuxserver/qbittorrent@sha256:0f8c20d15d18f5bb0b29ed4811c82c462960b5d3c441d07b59f38c2d337ad20c
+# 5.3.0_v2.1.2-ls487, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/qbittorrent@sha256:3d4c4545d51a690a0df15a2ff99038823a88a9822df8e794526447b9afbd7384
 port: 8080
 health: /
 internet: true

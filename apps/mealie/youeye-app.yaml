@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: mealie
-version: 3.22.0
+version: 3.31.0
 name: Mealie
 listing:
   tagline: Recipes, meal plans, and shopping lists in one place
@@ -11,25 +11,29 @@ listing:
     calendar, and generate shopping lists. Features include nutritional info, multi-user
     support, recipe sharing, and a mobile-friendly interface.
   release_notes: |
-    Mealie 3.22.0 improves recipe-import resilience with browser-signature
-    rotation and smarter retries, adds optional proxy and FlareSolverr support,
-    and enforces verified OIDC email identities by default.
+    Mealie 3.31.0 brings nine releases: recipe PDF export, OIDC avatars, faster search,
+    security fixes, and a guard that keeps recipe imports, images and webhooks from
+    reaching private network addresses (sign-in with YouEye ID is not affected). It also
+    closes a gap in YouEye's Mealie setup: the admin account Mealie creates by itself kept
+    Mealie's built-in default password; it now gets a random password nobody knows.
+    Admins are still the members of YouEye ID's admin group.
   category: productivity
   tags: [recipes, cooking, meal-planning, food]
   icon: utensils
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-recipes-3.22.0.png
-      caption: Platform administrator viewing the accepted recipe library
-    - path: screenshots/standard-user-recipes-3.22.0.png
-      caption: Standard user using an independently provisioned recipe account
+    - path: screenshots/recipe-page.webp
+      caption: "Recipe with ingredients and steps"
+    - path: screenshots/meal-planner.webp
+      caption: "Meal planner for the week"
   website: https://mealie.io
   developer: Mealie contributors
   license: AGPL-3.0
   source_code: https://github.com/mealie-recipes/mealie
   support: https://github.com/mealie-recipes/mealie/discussions
   docs: https://docs.mealie.io/
-image: ghcr.io/mealie-recipes/mealie@sha256:36c28f0642fb6c75fae8997a2d55994631b9b4bcffba3016c208fc132a4c1e69
+# v3.31.0, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/mealie-recipes/mealie@sha256:97e21ac96e9a8d1ee15aaf558ba3f14998936b9d6f334e40ebb4c6c2127dc12f
 port: 9000
 health: /api/app/about
 internet: true
@@ -38,12 +42,42 @@ data:
 env:
   BASE_URL: ${app.url}
   TZ: ${platform.timezone}
-  # Mealie seeds this admin on first start; it cannot be turned off. It gets a generated password and,
-  # with password sign-in off (sso.env), cannot be used. Admins come from YouEye ID's admin group.
-  DEFAULT_EMAIL: changeme@example.com
-  DEFAULT_PASSWORD: ${secret.admin_password}
+# Mealie seeds an admin `changeme@example.com` on first start with its built-in default password (DEFAULT_PASSWORD
+# is ignored since 3.x), and POST /api/auth/token accepts it even with ALLOW_PASSWORD_LOGIN=false (that switch only
+# hides the form). Confirmed on 3.22.0 (Plan 1, 2026-11-17). The script below runs next to Mealie at every start
+# (so updates fix existing installs too): once the user exists and still has the default password, it gets a random
+# password nobody knows. Admins come from YouEye ID's admin group (sso.env).
+command: [/bin/sh, -c, 'cd /app && (python3 /app/data/youeye-lock-seeded-admin.py &) ; exec /app/run.sh']
 secrets:
+  # Unused since 3.31.0 (was DEFAULT_PASSWORD, which Mealie ignores); kept so installed apps keep their secret set.
   admin_password: {length: 24}
+files:
+  - path: /app/data/youeye-lock-seeded-admin.py
+    mode: '0600'
+    template: |
+      # YouEye: give Mealie's seeded admin an unusable password if it still has Mealie's built-in default.
+      import os, secrets, sqlite3, time
+      DB = '/app/data/mealie.db'
+      Q = "select id, password from users where email = 'changeme@example.com' and auth_method = 'MEALIE'"
+      rows = []
+      for _ in range(900):
+          try:
+              if os.path.exists(DB):
+                  rows = sqlite3.connect(DB).execute(Q).fetchall()
+                  if rows:
+                      break
+          except sqlite3.Error:
+              pass
+          time.sleep(2)
+      if rows:
+          from mealie.core.security.hasher import get_hasher
+          hasher = get_hasher()
+          db = sqlite3.connect(DB)
+          for uid, pw in rows:
+              if hasher.verify('MyPassword', pw):
+                  db.execute('update users set password = ? where id = ?', (hasher.hash(secrets.token_urlsafe(48)), uid))
+                  db.commit()
+                  print('youeye: seeded admin changeme@example.com now has a random password', flush=True)
 sso:
   callback: /login
   env:

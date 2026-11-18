@@ -20,17 +20,18 @@ listing:
   icon: music
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-library-0.63.2.png
-      caption: Historical 0.63.2 player layout, cropped; see ASSET-NOTICES.md
-    - path: screenshots/standard-user-player-0.63.2.png
-      caption: Historical 0.63.2 song table, cropped; see ASSET-NOTICES.md
+    - path: screenshots/desktop-player.png
+      caption: "Album grid with the player"
+    - path: screenshots/mobile-album-view.png
+      caption: "Album view on a phone"
   website: https://www.navidrome.org
   developer: Navidrome project and contributors
   license: GPL-3.0
   source_code: https://github.com/navidrome/navidrome
   support: https://github.com/navidrome/navidrome/discussions
   docs: https://www.navidrome.org/docs/
-image: docker.io/navidrome/navidrome@sha256:59ce76e6e06193fbfbb1736a93b8468227e1ea663fc7b25b1da13fbb97f5197b
+# 0.64.2, multi-arch index (linux/386, linux/amd64, linux/arm, linux/arm64, linux/riscv64)
+image: docker.io/navidrome/navidrome@sha256:38dc2727bfcfd5ede290f8ada114fc90368146f265ae4701ddddbcbe2a44ee52
 port: 4533
 health: /ping
 internet: true

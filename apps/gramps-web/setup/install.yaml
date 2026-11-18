@@ -1,0 +1,12 @@
+# Gramps Web lets anyone create the first owner (POST /api/token/create_owner/) while it has no users. Before the app
+# has a route, this adds a placeholder user so that window is closed: role -1 (disabled), a random password nobody
+# reads, and local sign-in is off anyway. Admins come from YouEye ID (gramps_role). allow_failure: it exists on a re-run.
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /api/oidc/config/, timeout: 300}
+  - exec:
+      run: [python3, -m, gramps_webapi, --config, /app/config/config.cfg, user, add, _youeye,
+            '${secret.placeholder_password}', --role, '-1', --fullname, YouEye]
+      timeout: 120
+      allow_failure: true

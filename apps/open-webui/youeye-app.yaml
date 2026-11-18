@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: open-webui
-version: 0.11.0
+version: 0.13.3
 name: Open WebUI
 listing:
   tagline: Chat with the model group selected in YouEye AI Settings
@@ -11,18 +11,19 @@ listing:
     model group's aliases and models available immediately. Open WebUI's own provider controls
     remain available for any additional providers you choose to configure later.
   release_notes: |
-    Open WebUI 0.11.0 is integrated with YouEye AI Settings and YouEye ID.
-    Each installation can receive its own Pointer instance and selected model
-    group while Open WebUI's own provider controls remain available.
+    Open WebUI 0.13.3 brings two feature releases: faster chats and search, notes and
+    folders improvements, optional two-factor sign-in for local accounts, and many fixes.
+    The first start after the update migrates the database; YouEye keeps a restore point
+    until the update has finished.
   category: ai
   tags: [ai, chat, openai-compatible, models]
   icon: message-circle
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-chat-0.11.0.png
-      caption: Open WebUI chat ready for a YouEye platform administrator
-    - path: screenshots/standard-user-chat-0.11.0.png
-      caption: Open WebUI chat ready for a standard YouEye ID user
+    - path: screenshots/docs-demo.png
+      caption: "Chat with a model"
+    - path: screenshots/admin-general-settings.png
+      caption: "Admin panel: general settings"
   website: https://openwebui.com
   developer: Open WebUI contributors
   # The selected v0.11.0 release uses the Open WebUI License, including branding conditions.
@@ -31,7 +32,8 @@ listing:
   source_code: https://github.com/open-webui/open-webui
   support: https://github.com/open-webui/open-webui/discussions
   docs: https://docs.openwebui.com
-image: ghcr.io/open-webui/open-webui@sha256:72c0ba641ba75e7aa52655cb242570906ececd09b1140fb736483038a22b3228
+# v0.13.3, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/open-webui/open-webui@sha256:46b59158e6558eeb980bc828e0f1b30238ad24d82ed84d5e5eda1dab2a082f14
 port: 8080
 health: {path: /health, timeout: 300}
 internet: true

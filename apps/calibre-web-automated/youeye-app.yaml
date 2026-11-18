@@ -1,0 +1,68 @@
+schema: youeye.app.v1
+id: calibre-web-automated
+version: 4.0.8
+name: Calibre-Web Automated
+listing:
+  tagline: Your ebook library, organised for you
+  description: Ebook library manager with automatic import and conversion
+  long_description: |
+    Calibre-Web Automated is an ebook library manager built on Calibre: drop books into its import folder and it
+    adds them to the library, removes duplicates, converts them to EPUB, fixes common EPUB problems and fills in
+    covers and metadata. Read in the browser, download in the format your e-reader needs, and keep shelves per
+    person.
+
+    Next to Kavita: Kavita is a reader for comics, manga and books you already have; Calibre-Web Automated
+    manages and converts an ebook library. Kobo sync, OPDS and KOReader sync need the e-reader to reach the app
+    directly, which YouEye's access gate does not allow, so use the web reader or downloads.
+
+    Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are Calibre-Web admins (admins
+    created at their first sign-in tick their own reading and download rights in their profile). Book metadata is
+    fetched from ibdb.dev, Google Books and the Deutsche Nationalbibliothek when you ask for it.
+  release_notes: |
+    Calibre-Web Automated 4.0.8 is the first version in the YouEye Market: automatic import, conversion and
+    metadata for your ebook library, with a web reader, signed in with YouEye ID.
+  category: media
+  tags: [ebooks, books, library, calibre, reading]
+  icon: book-open
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/book-details.png
+      caption: "Book details with cover, metadata and description"
+    - path: screenshots/server-stats.png
+      caption: "Admin: import, conversion and fix statistics"
+  website: https://github.com/crocodilestick/Calibre-Web-Automated
+  developer: crocodilestick and Calibre-Web contributors
+  license: GPL-3.0-only
+  source_code: https://github.com/crocodilestick/Calibre-Web-Automated
+  support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
+  docs: https://github.com/crocodilestick/Calibre-Web-Automated/wiki
+# v4.0.8, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/crocodilestick/calibre-web-automated@sha256:5e00373854247750cc3e4479b492ae09293ff5e06ed10177f226634d97888679
+port: 8083
+# 200 only when the Calibre library (metadata.db) opens. Each new container re-runs Calibre's post-install, so the
+# first start (and every update) is slow.
+health: {path: /health, timeout: 600}
+internet: true
+data:
+  - /config
+  - {path: /calibre-library, kind: media}
+  - /cwa-book-ingest
+env:
+  PUID: '1000'
+  PGID: '1000'
+  TZ: ${platform.timezone}
+  # The OAuth back channel (token, userinfo) is YouEye ID's doorway on the app's own network, over HTTP;
+  # requests-oauthlib refuses non-HTTPS token URLs without this. Nothing else on that network speaks OAuth.
+  OAUTHLIB_INSECURE_TRANSPORT: '1'
+secrets:
+  # Calibre-Web's password policy needs upper, lower, digit and a special character: 47 bytes of base64 is 64
+  # characters ending in '=' (and has no ':', which `cps.py -s user:password` splits on).
+  admin_password: {kind: key, length: 47}
+credentials:
+  - {label: Recovery admin (password sign-in is off while YouEye ID sign-in is on), username: _youeye, password: admin_password}
+# Sign-in settings live in Calibre-Web's database (oauthProvider and settings tables in /config/app.db), so they are
+# written by setup files with sqlite3 and the app restarted (it builds its OAuth client at start).
+sso:
+  callback: /login/generic/authorized
+  entry: /login/generic
+  admin_group: admin

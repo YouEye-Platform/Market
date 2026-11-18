@@ -1,0 +1,19 @@
+# YouEye ID sign-in, written into Calibre-Web's database. Idempotent: the generic provider row is created once and
+# updated in place. The button text is fixed (the site name could contain a quote, which would break the SQL).
+# Admin follows YouEye ID's admin group at every sign-in (config_enable_oauth_group_admin_management).
+schema: youeye.setup.v1
+for: sso
+steps:
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "INSERT INTO oauthProvider(provider_name, active) SELECT 'generic', 0 WHERE NOT EXISTS (SELECT 1 FROM oauthProvider WHERE provider_name='generic');"]
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "UPDATE oauthProvider SET oauth_client_id='${sso.client_id}', oauth_client_secret='${sso.client_secret}', metadata_url='${sso.discovery_url}', scope='openid profile email groups', username_mapper='preferred_username', email_mapper='email', login_button='Sign in with YouEye ID', oauth_admin_group='${sso.admin_group}', active=1 WHERE provider_name='generic';"]
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "UPDATE settings SET config_login_type=2, config_oauth_redirect_host='${app.url}', config_disable_standard_login=1, config_enable_oauth_group_admin_management=1;"]
+  - restart: main
+  - wait: {http: /health, timeout: 600}
+remove:
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "UPDATE settings SET config_login_type=0, config_disable_standard_login=0; UPDATE oauthProvider SET active=0 WHERE provider_name='generic';"]
+  - restart: main
+  - wait: {http: /health, timeout: 600}

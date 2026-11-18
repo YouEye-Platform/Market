@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: vikunja
-version: 2.5.0
+version: 2.8.0
 name: Vikunja
 listing:
   tagline: The flexible task manager you control
@@ -15,25 +15,28 @@ listing:
     YouEye ID. Instance admin (the admin panel) is a paid licence feature of Vikunja, so this install has none;
     whoever creates a project owns it and shares it with others.
   release_notes: |
-    Vikunja 2.5.0 fixes a share-link authorization vulnerability and improves
-    multi-task quick add, CalDAV, notifications, and imports. Upstream recommends
-    updating to this release for the security correction.
+    Vikunja 2.8.0 fixes 19 security issues and adds a trash bin (deleted projects and
+    tasks are kept for 30 days) and an account lockout after repeated failed sign-ins.
+    2.6 and 2.7 brought many fixes to task views, reminders and sharing. A few features
+    of the optional paid Vikunja licence (admin panel, time tracking, audit logs, user
+    invites) stay off; everything else is free as before.
   category: productivity
   tags: [tasks, todo, kanban, project-management]
   icon: check-square
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-project.png
-      caption: Platform administrator creating and reviewing a task project
-    - path: screenshots/standard-user-project.png
-      caption: Standard user working in an independently isolated task project
+    - path: screenshots/overview-dashboard.png
+      caption: "Overview with current tasks and recent projects"
+    - path: screenshots/kanban-board.png
+      caption: "Project as a Kanban board"
   website: https://vikunja.io
   developer: Vikunja team and contributors
   license: AGPL-3.0
   source_code: https://github.com/go-vikunja/vikunja
   support: https://community.vikunja.io/
   docs: https://vikunja.io/docs/
-image: docker.io/vikunja/vikunja@sha256:22df4c1bc8843c28d383bc5f52b59e7b601bf5f6560b36b29c0a500833c77fa3
+# 2.8.0, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/vikunja/vikunja@sha256:35d937baf3b5d5803bed6b9e11d007448b7b536df9e4346dc35551e1072636c3
 port: 3456
 health: /api/v1/info
 internet: true

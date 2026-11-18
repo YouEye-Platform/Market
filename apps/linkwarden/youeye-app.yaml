@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: linkwarden
-version: 2.16.0
+version: 2.17.0
 name: Linkwarden
 listing:
   tagline: Bookmarks evolved, preserved, and shared
@@ -14,25 +14,25 @@ listing:
     take roles from YouEye ID. A new app is open only to you until you share it, so sign in once yourself
     before sharing it.
   release_notes: |
-    Linkwarden 2.16.0 refreshes the web interface and search experience, adds a
-    system theme, supports PNG link banners, and extends the mobile clients with
-    self-signed certificate, custom-header, and re-preservation capabilities.
+    Linkwarden 2.17.0 improves sign-in with YouEye ID, link previews and archiving, and
+    can run its container without root.
   category: productivity
   tags: [bookmarks, links, archive, collections]
   icon: link
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-library-2.16.0.png
-      caption: Platform administrator organizing an accepted bookmark collection
-    - path: screenshots/standard-user-library-2.16.0.png
-      caption: Standard user viewing an independently accepted bookmark library
+    - path: screenshots/hero-dashboard.png
+      caption: "Dashboard with recent links and collections, on desktop and phone"
+    - path: screenshots/app-screenshot-2.png
+      caption: "Dashboard with link previews and pinned links"
   website: https://linkwarden.app
   developer: Linkwarden contributors
   license: AGPL-3.0
   source_code: https://github.com/linkwarden/linkwarden
   support: https://github.com/linkwarden/linkwarden/discussions
   docs: https://docs.linkwarden.app/
-image: ghcr.io/linkwarden/linkwarden@sha256:d805877fb707d160b809027c302f84cfba11a248d7fdc12de90b4791f98e6b55
+# v2.17.0, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/linkwarden/linkwarden@sha256:7c11fde57d1a0c819b6de0079966eba3a33584d718464af7dacde22bd470ae46
 port: 3000
 health: {path: /, timeout: 180}
 internet: true

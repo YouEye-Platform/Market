@@ -1,9 +1,9 @@
-# Memos v0.30 API notes (changed from the pre-0.24 API this integration first targeted):
+# Memos 26.x API notes (26.10 dropped the /api/v1 prefix; request bodies and identity-provider fields are unchanged):
 #   - the admin account `admin` is created by setup/install.yaml; this file only configures sign-in
-#   - signin is POST /api/v1/auth/signin with body {passwordCredentials:{username,password}};
+#   - signin is POST /api/auth/signin with body {passwordCredentials:{username,password}};
 #     the access token is returned in the RESPONSE BODY (accessToken), not a cookie
-#   - identity providers live at /api/v1/identity-providers (hyphenated); the resource
-#     `name` is `identity-providers/<id>`, so DELETE /api/v1/${provider.name} resolves correctly
+#   - identity providers live at /api/identity-providers (hyphenated); the resource
+#     `name` is `identity-providers/<id>`, so DELETE /api/${provider.name} resolves correctly
 #   - split-channel OIDC: authUrl (browser) stays external; token/userinfo are called
 #     server-side and now go through the internal identity DNAT (${identity.internal_url}
 #     = http://<app-gw>:3002), which is domain-free, CA-free, and survives full network
@@ -13,22 +13,21 @@ for: sso
 steps:
   - http:
       method: POST
-      path: /api/v1/auth/signin
+      path: /api/auth/signin
       body:
         passwordCredentials:
           username: admin
           password: ${secret.admin_password}
-        neverExpire: true
       save: {bearerToken: accessToken}
   - http:
       method: GET
-      path: /api/v1/instance/settings/GENERAL
+      path: /api/instance/settings/GENERAL
       headers:
         Authorization: Bearer ${vars.bearerToken}
       save: {general: $}
   - http:
       method: PATCH
-      path: /api/v1/instance/settings/GENERAL
+      path: /api/instance/settings/GENERAL
       headers:
         Authorization: Bearer ${vars.bearerToken}
       body_from: general
@@ -39,18 +38,18 @@ steps:
         generalSetting.disallowUserRegistration: true
   - http:
       method: DELETE
-      path: /api/v1/${item.name}
+      path: /api/${item.name}
       headers:
         Authorization: Bearer ${vars.bearerToken}
       for_each:
-        path: /api/v1/identity-providers
+        path: /api/identity-providers
         items: identityProviders
         where: {type: OAUTH2}
   # A fixed provider id: Memos links each user to the provider's id, so the replacement keeps every
   # YouEye ID user attached to their Memos account (a generated id would orphan them on every re-run).
   - http:
       method: POST
-      path: /api/v1/identity-providers?identityProviderId=youeye
+      path: /api/identity-providers?identityProviderId=youeye
       headers:
         Authorization: Bearer ${vars.bearerToken}
       body:
@@ -76,7 +75,7 @@ steps:
   # set (YouEye ID's included), and refuses local sign-up while disallowPasswordAuth is set.
   - http:
       method: PATCH
-      path: /api/v1/instance/settings/GENERAL
+      path: /api/instance/settings/GENERAL
       headers:
         Authorization: Bearer ${vars.bearerToken}
       body_from: general
@@ -87,22 +86,21 @@ steps:
 remove:
   - http:
       method: POST
-      path: /api/v1/auth/signin
+      path: /api/auth/signin
       body:
         passwordCredentials:
           username: admin
           password: ${secret.admin_password}
-        neverExpire: true
       save: {bearerToken: accessToken}
   - http:
       method: GET
-      path: /api/v1/instance/settings/GENERAL
+      path: /api/instance/settings/GENERAL
       headers:
         Authorization: Bearer ${vars.bearerToken}
       save: {general: $}
   - http:
       method: PATCH
-      path: /api/v1/instance/settings/GENERAL
+      path: /api/instance/settings/GENERAL
       headers:
         Authorization: Bearer ${vars.bearerToken}
       body_from: general
@@ -113,10 +111,10 @@ remove:
         generalSetting.disallowUserRegistration: true
   - http:
       method: DELETE
-      path: /api/v1/${item.name}
+      path: /api/${item.name}
       headers:
         Authorization: Bearer ${vars.bearerToken}
       for_each:
-        path: /api/v1/identity-providers
+        path: /api/identity-providers
         items: identityProviders
         where: {title: '${identity.name}'}

@@ -1,0 +1,107 @@
+schema: youeye.app.v1
+id: ghostfolio
+version: 3.100.0
+name: Ghostfolio
+listing:
+  tagline: All your investments in one private dashboard
+  description: Wealth and portfolio tracker
+  long_description: |
+    Ghostfolio tracks your stocks, ETFs, funds, crypto and cash across accounts and brokers: performance over
+    time, allocation by asset class, region and sector, dividends, fees and a FIRE calculator. Import your
+    transactions from a CSV or enter them by hand.
+
+    Sign in yourself first: the first person to sign in becomes Ghostfolio's admin (it cannot take roles from
+    YouEye ID). Everyone else who signs in with YouEye ID gets their own private portfolio.
+
+    Market data: Ghostfolio fetches prices and exchange rates from Yahoo Finance, crypto prices from CoinGecko,
+    ETF holdings from Trackinsight, and asset logos from Google's favicon service. Your holdings are not sent;
+    the symbols you track are.
+  release_notes: |
+    Ghostfolio 3.100.0 is the first version in the YouEye Market: portfolio tracking for every member of the
+    household, signed in with YouEye ID.
+  category: productivity
+  tags: [finance, investments, portfolio, wealth, budget]
+  icon: line-chart
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/phone-app.png
+      caption: "Portfolio performance on a phone"
+    - path: screenshots/ghostfolio-overview.png
+      caption: "Overview for a new portfolio, with the admin menu (owner's view)"
+  website: https://ghostfol.io
+  developer: Ghostfolio contributors
+  license: AGPL-3.0-only
+  source_code: https://github.com/ghostfolio/ghostfolio
+  support: https://github.com/ghostfolio/ghostfolio/discussions
+  docs: https://github.com/ghostfolio/ghostfolio#self-hosting
+# The main container is a small Caddy front for the Ghostfolio sidecar. Ghostfolio has no OIDC-only switch: its
+# sign-up setting (IS_USER_SIGNUP_ENABLED) also gates YouEye ID's account creation, so it must stay on, and with it
+# anyone admitted could create a password-less "security token" account by POST /api/v1/user (user.controller.ts,
+# 3.100.0; ENABLE_FEATURE_AUTH_TOKEN only hides the button). The front refuses those routes, so YouEye ID is the
+# only way in.
+# 2.11.9, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le, linux/riscv64, linux/s390x, windows/amd64)
+image: docker.io/library/caddy@sha256:4851e54a46b206517c574821bb5cc67f170d2156041e9fbc4c9193b45e84a75b
+port: 3333
+# 200 only when Ghostfolio answers and its database and Redis do (proxied through the front).
+health: {path: /api/v1/health, timeout: 240}
+internet: true
+database: postgres
+data:
+  - {path: /etc/caddy, kind: config}
+env:
+  YOUEYE_GHOSTFOLIO_HOST: ${sidecar.ghostfolio.host}
+secrets:
+  access_token_salt: {kind: hex, length: 32}
+  jwt_secret: {kind: hex, length: 32}
+files:
+  - path: /etc/caddy/Caddyfile
+    mode: '0600'
+    template: |
+      {
+        admin off
+        auto_https off
+      }
+      :3333 {
+        # Account creation outside YouEye ID: security-token sign-up and sign-in, Google sign-in.
+        @signup {
+          method POST
+          path /api/v1/user /api/v1/user/
+        }
+        respond @signup "Sign up with YouEye ID" 403
+        respond /api/v1/auth/anonymous* "Sign in with YouEye ID" 403
+        respond /api/v1/auth/google* "Sign in with YouEye ID" 403
+        reverse_proxy {$YOUEYE_GHOSTFOLIO_HOST}:3333
+      }
+# Admin: the first user Ghostfolio creates is ADMIN; there is no claim mapping and no role API. More admins:
+# UPDATE "User" SET role='ADMIN' WHERE id='<uuid>' in the app's database (id from Admin Control > Users).
+sso:
+  callback: /api/auth/oidc/callback
+sidecars:
+  # Sidecars start in this order and each must be healthy before the next: Valkey before Ghostfolio, which
+  # needs it for its own health check.
+  - name: valkey
+    # 9.1.3-alpine, multi-arch index
+    image: docker.io/valkey/valkey@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b
+    port: 6379
+    data:
+      - {path: /data, kind: cache}
+  - name: ghostfolio
+    # 3.100.0, multi-arch index (linux/amd64, linux/arm64)
+    image: docker.io/ghostfolio/ghostfolio@sha256:1bc2ff4740410dd2c3bdde95738268f4c619cf4eeec491e3967bec18c95130b1
+    port: 3333
+    health: {path: /api/v1/health, timeout: 240}
+    env:
+      DATABASE_URL: ${database.url}?connect_timeout=300&sslmode=disable
+      REDIS_HOST: ${sidecar.valkey.host}
+      REDIS_PORT: '6379'
+      ACCESS_TOKEN_SALT: ${secret.access_token_salt}
+      JWT_SECRET_KEY: ${secret.jwt_secret}
+      ROOT_URL: ${app.url}
+      ENABLE_FEATURE_AUTH_TOKEN: 'false'
+      ENABLE_FEATURE_AUTH_OIDC: 'true'
+      # Discovery is fetched from issuer + /.well-known/openid-configuration (= ${sso.discovery_url}).
+      OIDC_ISSUER: ${sso.issuer}
+      OIDC_CLIENT_ID: ${sso.client_id}
+      OIDC_CLIENT_SECRET: ${sso.client_secret}
+      # Ghostfolio reads only `sub`.
+      OIDC_SCOPE: '["openid"]'

@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: jellyseerr
-version: 3.2.0
+version: 3.5.2
 name: Seerr
 listing:
   tagline: Let your users request the media they want
@@ -12,26 +12,29 @@ listing:
     to Sonarr or Radarr. Administrators get approval workflows, granular permissions,
     quotas, availability scans, and one place to manage every request.
   release_notes: |
-    Seerr 3.2.0 is the supported successor to Jellyseerr. It adds collection
-    blocklists, more resilient discovery, additional languages, improved
-    Jellyfin imports and scans, safer request failure handling, and extensive
-    authentication, settings, request, proxy, and migration fixes.
+    Seerr 3.5.2 is a security release. It fixes a path traversal in the image proxy
+    that could lead to remote code execution (CVE-2026-73291, fixed in 3.4.0) and several
+    later advisories (data leaks, a permission escalation between managers and admins,
+    and a password change that skipped the current password). Jellyfin and Emby users
+    can now sign in with Quick Connect, so household members who only have a YouEye ID
+    Jellyfin account can use Seerr without a Jellyfin password.
   category: media
   tags: [media, requests, discovery, jellyfin, plex, emby, arr]
   icon: popcorn
   icon_file: icon.png
   screenshots:
-    - path: screenshots/platform-admin-request-3.2.0.png
-      caption: Platform administrator reviewing an approved public-domain movie request
-    - path: screenshots/standard-user-request-3.2.0.png
-      caption: Standard user independently requesting a public-domain movie
+    - path: screenshots/seerr-preview.jpg
+      caption: "Discover page with recently added, requests and trending titles"
+    - path: screenshots/settings-metadata-providers.png
+      caption: "Settings: metadata providers (admin)"
   website: https://docs.seerr.dev
   developer: Seerr Team & contributors
   license: MIT
   source_code: https://github.com/seerr-team/seerr
   support: https://github.com/seerr-team/seerr/discussions
   docs: https://docs.seerr.dev
-image: ghcr.io/seerr-team/seerr@sha256:c4cbd5121236ac2f70a843a0b920b68a27976be57917555f1c45b08a1e6b2aad
+# v3.5.2, multi-arch index (amd64, arm64)
+image: ghcr.io/seerr-team/seerr@sha256:aadee014b40e28cf9aa4928bc9d1183a6eb08f8c44d543cddc9efdcb16549be2
 port: 5055
 health: /api/v1/settings/public
 internet: true
