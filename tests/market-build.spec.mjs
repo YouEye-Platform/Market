@@ -79,7 +79,8 @@ test('the catalog builds into a market the format accepts, twice byte for byte',
       assert.ok(readFileSync(join(first, 'notices', id, name)).equals(readFileSync(join(root, 'apps', id, name))), `${id}/${name}`);
     }
   }
-  assert.ok(!files.some((file) => /^(apps|bundles|system|drafts|tests)\//.test(file)), 'only the market, never the repository');
+  assert.ok(!files.some((file) => /^(bundles|system|drafts|tests)\//.test(file)
+    || (file.startsWith('apps/') && !/^apps\/[a-z0-9-]+\/index\.html$/.test(file))), 'only the market and its website, never the repository');
 });
 
 test('the generator refuses a broken catalog and names every problem', { skip }, (t) => {
