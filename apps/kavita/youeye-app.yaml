@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: kavita
-version: 0.9.0.2
+version: 0.9.1.4
 name: Kavita
 listing:
   tagline: Your digital reading library, on every device
@@ -11,25 +11,25 @@ listing:
     progress tracking, library management, metadata handling, OPDS support, and a responsive
     web reader for personal reading libraries.
   release_notes: |
-    Kavita 0.9.0.2 is a critical security hotfix for CVE-2026-47202,
-    which affects every earlier release. It also strengthens OpenID Connect
-    validation and includes the fixes delivered throughout the 0.9 release.
+    Kavita 0.9.1 (build 0.9.1.4) improves reading progress, OPDS and metadata, and uses
+    less memory. The front proxy moves to Caddy 2.11.9.
   category: media
   tags: [reading, manga, comics, ebooks, library]
   icon: book-open
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-reader-0.9.0.2.png
-      caption: Platform administrator reading the accepted public-domain ebook
-    - path: screenshots/standard-user-reader-0.9.0.2.png
-      caption: Standard user reading the shared public-domain library
+    - path: screenshots/wiki-homepage-dark.png
+      caption: "Series page with volumes and details"
+    - path: screenshots/admin-statistics.png
+      caption: "Admin dashboard: server statistics"
   website: https://www.kavitareader.com
   developer: Kavita project and contributors
   license: GPL-3.0
   source_code: https://github.com/Kareadita/Kavita
   support: https://github.com/Kareadita/Kavita/issues
   docs: https://wiki.kavitareader.com
-image: docker.io/library/caddy@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+# 2.11.9, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le, linux/riscv64, linux/s390x, windows/amd64)
+image: docker.io/library/caddy@sha256:4851e54a46b206517c574821bb5cc67f170d2156041e9fbc4c9193b45e84a75b
 port: 5000
 health: {path: /api/health, timeout: 180}
 internet: true
@@ -153,7 +153,8 @@ sidecars:
   # Kavita itself runs behind the main Caddy gateway. Its entrypoint writes the OIDC values from its env
   # and creates the first (admin) account.
   - name: kavita
-    image: docker.io/jvmilazz0/kavita@sha256:ca6af7a18d7124d014702983c2364e485294f808c1552e9555f2595b7cda7982
+    # 0.9.1, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+    image: docker.io/jvmilazz0/kavita@sha256:31181a32f0dda73cae68721867028a7253d57881b58bea5754cd9e578e75421a
     port: 5000
     data:
       - {path: /kavita/config, kind: config}

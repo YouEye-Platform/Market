@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: searxng
-version: 2026.10.19
+version: 2026.11.17
 name: SearXNG
 listing:
   tagline: Private metasearch across dozens of search engines
@@ -10,25 +10,27 @@ listing:
     results from dozens of independent search services. It does not profile
     users, and supports web, image, news, map, video, JSON, and RSS results.
   release_notes: |
-    SearXNG 2026.10.19 from upstream revision 81371861f, with the existing
-    immutable Valkey sidecar. Uses the upstream valkey settings and preserves
-    the existing configuration storage layout for upgrades. Both multi-architecture OCI sources are
-    immutable and the JSON/RSS search formats remain enabled for integrations.
+    This SearXNG build (2026-11-17) brings four weeks of engine fixes and removals. Its
+    cache moves to Valkey 8.1.11, a security fix. Wikipedia, Wikidata and OpenStreetMap
+    results keep working because the instance now names a contact address, which those
+    services require.
   category: search
   tags: [search, privacy, metasearch]
   icon: search
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/admin-search-results.png
-      caption: Administrator search results aggregated from multiple engines
-    - {path: screenshots/user-search-home.png, caption: Standard-user private search home page}
+    - path: screenshots/searxng-home.png
+      caption: "Search page with the search box"
+    - path: screenshots/searxng-results.png
+      caption: "Results from several search engines"
   website: https://docs.searxng.org
   developer: SearXNG contributors
   license: AGPL-3.0
   source_code: https://github.com/searxng/searxng
   support: https://github.com/searxng/searxng/issues
   docs: https://docs.searxng.org
-image: docker.io/searxng/searxng@sha256:5ed0323b5f5f8701264ef65e239a2bd83cb57098f2b971fa30bf79c06eeae271
+# 2026.11.17-b99cf7496, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/searxng/searxng@sha256:0b9f3ddd85efc8df189e6543d65702abfa8f3ed1c32229a53f7707cd12b554ef
 port: 8080
 health: /
 internet: true
@@ -48,6 +50,9 @@ files:
       use_default_settings: true
       general:
         instance_name: "SearXNG"
+        # Wikipedia, Wikidata and OpenStreetMap switch themselves off without a contact (their API policies want
+        # one in the User-Agent). The project address, not the box's: a box address would be private and gated.
+        contact_url: "https://youeye.me"
       server:
         secret_key: "${secret.secret_key}"
         bind_address: "0.0.0.0"
@@ -72,6 +77,7 @@ files:
           simple_style: dark
 sidecars:
   - name: redis
-    image: docker.io/valkey/valkey@sha256:a038175878d66b9d274fbf8be73c0305e93798b83917647f167e18cef3c71eec
+    # 8.1.11, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:8f836008e0986c36adf50da714c7060cf689dbb335f61fe077939d90fa650809
 provides:
   - {type: search-engine, description: Privacy-respecting metasearch engine, port: 8080, scope: service}

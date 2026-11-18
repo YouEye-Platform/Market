@@ -31,7 +31,7 @@ function block(text, key) {
 }
 
 // Accepted apps passed their own fresh-install acceptance; new apps start in REMAINING_DEBT.
-const ACCEPTED = new Set(['actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
+const ACCEPTED = new Set(['bazarr', 'calibre-web-automated', 'ghostfolio', 'trek', 'gramps-web', 'homebox', 'actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
 const REMAINING_DEBT = new Set(['razzia']);
 
 test('catalog index, app folders, setup files, bundles and system apps are structurally valid', () => {

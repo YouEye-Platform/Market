@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: pingvin-share
-version: 1.22.1
+version: 2.1.1
 name: Pingvin Share X
 listing:
   tagline: Secure, expiring file transfers from your own server
@@ -10,26 +10,26 @@ listing:
     password protection, expiration dates, and visitor limits. Features include drag-and-drop
     upload, QR code sharing, email notifications, and a clean mobile-friendly interface.
   release_notes: |
-    Pingvin Share X 1.22.1 adds managed user shares, folder uploads,
-    customizable reverse-share URLs, upload progress estimates, and fixes
-    Chromium file-picker handling. This Market release moves to the maintained
-    community fork recommended by the archived original project.
+    Pingvin Share X 2.1.1 is a new major version: per-user quotas and permissions, a
+    password policy, a reorganised configuration menu, security fixes and Next.js 15.
+    Shares and accounts are kept.
   category: utilities
   tags: [files, sharing, upload, transfer]
   icon: share-2
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-share-1.22.1.png
-      caption: Platform administrator managing an accepted file share
-    - path: screenshots/standard-user-share-1.22.1.png
-      caption: Standard user creating a share from an independent account
+    - path: screenshots/upload-page.png
+      caption: "Upload page for a new share"
+    - path: screenshots/pingvin-share-sign-in.png
+      caption: "Sign-in page (Pingvin Share keeps its own accounts)"
   website: https://smp46.github.io/pingvin-share-x/
   developer: Pingvin Share X contributors
   license: BSD-2-Clause
   source_code: https://github.com/smp46/pingvin-share-x
   support: https://github.com/smp46/pingvin-share-x/issues
   docs: https://smp46.github.io/pingvin-share-x/
-image: docker.io/smp46/pingvin-share-x@sha256:38480232d3ec26858e0313e09584b662fde356a32aaf83f6270f26c5414065ec
+# v2.1.1, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/smp46/pingvin-share-x@sha256:7b3a70a6f016eb63dab0b7bda8431373fc8b0c5120a58d9572cb5ffdae241739
 port: 3000
 health: /api/health
 command:
@@ -62,8 +62,10 @@ files:
       general:
         appName: "Pingvin Share X"
         appUrl: "${app.url}"
+      # 2.x keys (1.x had general.secureCookies and share.allowRegistration; 2.x still maps those, with a warning).
+      # Registration is reachable only by people the YouEye access gate admits (the household).
+      security:
         secureCookies: "true"
-      share:
         allowRegistration: "true"
       initUser:
         enabled: true

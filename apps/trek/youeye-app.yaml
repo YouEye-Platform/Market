@@ -1,0 +1,86 @@
+schema: youeye.app.v1
+id: trek
+version: 5.1.4
+name: TREK
+listing:
+  tagline: Plan trips together, from the first idea to the packing list
+  description: Travel planner for the household
+  long_description: |
+    TREK plans trips: day-by-day itineraries on a map, places to see, bookings and tickets, a shared budget with
+    cost splitting, packing lists, documents and notes. Trips can be shared with others in your household, and
+    changes show up for everyone at once. It works well on a phone as a web app.
+
+    Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are TREK admins.
+
+    Outside services: place search, addresses and routing use the TREK project's own servers (places, photon and
+    valhalla at liketrek.com, hosted by dataforest cloud in Frankfurt); the install registers itself there on
+    the first search and sends search words and map positions, not your trips. Maps come from OpenFreeMap, weather
+    from Open-Meteo, exchange rates from Frankfurter and holidays from Nager.Date. TREK's own phone apps cannot
+    pass YouEye's access gate; use the web app. Plugins are turned off.
+  release_notes: |
+    TREK 5.1.4 is the first version in the YouEye Market: shared trip planning with maps, bookings, budgets and
+    packing lists, signed in with YouEye ID.
+  category: home
+  tags: [travel, trips, planning, maps, family]
+  icon: plane
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/showcase-desktop.webp
+      caption: "Trip planner on desktop: map, itinerary and trip overview"
+    - path: screenshots/showcase-mobile.webp
+      caption: "Trip planner on phones: days, bookings and routes"
+  website: https://github.com/liketrek/TREK
+  developer: Maurice Boe and TREK contributors
+  license: AGPL-3.0-only
+  source_code: https://github.com/liketrek/TREK
+  support: https://github.com/liketrek/TREK/issues
+  docs: https://github.com/liketrek/TREK/wiki
+# 5.1.4, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/mauriceboe/trek@sha256:991ff5aa53244b25d5a8ea40361dc286cfc8211638044eabe12b9926729db5cc
+port: 3000
+# 200 only after a database ping; migrations run before it.
+health: {path: /api/health/ready, timeout: 180}
+internet: true
+data:
+  - /app/data
+  - /app/uploads
+env:
+  APP_URL: ${app.url}
+  # Also turns on the origin check of the /ws WebSocket (off without it).
+  ALLOWED_ORIGINS: ${app.url}
+  # Never change it: TREK refuses to start when it differs from data/.encryption_key.
+  ENCRYPTION_KEY: ${secret.encryption_key}
+  TZ: ${platform.timezone}
+  # Plugins are third-party code from a GitHub registry: off.
+  TREK_PLUGINS_ENABLED: 'false'
+  # Don't contribute this household's places to the TREK place index.
+  TREK_PLACES_CONTRIBUTE: 'off'
+secrets:
+  encryption_key: {kind: hex, length: 32}
+  # TREK's password policy needs upper, lower, digit and a special character: 47 bytes of base64 end in '='.
+  admin_password: {kind: key, length: 47}
+credentials:
+  - {label: Recovery admin (password sign-in is off; YouEye ID admins are TREK admins), username: _youeye@youeye.invalid, password: admin_password}
+# Admin: OIDC_ADMIN_CLAIM/VALUE promote and demote at every sign-in (server auth code, 5.1.4). TREK makes the first
+# account on a fresh instance admin whatever its claims, and OIDC_ONLY still lets that first account register with a
+# password, so setup/install.yaml creates a recovery admin before the route exists.
+sso:
+  callback: /api/auth/oidc/callback
+  entry: /api/auth/oidc/login
+  admin_group: admin
+  env:
+    # TREK refuses a non-https OIDC_ISSUER in production. The public per-app issuer passes that check; TREK fetches
+    # the internal discovery URL, and with a discovery URL set it verifies ID tokens against the discovery
+    # document's issuer (the internal one the tokens carry).
+    OIDC_ISSUER: ${identity.external_url}/application/o/${sso.slug}/
+    OIDC_DISCOVERY_URL: ${sso.discovery_url}
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    OIDC_DISPLAY_NAME: ${identity.name}
+    # The default scope has no groups, and the admin mapping needs them.
+    OIDC_SCOPE: openid email profile groups
+    OIDC_USERNAME_CLAIM: preferred_username
+    OIDC_ADMIN_CLAIM: groups
+    OIDC_ADMIN_VALUE: ${sso.admin_group}
+    # No password sign-in, sign-up or reset.
+    OIDC_ONLY: 'true'

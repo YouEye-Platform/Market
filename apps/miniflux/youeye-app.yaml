@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: miniflux
-version: 2.3.4
+version: 2.3.5
 name: Miniflux
 listing:
   tagline: A fast, focused feed reader without distractions
@@ -11,28 +11,30 @@ listing:
     HTTPS detection, content scraping for truncated feeds, legacy reader API compatibility,
     integration with read-it-later services, and a clean dark mode.
 
-    Sign-in: everyone signs in with YouEye ID and is a regular Miniflux user; Miniflux cannot take roles
-    from YouEye ID. The Miniflux admin is the setup account shown under Credentials.
+    Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are Miniflux admins;
+    everyone else is a regular user. The setup account shown under Credentials stays as a recovery admin.
   release_notes: |
-    Miniflux 2.3.4 adds Gotify notifications and rewrite-rule validation, reduces
-    database and memory usage, and strengthens reserved-address, WebAuthn redirect,
-    proxy, local-authentication and embedded-content protections.
+    Miniflux 2.3.5 gives YouEye ID admins Miniflux admin rights at every sign-in (and
+    takes them away when they leave the admin group). Sign-in settings have their own
+    page, changing a password needs the current one, and the protection against feeds
+    pointing at private addresses is stricter.
   category: productivity
   tags: [rss, news, feeds, minimalist]
   icon: rss
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-feed.png
-      caption: 'Historical 2.3.3 example: administrator reading the upstream release feed'
-    - path: screenshots/standard-user-subscriptions.png
-      caption: 'Historical 2.3.3 example: standard user managing a release feed subscription'
+    - path: screenshots/overview-default-theme.png
+      caption: "Unread entries list"
+    - path: screenshots/miniflux-feeds.png
+      caption: "Feed list with unread counts"
   website: https://miniflux.app
   developer: Frédéric Guillot and contributors
   license: Apache-2.0
   source_code: https://github.com/miniflux/v2
   support: https://github.com/miniflux/v2/issues
   docs: https://miniflux.app/docs/
-image: docker.io/miniflux/miniflux@sha256:ef6cf5a911b7276225d8e0e7a1077013a202b1d6a019526aaa250ad06942cbbc
+# 2.3.5, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/riscv64)
+image: docker.io/miniflux/miniflux@sha256:8fd6c3c434ecc3d4083306f83e03c0bb74c632e0f8378da5ead7e1773b0b89c9
 port: 8080
 health: /healthcheck
 internet: true
@@ -59,3 +61,7 @@ sso:
     # issuer and performs discovery itself despite the environment key's name.
     OAUTH2_OIDC_DISCOVERY_ENDPOINT: ${sso.issuer}
     OAUTH2_USER_CREATION: '1'
+    # 2.3.5+: admin follows YouEye ID's admin group at every sign-in (granted and taken away).
+    OAUTH2_ADDITIONAL_SCOPES: groups
+    OAUTH2_GROUP_CLAIM: groups
+    OAUTH2_ADMIN_GROUP: admin

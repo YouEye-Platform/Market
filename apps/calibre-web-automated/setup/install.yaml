@@ -1,0 +1,17 @@
+# Before the app has a route. The image creates admin/admin123 on first start. Sign-in matches an existing local user
+# by name (= YouEye username) and `admin` is a valid YouEye username, so the account is renamed to `_youeye` (YouEye
+# usernames start with a letter) and gets the generated password. New YouEye ID users get read, download and shelf
+# rights (2|16|64|256 = 338). Self-registration, anonymous browsing, magic links and header login stay off.
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /health, timeout: 600}
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "UPDATE user SET name='_youeye', email='_youeye@youeye.invalid' WHERE name='admin';"]
+  - exec:
+      run: [s6-setuidgid, abc, python3, /app/calibre-web-automated/cps.py, -p, /config/app.db, -s, '_youeye:${secret.admin_password}']
+      timeout: 120
+  - exec:
+      run: [s6-setuidgid, abc, sqlite3, /config/app.db, "UPDATE settings SET config_default_role=338, config_public_reg=0, config_anonbrowse=0, config_remote_login=0, config_allow_reverse_proxy_header_login=0;"]
+  - restart: main
+  - wait: {http: /health, timeout: 600}

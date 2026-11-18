@@ -1,0 +1,15 @@
+# TREK makes the first account admin, and under OIDC_ONLY the register route stays open until one exists. Before the
+# app has a route, create a recovery admin. `_youeye` can't collide with a YouEye username (they start with a letter).
+# Recovery if needed: `node server/reset-admin.js` as user node in the container.
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /api/health/ready, timeout: 180}
+  - http:
+      method: POST
+      path: /api/auth/register
+      body:
+        username: _youeye
+        email: _youeye@youeye.invalid
+        password: ${secret.admin_password}
+      ok: [200, 201]

@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: immich
-version: 3.1.0
+version: 3.4.1
 name: Immich
 listing:
   tagline: Self-hosted photo and video backup
@@ -9,23 +9,27 @@ listing:
     High performance self-hosted photo and video management solution with automatic backup,
     intelligent search, facial recognition, and shared albums.
   release_notes: |
-    Immich 3.1.0 fresh-install manifest with immutable server, machine-learning,
-    PostgreSQL, and Valkey images. Uses the Immich 3 data layout and VectorChord
-    database stack, with native YouEye identity integration.
+    Immich 3.4.1 brings three feature releases: a new admin settings page, profile and
+    storage quota sync from YouEye ID at every sign-in, more reliable sign-in with
+    YouEye ID, faster search and many fixes. The first start after the update runs long
+    database maintenance; give it a few minutes. Its cache moves to Valkey 9.1.3.
   category: media
   tags: [photos, videos, gallery, machine-learning]
   icon: camera
   icon_file: icon.svg
   screenshots:
-    - {path: screenshots/admin-library.png, caption: Administrator photo library with a representative test image}
-    - {path: screenshots/user-library.png, caption: A separate standard user's empty personal photo library}
+    - path: screenshots/web-timeline-light.webp
+      caption: "Photo timeline with albums, map and sharing in the sidebar"
+    - path: screenshots/admin-server-stats.webp
+      caption: "Administration: server statistics per user"
   website: https://immich.app
   developer: Immich
   license: AGPL-3.0
   source_code: https://github.com/immich-app/immich
   support: https://discord.immich.app
   docs: https://immich.app/docs
-image: ghcr.io/immich-app/immich-server@sha256:b434cb9287eea1471c9974845914d4dd328c9c2d652e446ed4930f99944f0ceb
+# v3.4.1, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/immich-app/immich-server@sha256:7c489add298fc2f92cda4c777de6462aa206877e04087b815f62c7664af0b53b
 port: 2283
 health: {path: /api/server/ping, timeout: 180}
 internet: true
@@ -68,8 +72,10 @@ sidecars:
       POSTGRES_INITDB_ARGS: --data-checksums
     health: {postgres: immich, timeout: 60}
   - name: valkey
-    image: docker.io/valkey/valkey@sha256:8e8d64b405ce18f41b8e5ee20aa4687a8ed0022d1298f2ce31cdcf3a76e09411
+    # 9.1.3, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:3add1a336a920ea54770a001ab6feb3da5fceea96a40373a3a2cd469b815f0b7
   - name: ml
-    image: ghcr.io/immich-app/immich-machine-learning@sha256:5a0839dc5303cd7215bcd2180a26aed3af41675aefb3e75e5157e9f10ad16e6e
+    # v3.4.1, multi-arch index (linux/amd64, linux/arm64)
+    image: ghcr.io/immich-app/immich-machine-learning@sha256:8adebf414256f6e4f837bfbb66fa94f14f4da7260e3a1d65cbba49e4e35d8764
     data:
       - {path: /cache, kind: cache}

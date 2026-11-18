@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: vaultwarden
-version: 1.37.4
+version: 1.37.5
 name: Vaultwarden
 listing:
   tagline: Lightweight Bitwarden-compatible server
@@ -9,24 +9,27 @@ listing:
     Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
     Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
   release_notes: |
-    Vaultwarden 1.37.4 fresh-install manifest with an immutable server image,
-    shared PostgreSQL storage, SMTP support, and native YouEye OpenID Connect
-    sign-in with PKCE.
+    Vaultwarden 1.37.5 is a security release: it fixes two advisories (website icon
+    fetching and emergency access) and ships web vault 2026.10.1. It is needed for the
+    two-step login settings of newer web vaults and fixes email two-step login after
+    YouEye ID sign-in on phones.
   category: utilities
   tags: [passwords, security, bitwarden]
   icon: lock
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/admin-secure-note.png
-      caption: Historical 1.37.1 personal vault with a demonstration secure note
-    - {path: screenshots/user-vault.png, caption: Historical 1.37.1 separate user’s empty personal vault}
+    - path: screenshots/vaultwarden-sign-in.png
+      caption: "Sign-in page with single sign-on through YouEye ID"
+    - path: screenshots/vaultwarden-admin-token.png
+      caption: "The admin page stays locked behind its admin token"
   website: https://github.com/dani-garcia/vaultwarden
   developer: Daniel García
   license: AGPL-3.0
   source_code: https://github.com/dani-garcia/vaultwarden
   support: https://vaultwarden.discourse.group
   docs: https://github.com/dani-garcia/vaultwarden/wiki
-image: docker.io/vaultwarden/server@sha256:2bb2e0344616c62a6d76ea10558497499f8ed3f731400e143dc7bf17b757b5b9
+# 1.37.5, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/vaultwarden/server@sha256:4fe17f415f90087377d37c755e0ea3cf189dcc6794e49cdd2a9adbb4937d9e1f
 port: 80
 health: /alive
 internet: true

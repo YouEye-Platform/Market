@@ -1,0 +1,25 @@
+# Bazarr's settings API (bazarr/api/system/settings.py, 1.6.2) takes form data only. form: encodes every value, so
+# the Radarr API key (base64, may contain '+') arrives intact. It sets the same keys every time, so a re-run is
+# harmless.
+schema: youeye.setup.v1
+for: connect:radarr
+steps:
+  - wait: {http: /api/system/ping, timeout: 180}
+  - http:
+      method: POST
+      path: /api/system/settings
+      headers: {X-API-KEY: '${self.api_key}'}
+      form:
+        settings-general-use_radarr: 'true'
+        settings-radarr-ip: '${peer.host}'
+        settings-radarr-port: '7878'
+        settings-radarr-base_url: /
+        settings-radarr-ssl: 'false'
+        settings-radarr-apikey: '${peer.api_key}'
+remove:
+  - http:
+      method: POST
+      path: /api/system/settings
+      headers: {X-API-KEY: '${self.api_key}'}
+      form:
+        settings-general-use_radarr: 'false'

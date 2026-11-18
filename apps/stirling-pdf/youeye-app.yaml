@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: stirling-pdf
-version: 2.14.3
+version: 3.3.0
 name: Stirling-PDF
 listing:
   tagline: A private, self-hosted toolkit for everyday PDF work
@@ -10,25 +10,28 @@ listing:
     convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
     watermarking, page extraction, image-to-PDF, and many more operations.
   release_notes: |
-    Stirling-PDF 2.14.3 fixes failures in merge, split, signing, crop, rotate,
-    search, and large-file workflows. It also improves concurrent processing,
-    temporary-file cleanup, and memory handling for demanding PDF operations.
+    Stirling-PDF 3.3.0 is a new major version with a redesigned workspace, faster tools,
+    optional AI features (off) and many fixes. Working in the browser stays free and
+    unlimited; automated and API use (pipelines, API keys, AI) is limited by Stirling to
+    1,000 PDFs a month on the free tier. Accounts stay Stirling's own (YouEye ID sign-in is
+    now free upstream but limited to five accounts, so it is not used yet).
   category: utilities
   tags: [pdf, documents, tools, converter]
   icon: file-text
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-toolkit-2.14.3.png
-      caption: Platform administrator completing an accepted PDF workflow
-    - path: screenshots/standard-user-toolkit-2.14.3.png
-      caption: Standard platform user completing an independent PDF workflow
+    - path: screenshots/dashboard-light.png
+      caption: "Workspace with every PDF tool in the side panel"
+    - path: screenshots/dashboard-dark.png
+      caption: "The same workspace in the dark theme"
   website: https://stirlingpdf.io
   developer: Stirling PDF Inc. and contributors
   license: MIT with upstream proprietary component carve-outs
   source_code: https://github.com/Stirling-Tools/Stirling-PDF
   support: https://github.com/Stirling-Tools/Stirling-PDF/issues
   docs: https://docs.stirlingpdf.com/
-image: docker.io/stirlingtools/stirling-pdf@sha256:3b3670fce70b396ec56ba380a3cc7858e0abf83fe13f31c88f7737847763a396
+# 3.3.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/stirlingtools/stirling-pdf@sha256:ed7b1775c6706b5e5ea24fa6155f078eff1027bd35a17d21834e4407036025e6
 port: 8080
 health: /api/v1/info/status
 internet: true
@@ -37,12 +40,12 @@ data:
   - {path: /configs, kind: config}
   - /customFiles
   - /pipeline
-# Stirling-PDF only has user accounts when security/login is enabled. OAuth2/OIDC is
-# license-gated in 2.14.3, so this OSS fresh install deliberately uses local accounts
-# behind YouEye's platform forward-auth gate. The generated bootstrap administrator
+# Stirling-PDF only has user accounts when security/login is enabled. OIDC is free since 3.0, but the free tier
+# allows 5 accounts and maps no admin role from the token (UserLicenseSettingsService, 3.3.0), and switching an
+# installed app to sign-in would need a reinstall; so this install keeps local accounts behind YouEye's
+# platform forward-auth gate (Plan 1, 2026-11-17). The generated bootstrap administrator
 # can create independent regular users in Stirling-PDF's Admin Settings.
 env:
-  DOCKER_ENABLE_SECURITY: 'true'
   SECURITY_ENABLELOGIN: 'true'
   SECURITY_LOGINMETHOD: normal
   SYSTEM_DEFAULTLOCALE: ${platform.locale}
@@ -51,7 +54,10 @@ env:
   SECURITY_OAUTH2_ENABLED: 'false'
   SECURITY_OAUTH2_DEBUGLOGGING: 'false'
   SYSTEM_GOOGLEVISIBILITY: 'false'
-  SHOW_SURVEY: 'false'
+  # 3.x: server-side file storage defaults on, outside the data path (files would be lost on update): keep it off.
+  STORAGE_ENABLED: 'false'
+  # 3.x asks the admin about analytics on first launch; answer no.
+  SYSTEM_ENABLEANALYTICS: 'false'
 secrets:
   admin_password: {length: 24}
 credentials:

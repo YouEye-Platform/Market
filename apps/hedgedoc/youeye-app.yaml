@@ -19,10 +19,10 @@ listing:
   icon: file-edit
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-note-1.11.1.png
-      caption: Historical 1.11.1 collaborative editor example (branding and instance name redacted)
-    - path: screenshots/standard-user-note-1.11.1.png
-      caption: Historical 1.11.1 shared document example (branding and instance name redacted)
+    - path: screenshots/editor-feature-page.png
+      caption: "Split view: Markdown on the left, the rendered note on the right"
+    - path: screenshots/website-screenshot.png
+      caption: "Editing a note together, with the online counter"
   website: https://hedgedoc.org
   developer: HedgeDoc contributors
   license: AGPL-3.0

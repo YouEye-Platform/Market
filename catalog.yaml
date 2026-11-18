@@ -25,20 +25,25 @@ categories:
     icon: users
     order: 4
     tile: {bg: '#ecfeff', fg: '#0891b2'}
+  - id: home
+    label: Home & family
+    icon: house
+    order: 5
+    tile: {bg: '#fff7ed', fg: '#ea580c'}
   - id: utilities
     label: Utilities
     icon: wrench
-    order: 5
+    order: 6
     tile: {bg: '#f0f9ff', fg: '#0284c7'}
   - id: downloaders
     label: Downloaders
     icon: download
-    order: 6
+    order: 7
     tile: {bg: '#fff7ed', fg: '#ea580c'}
   - id: ai
     label: AI
     icon: bot
-    order: 7
+    order: 8
     tile: {bg: '#eef2ff', fg: '#4f46e5'}
   - id: other
     label: Other

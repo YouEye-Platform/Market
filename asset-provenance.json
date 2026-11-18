@@ -11,18 +11,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/actual-budget/screenshots/platform-admin-budget.png",
-      "sha256": "sha256:49025cabd0814cc402bd536fcfeabb7c8206b60dbe7b4d708b9a924173aa4501",
-      "source": "https://github.com/actualbudget/actual",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/actual-budget/screenshots/budget-overview-demo.png",
+      "sha256": "sha256:4a09f809af472e10934da6921c882d4f5de769cdba1fe2a2c437c039aed675a6",
+      "source": "https://raw.githubusercontent.com/actualbudget/actual/v26.11.0/demo.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/actualbudget/actual/blob/v26.11.0/README.md. Licence: MIT (actualbudget/actual). README image at tag (src=/demo.png). Demo budget data. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/actual-budget/screenshots/standard-user-budget.png",
-      "sha256": "sha256:755eb81872358d12f0a40c2ba0dc6d7241bc58a04745d80dfa645923ee04801b",
-      "source": "https://github.com/actualbudget/actual",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/actual-budget/screenshots/reports-light.png",
+      "sha256": "sha256:7945a4a1bbc2d3cb47f677f709e2569814a7386ce7fd918178327b61edc77ba9",
+      "source": "https://raw.githubusercontent.com/actualbudget/actual/v26.11.0/packages/desktop-electron/screenshots/reports-gnome-light.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/actualbudget/actual/tree/v26.11.0/packages/desktop-electron/screenshots. Licence: MIT (actualbudget/actual). Store screenshot shipped in repo for the desktop (Flathub) build; GNOME window frame. Demo data. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/audiobookshelf/icon.svg",
@@ -32,18 +32,60 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/audiobookshelf/screenshots/platform-admin-player-2.36.0.png",
-      "sha256": "sha256:0df68db7540892e1518a6c027867a5568e51ca8993178a970f25b62ece7aaec6",
-      "source": "https://github.com/advplyr/audiobookshelf",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Aesop audiobook cover visible: establish the exact recording/cover source and terms."
+      "path": "apps/audiobookshelf/screenshots/add-library.jpg",
+      "sha256": "sha256:2df2a64a97d81d60fcff29893c18e61adb4a8741a226ffa63c5d1f54e1f9c7cc",
+      "source": "https://raw.githubusercontent.com/advplyr/audiobookshelf-web/5e6220f72b3d4df8ae18fc027b4109d9d55f865e/static/guides/library_setup/add_library.jpg",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://www.audiobookshelf.org/guides/library_creation. Licence: GPL-3.0 (advplyr/audiobookshelf). Official website repo advplyr/audiobookshelf-web pinned to commit 5e6220f (2026-06-19); guide image, age of the capture unknown. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/audiobookshelf/screenshots/standard-user-player-2.36.0.png",
-      "sha256": "sha256:ac26f64896446da97a4a971a5f1e55fddde8357a647cb200e7f1e13ec1b8eaea",
-      "source": "https://github.com/advplyr/audiobookshelf",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Aesop audiobook cover visible: establish the exact recording/cover source and terms."
+      "path": "apps/audiobookshelf/screenshots/demo-library.png",
+      "sha256": "sha256:0a73f604934f1111071e1a31ac8a13830de144d94946619aef5786358e13c68c",
+      "source": "https://raw.githubusercontent.com/advplyr/audiobookshelf/v2.37.2/images/DemoLibrary.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/advplyr/audiobookshelf/blob/v2.37.2/readme.md. Licence: GPL-3.0 (advplyr/audiobookshelf). README at tag links github.com/.../raw/master/images/DemoLibrary.png; fetched same path pinned to tag. Shows covers of real published books (demo library). Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/bazarr/icon.svg",
+      "sha256": "sha256:b42777ee622ddf85ace15dbe9a70d471a2ca364e745c73ea467da3a0a7586162",
+      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d4b500dc40a8e1043b1581cabb7208892cf35472/svg/bazarr.svg",
+      "evidence": "exact-source",
+      "notes": "Exact bytes matched (homarr-labs/dashboard-icons); collection licence and underlying brand rights still require review."
+    },
+    {
+      "path": "apps/bazarr/screenshots/bazarr-screenshot.png",
+      "sha256": "sha256:9728e35b240a65d28d09bde0e155f049f4aaeef910badc28b83599a1d9eb9fec",
+      "source": "https://raw.githubusercontent.com/morpheus65535/bazarr/v1.6.2/screenshot/bazarr-screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/morpheus65535/bazarr/blob/v1.6.2/README.md. Licence: GPL-3.0 (morpheus65535/bazarr). Only screenshot in the repo at tag; age of the image unknown. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/bazarr/screenshots/languages-profiles.png",
+      "sha256": "sha256:4ebdac3a5b21c8cb12c12d359c2f0def9e5ba3f4add0403116c681fe099ca6b6",
+      "source": "https://wiki.bazarr.media/Getting-Started/images/qs-languages-profiles.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wiki.bazarr.media/Getting-Started/Setup-Guide/. Licence: GPL-3.0 (morpheus65535/bazarr); official wiki. Wiki image, not version-pinned; age unknown. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/calibre-web-automated/icon.svg",
+      "sha256": "sha256:7610bd847fd615b0ef284a8379fd214257ce6c706eebfe2ed2d3af039d52b103",
+      "source": "https://raw.githubusercontent.com/crocodilestick/Calibre-Web-Automated/v4.0.8/cps/static/icon.svg",
+      "evidence": "exact-source",
+      "notes": "Upstream repository icon at tag v4.0.8 (GPL-3.0 repository); brand rights still require review."
+    },
+    {
+      "path": "apps/calibre-web-automated/screenshots/book-details.png",
+      "sha256": "sha256:15fab2b7cdffaa63b24e3aa4eda7d7f39b51d629862388442a9738fde65f269f",
+      "source": "https://raw.githubusercontent.com/crocodilestick/Calibre-Web-Automated/v4.0.8/README_images/new-book-details-page.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/crocodilestick/Calibre-Web-Automated/blob/v4.0.8/README.md. Licence: GPL-3.0 (crocodilestick/Calibre-Web-Automated). README at tag links blob/main/README_images/new-book-details-page.png?raw=true; fetched pinned to tag v4.0.8. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/calibre-web-automated/screenshots/server-stats.png",
+      "sha256": "sha256:26f50e6de46264e4635453b1e2905d2720ffff7333049642922ca6db995bebe5",
+      "source": "https://raw.githubusercontent.com/crocodilestick/Calibre-Web-Automated/v4.0.8/README_images/cwa-server-stats-page.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/crocodilestick/Calibre-Web-Automated/tree/v4.0.8/README_images. Licence: GPL-3.0 (crocodilestick/Calibre-Web-Automated). Present in README_images at tag but not embedded in the README (README shows this feature as a 12.9 MB GIF); caption from file name. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/docuseal/icon.svg",
@@ -53,18 +95,18 @@
       "notes": "Official unmodified tagged logo; AGPLv3 and Section7(b) attribution terms retained in apps/docuseal/ASSET-NOTICES.md. Product identification, no endorsement."
     },
     {
-      "path": "apps/docuseal/screenshots/platform-admin-template-3.2.0.png",
-      "sha256": "sha256:bba6086ba621d86cd766f7c1dac08860d282b9007e01e1b631c63a6d84950345",
-      "source": "https://github.com/docusealco/docuseal",
-      "evidence": "local-capture",
-      "notes": "Historical 3.2.0 repository demonstration capture, visually inspected 2026-10-23; minimal sample PDF/fictitious Accepted User signature, no personal data or external artwork. Upstream UI AGPLv3 + attribution terms retained in ASSET-NOTICES.md. Current 3.3.3 testing is separate."
+      "path": "apps/docuseal/screenshots/readme-demo.png",
+      "sha256": "sha256:543d5012c39a235698f7f4687db158db9757d91378770f68c3e52b0c4690d62c",
+      "source": "https://github.com/user-attachments/assets/8344a341-96cf-4df3-aaae-5458a21a65b3",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/docusealco/docuseal/blob/3.3.7/README.md. Licence: AGPL-3.0 (docusealco/docuseal). README at tag 3.3.7 embeds this user-attachments URL; content not visually verified. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/docuseal/screenshots/standard-user-signing-3.2.0.png",
-      "sha256": "sha256:ee01c61b27053adcc8413997a79d27edfd149f90abc685929a98b5d00fc76f8f",
-      "source": "https://github.com/docusealco/docuseal",
-      "evidence": "local-capture",
-      "notes": "Historical 3.2.0 repository demonstration capture, visually inspected 2026-10-23; minimal sample PDF/fictitious Accepted User signature, no personal data or external artwork. Upstream UI AGPLv3 + attribution terms retained in ASSET-NOTICES.md. Current 3.3.3 testing is separate."
+      "path": "apps/docuseal/screenshots/website-demo-poster.png",
+      "sha256": "sha256:6b3b8831e05b4cfcadd86e2190190ee0791e76d09490ac85d3645949ae5653a8",
+      "source": "https://www.docuseal.com/packs/static/images/demo-d48660a7efba50c89f51.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://www.docuseal.com/. Licence: site content (c) DocuSeal; repo AGPL-3.0. Official website image, not version-pinned (fetched 2026-11-17). It is the poster frame of the homepage demo video; may duplicate the README demo view. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/freshrss/icon.svg",
@@ -74,18 +116,60 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/freshrss/screenshots/platform-admin-feed.png",
-      "sha256": "sha256:380dfedde79c97e7ae18101359994eaf95005b815b5205064705e2d1becd931b",
-      "source": "https://github.com/FreshRSS/FreshRSS",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/freshrss/screenshots/reader-screenshot.png",
+      "sha256": "sha256:792bf9b8ad67a4d57b06b1619e9328a5081ceed9a6884d1f701496febec3f9aa",
+      "source": "https://raw.githubusercontent.com/FreshRSS/FreshRSS/1.30.4/docs/img/FreshRSS-screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/FreshRSS/FreshRSS/blob/1.30.4/README.md. Licence: AGPL-3.0 (FreshRSS/FreshRSS). README image at tag. Age of the screenshot unknown; shows public feed content. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/freshrss/screenshots/standard-user-subscriptions.png",
-      "sha256": "sha256:36763177e83024462a7fc454c2589be4f95a7c8c8657bfe6dcaae5c91948fc8d",
-      "source": "https://github.com/FreshRSS/FreshRSS",
+      "path": "apps/freshrss/screenshots/theme-dark-preview.png",
+      "sha256": "sha256:e6b7686275e82812dc84b21c4980f8c9cd6bbd7a9777b8bbda30b57563396895",
+      "source": "https://raw.githubusercontent.com/FreshRSS/FreshRSS/1.30.4/p/themes/Dark/thumbs/original.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/FreshRSS/FreshRSS/tree/1.30.4/p/themes/Dark. Licence: AGPL-3.0 (FreshRSS/FreshRSS). Theme preview image shipped in the app at tag (p/themes/Dark/thumbs/original.png), shown in the theme selector; not a README image. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/ghostfolio/icon.svg",
+      "sha256": "sha256:9d48139ef4232c0e779d1f666214ba1fb298afc9c64814af05e7b5ba6a133175",
+      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d4b500dc40a8e1043b1581cabb7208892cf35472/svg/ghostfolio.svg",
+      "evidence": "exact-source",
+      "notes": "Exact bytes matched (homarr-labs/dashboard-icons); collection licence and underlying brand rights still require review."
+    },
+    {
+      "path": "apps/ghostfolio/screenshots/ghostfolio-overview.png",
+      "sha256": "sha256:b6843f3bf982cd7cbdd87551be0f6bea72acd251c88e6eee9a9e5bf9b52054df",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
+    },
+    {
+      "path": "apps/ghostfolio/screenshots/phone-app.png",
+      "sha256": "sha256:3327befb7849e3f9d4fbb8776494ee021f3aefad0e619b34ea32a35d10620852",
+      "source": "https://raw.githubusercontent.com/ghostfolio/ghostfolio/3.100.0/apps/client/src/assets/images/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/ghostfolio/ghostfolio/blob/3.100.0/README.md. Licence: AGPL-3.0 (ghostfolio/ghostfolio). README image at tag. Device-framed mock-up. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/gramps-web/icon.svg",
+      "sha256": "sha256:bd4d1a4c174c1c632105a6939608c50abcd976cb1d6f7fa81521d2dc07aa75ef",
+      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d4b500dc40a8e1043b1581cabb7208892cf35472/svg/gramps-web.svg",
+      "evidence": "exact-source",
+      "notes": "Exact bytes matched (homarr-labs/dashboard-icons); collection licence and underlying brand rights still require review."
+    },
+    {
+      "path": "apps/gramps-web/screenshots/interface.png",
+      "sha256": "sha256:70885a7434c0e7fef221480fb3c2b14fc3f800e15708f92affe2323886b94954",
+      "source": "https://raw.githubusercontent.com/gramps-project/gramps-web/v26.11.2/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/gramps-project/gramps-web/blob/v26.11.2/README.md. Licence: AGPL-3.0 (gramps-project/gramps-web). README image at tag; check it shows example genealogy data, not a real family. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/gramps-web/screenshots/website-screenshot.png",
+      "sha256": "sha256:432995a0c18157441c9744cf05ffd433f2e0eea5b842acc4f9428fbe4b3eedc4",
+      "source": "https://www.grampsweb.org/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://www.grampsweb.org/. Licence: AGPL-3.0 (gramps-project/gramps-web). Official website image, not version-pinned; differs from the README image. Check it shows example data only. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/hedgedoc/icon.svg",
@@ -95,18 +179,39 @@
       "notes": "Original geometric document illustration authored 2026-10-23, CC0-1.0; no upstream logo copied."
     },
     {
-      "path": "apps/hedgedoc/screenshots/platform-admin-note-1.11.1.png",
-      "sha256": "sha256:3eab70c699aa8d24ac2e3572d2e6809a51f38ebbc74265bc9ccded914310e487",
-      "source": "https://github.com/hedgedoc/hedgedoc/tree/1.11.1",
-      "evidence": "local-capture",
-      "notes": "Historical repository 1.11.1 demo capture, reviewed and modified 2026-10-23: upstream logo and internal demo instance name redacted with opaque rectangles. Generic test document only, no private data/credentials. HedgeDoc UI AGPL-3.0, source and licence retained in ASSET-NOTICES; historical/redaction caption explicit. Separate current runtime checkpoints required."
+      "path": "apps/hedgedoc/screenshots/editor-feature-page.png",
+      "sha256": "sha256:c414d40ef678781890b53697e6434c8a6f057691bbffd0aed250ec5dd954dcc3",
+      "source": "https://raw.githubusercontent.com/hedgedoc/hedgedoc/1.12.0/public/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/hedgedoc/hedgedoc/blob/1.12.0/README.md. Licence: AGPL-3.0 (hedgedoc/hedgedoc). README image at tag; README alt says it shows HedgeDoc 1.7.0 (we ship 1.12.0). The 1.x UI is largely unchanged since 1.7, but owner should confirm. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/hedgedoc/screenshots/standard-user-note-1.11.1.png",
-      "sha256": "sha256:dc4f3a7f7ee6902b4f050c956ca8ecd7bd919c069c2d9033bd576d312af50212",
-      "source": "https://github.com/hedgedoc/hedgedoc/tree/1.11.1",
-      "evidence": "local-capture",
-      "notes": "Historical repository 1.11.1 demo capture, reviewed and modified 2026-10-23: upstream logo and internal demo instance name redacted with opaque rectangles. Generic test document only, no private data/credentials. HedgeDoc UI AGPL-3.0, source and licence retained in ASSET-NOTICES; historical/redaction caption explicit. Separate current runtime checkpoints required."
+      "path": "apps/hedgedoc/screenshots/website-screenshot.png",
+      "sha256": "sha256:79defb43ef01e4693ac37c8a4536d9256faf9f93cfc5777e2f2cd6b75e5f3717",
+      "source": "https://hedgedoc.org/images/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://hedgedoc.org/. Licence: AGPL-3.0; site hedgedoc.org. Official website image, labelled 1.7.1 (we ship 1.12.0); not version-pinned. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/homebox/icon.svg",
+      "sha256": "sha256:3c4e5f65563dd6c8d516addae616074aa947c34aad3b9e5051befa96e6b06291",
+      "source": "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/d4b500dc40a8e1043b1581cabb7208892cf35472/svg/homebox.svg",
+      "evidence": "exact-source",
+      "notes": "Exact bytes matched (homarr-labs/dashboard-icons); collection licence and underlying brand rights still require review."
+    },
+    {
+      "path": "apps/homebox/screenshots/dashboard.png",
+      "sha256": "sha256:aeb4e8d7e469321ae1b1f61c7d3f8cc71b068971bb4dc37939e1d7dc1f96a84e",
+      "source": "https://raw.githubusercontent.com/sysadminsmedia/homebox/v0.27.1/.github/screenshots/2.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/sysadminsmedia/homebox/blob/v0.27.1/README.md. Licence: AGPL-3.0 (sysadminsmedia/homebox). README image at tag. Demo data. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/homebox/screenshots/item-view.png",
+      "sha256": "sha256:8b0f746bb8a8894589adcb023bba93925e8dce184fc45e2f1dfabd6f7a23655b",
+      "source": "https://raw.githubusercontent.com/sysadminsmedia/homebox/v0.27.1/.github/screenshots/3.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/sysadminsmedia/homebox/blob/v0.27.1/README.md. Licence: AGPL-3.0 (sysadminsmedia/homebox). README image at tag. Demo data. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/immich/icon.svg",
@@ -116,18 +221,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/immich/screenshots/admin-library.png",
-      "sha256": "sha256:0fb1f1f7edc8ee0781f7e6b0545226852b7551e0ff39bd044b6ad9fbc897c285",
-      "source": "https://github.com/immich-app/immich",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/immich/screenshots/admin-server-stats.webp",
+      "sha256": "sha256:82532e7a0e326e2ceee9671a4e2c94536351f93c90b750afe5425bae70b1dc38",
+      "source": "https://raw.githubusercontent.com/immich-app/immich/v3.4.1/docs/docs/administration/img/server-stats.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/immich-app/immich/blob/v3.4.1/docs/docs/administration/server-stats.md. Licence: AGPL-3.0 (immich-app/immich). Admin docs image at tag; screenshot age unknown, may predate v3 UI tweaks. Shows example user names from the docs. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/immich/screenshots/user-library.png",
-      "sha256": "sha256:4841d83f38ee48f51ed974ec22ebac256f4900f32cf9761b780edd023cd71938",
-      "source": "https://github.com/immich-app/immich",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/immich/screenshots/web-timeline-light.webp",
+      "sha256": "sha256:a2a36dee23ddb2d4d4b2830848d5e847ae717623137b00746da1e165ec06399f",
+      "source": "https://raw.githubusercontent.com/immich-app/immich/v3.4.1/docs/static/img/screenshot-light.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/immich-app/immich/tree/v3.4.1/docs/static/img. Licence: AGPL-3.0 (immich-app/immich). Docs static image at tag; caption from file name and docs usage. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/jellyfin/icon.svg",
@@ -137,18 +242,18 @@
       "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
     },
     {
-      "path": "apps/jellyfin/screenshots/platform-admin-player-10.11.11.png",
-      "sha256": "sha256:05b9dea11bf6f26a5adfa7fb1f103f92aedc92ee3480a8d2d512d0e073a150bb",
-      "source": "https://github.com/jellyfin/jellyfin",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Big Buck Bunny film frames visible: establish Blender film attribution and applicable licence."
+      "path": "apps/jellyfin/screenshots/modern-ui-home.png",
+      "sha256": "sha256:9356130b61db6c228f24d35c1302059e6b175587a312004a2ef7f86ce67eff31",
+      "source": "https://jellyfin.org/assets/images/modern-ui-84f59788e646314ddda43d79c11c4b31.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://jellyfin.org/posts/jellyfin-release-12.0. Licence: GPL-2.0 (jellyfin/jellyfin); jellyfin.org site content. Official 12.0 release announcement image; we ship 12.4 (same major UI). Repo at tag v12.4 has no screenshots; homepage still shows 10.8 images (skipped). May show commercial film artwork. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/jellyfin/screenshots/standard-user-player-10.11.11.png",
-      "sha256": "sha256:0cef1c2563dfcff4d10471d700b9792f36b4f34396ecec94bc88883d5b5f93c5",
-      "source": "https://github.com/jellyfin/jellyfin",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Big Buck Bunny film frames visible: establish Blender film attribution and applicable licence."
+      "path": "apps/jellyfin/screenshots/modern-ui-movies.png",
+      "sha256": "sha256:df4f3daa5f9688ed2d95610058a98a9467f9c464c3dfa82e16f785f075a282c3",
+      "source": "https://jellyfin.org/assets/images/modern-ui-movies-3528289880a5ec93a41d57cd310f1bf6.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://jellyfin.org/posts/jellyfin-release-12.0. Licence: GPL-2.0 (jellyfin/jellyfin); jellyfin.org site content. Official 12.0 release announcement image; we ship 12.4. May show commercial film posters. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/jellyseerr/icon.png",
@@ -158,18 +263,18 @@
       "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
     },
     {
-      "path": "apps/jellyseerr/screenshots/platform-admin-request-3.2.0.png",
-      "sha256": "sha256:f51df2a1f35db89799d66fad8fd2f33d01064e72dad60e4ccacccb473f0773e2",
-      "source": "https://github.com/seerr-team/seerr",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Sintel poster/backdrop and third-party metadata visible: verify artwork and metadata source terms."
+      "path": "apps/jellyseerr/screenshots/seerr-preview.jpg",
+      "sha256": "sha256:63622574230a5b0461dd57e23ffada3ca3a2c663981c90bc8081cfeaa54fde57",
+      "source": "https://raw.githubusercontent.com/seerr-team/seerr/v3.5.2/public/preview.jpg",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/seerr-team/seerr/blob/v3.5.2/README.md. Licence: MIT (seerr-team/seerr). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/jellyseerr/screenshots/standard-user-request-3.2.0.png",
-      "sha256": "sha256:d069c58b622014bf0014b71bb528c388a3dbf7f2667e77cbdccd911f8b7eb16d",
-      "source": "https://github.com/seerr-team/seerr",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Sintel poster/backdrop and third-party metadata visible: verify artwork and metadata source terms."
+      "path": "apps/jellyseerr/screenshots/settings-metadata-providers.png",
+      "sha256": "sha256:1fb5139dfb75a51717b37f9eada434bc8975bcfa0869e477cc04fbd9a320c7e1",
+      "source": "https://raw.githubusercontent.com/seerr-team/seerr/v3.5.2/gen-docs/blog/2026-02-10/metadata-providers.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/seerr-team/seerr/blob/v3.5.2/gen-docs/blog/2026-02-10/seerr-release.md. Licence: MIT (seerr-team/seerr). Image in the official docs blog at tag; settings-page view, may be a partial window. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/kavita/icon.svg",
@@ -179,18 +284,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/kavita/screenshots/platform-admin-reader-0.9.0.2.png",
-      "sha256": "sha256:213b6a7638073498eed51ccb441c7a667ea3f25a81505d71ce0a5e6c83694e19",
-      "source": "https://github.com/Kareadita/Kavita",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Aesop book cover visible: identify the exact edition/scan and its reuse terms."
+      "path": "apps/kavita/screenshots/admin-statistics.png",
+      "sha256": "sha256:9f7551badd5ae5270919ab2a9e7a12055935ac19255ae2025a7e286e9a50fafc",
+      "source": "https://raw.githubusercontent.com/Kareadita/Wiki-Nextra/8f4850b5c0b31a43c9fb76175c54f988bafc0bd4/public/guides/admin-settings/admin-settings-statistics.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wiki.kavitareader.com/guides/admin-settings. Licence: GPL-3.0 (Kareadita/Kavita); wiki repo Kareadita/Wiki-Nextra. Official wiki repo pinned to commit 8f4850b (2026-11-14); not tied to app tag v0.9.1.4. Caption from file name. Wide crop of the statistics section (1662x589), not a full window. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/kavita/screenshots/standard-user-reader-0.9.0.2.png",
-      "sha256": "sha256:213b6a7638073498eed51ccb441c7a667ea3f25a81505d71ce0a5e6c83694e19",
-      "source": "https://github.com/Kareadita/Kavita",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Aesop book cover visible: identify the exact edition/scan and its reuse terms."
+      "path": "apps/kavita/screenshots/wiki-homepage-dark.png",
+      "sha256": "sha256:e6d47a157aa707ca2abf22a2c342614027ad1b4ef255ab3b4b5fc3423d65ab36",
+      "source": "https://raw.githubusercontent.com/Kareadita/Wiki-Nextra/8f4850b5c0b31a43c9fb76175c54f988bafc0bd4/public/homepage-dark3.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wiki.kavitareader.com/. Licence: GPL-3.0 (Kareadita/Kavita); wiki repo Kareadita/Wiki-Nextra. Official wiki repo pinned to commit 8f4850b (2026-11-14); not tied to app tag v0.9.1.4. The wiki homepage embeds raw .../Wiki-Nextra/main/public/homepage-dark3.png. Covers of real comics/books likely. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/linkwarden/icon.svg",
@@ -200,18 +305,18 @@
       "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
     },
     {
-      "path": "apps/linkwarden/screenshots/platform-admin-library-2.16.0.png",
-      "sha256": "sha256:b92f960b704d82dad1762fbd6a9383570565605fd3bd62b0ce1d9ab46fb85365",
-      "source": "https://github.com/linkwarden/linkwarden",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. External website preview cards visible: verify preview-image reuse or capture owned sample content."
+      "path": "apps/linkwarden/screenshots/app-screenshot-2.png",
+      "sha256": "sha256:1ca98685df21761dcc8d30ba645fc6e44a2c146d0e6030b73bdf9ca0bd9ced43",
+      "source": "https://raw.githubusercontent.com/linkwarden/linkwarden/v2.17.0/apps/web/public/screenshots/screenshot2.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/linkwarden/linkwarden/tree/v2.17.0/apps/web/public/screenshots. Licence: AGPL-3.0 (linkwarden/linkwarden). PWA screenshot shipped in the web app at tag (not in README); caption from path, content not verified. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/linkwarden/screenshots/standard-user-library-2.16.0.png",
-      "sha256": "sha256:45e4f98e452530b837aad23c67f0d9df30369c061f3f7e42b464c8b71ba98a4c",
-      "source": "https://github.com/linkwarden/linkwarden",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. External website preview cards visible: verify preview-image reuse or capture owned sample content."
+      "path": "apps/linkwarden/screenshots/hero-dashboard.png",
+      "sha256": "sha256:f24c640821d9fc69676062caf52a3a66250afda94516b035749cef21927b1413",
+      "source": "https://raw.githubusercontent.com/linkwarden/linkwarden/v2.17.0/assets/linkwarden-hero.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/linkwarden/linkwarden/blob/v2.17.0/README.md. Licence: AGPL-3.0 (linkwarden/linkwarden). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/mealie/icon.svg",
@@ -221,18 +326,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/mealie/screenshots/platform-admin-recipes-3.22.0.png",
-      "sha256": "sha256:88a31fa58a516fd7b1c121cfb21bf6994984c88c4480161d30878303d7801d0d",
-      "source": "https://github.com/mealie-recipes/mealie",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/mealie/screenshots/meal-planner.webp",
+      "sha256": "sha256:43ffe47afed62f428ee12d00ddc3f85d0f3cdb7259b8fffcf48a47d4f6f691de",
+      "source": "https://raw.githubusercontent.com/mealie-recipes/mealie/v3.31.0/docs/docs/assets/img/home/meal-planner.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/mealie-recipes/mealie/tree/v3.31.0/docs/docs/assets/img/home. Licence: AGPL-3.0 (mealie-recipes/mealie). Docs home image at tag; also shown on mealie.io. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/mealie/screenshots/standard-user-recipes-3.22.0.png",
-      "sha256": "sha256:dadafa42c237543bb65c680761af7deb481c201c9ed160bc4d569a110069cf12",
-      "source": "https://github.com/mealie-recipes/mealie",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/mealie/screenshots/recipe-page.webp",
+      "sha256": "sha256:54532d0bade2618df1cde8a16c4ccd7a48a04ea95e724ee59b880dddd1a71b86",
+      "source": "https://raw.githubusercontent.com/mealie-recipes/mealie/v3.31.0/docs/docs/assets/img/home/recipe-page.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/mealie-recipes/mealie/tree/v3.31.0/docs/docs/assets/img/home. Licence: AGPL-3.0 (mealie-recipes/mealie). Docs home image at tag; also shown on mealie.io. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/memos/icon.svg",
@@ -242,18 +347,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/memos/screenshots/platform-admin-memos.png",
-      "sha256": "sha256:734f1172f8c5111e993421d0fc2c7d4acf21266da10c25b3198bc8be805438a7",
-      "source": "https://github.com/usememos/memos",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/memos/screenshots/timeline-dark.png",
+      "sha256": "sha256:80c7fd2311b2ba5ab88b3f69b67b159cb8b209f402d31e053cf2a452aaf3aeb7",
+      "source": "https://raw.githubusercontent.com/usememos/.github/13198225b2ef8e961c615f86b2a04278ffd706cf/assets/previews/timeline-dark.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/usememos/memos/blob/26.11.1/README.md. Licence: MIT (usememos/memos). Same notes as timeline-light (README <picture> dark source, pinned to usememos/.github commit 13198225b2ef8e961c615f86b2a04278ffd706cf; possibly generated mock-up). Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/memos/screenshots/standard-user-memos.png",
-      "sha256": "sha256:54563661c76ad64ce72ad373063fff3615b1380fc8b94cfddd0079d06ef3a6bc",
-      "source": "https://github.com/usememos/memos",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/memos/screenshots/timeline-light.png",
+      "sha256": "sha256:22d3b43d9ae2e26055ce8a07be56ac4c89ae48b84b6dca4d9b663eab38396067",
+      "source": "https://raw.githubusercontent.com/usememos/.github/13198225b2ef8e961c615f86b2a04278ffd706cf/assets/previews/timeline-light.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/usememos/memos/blob/26.11.1/README.md. Licence: MIT (usememos/memos). README at tag 26.11.1 links raw usememos/.github refs/heads/main/assets/previews/timeline-light.png; fetched same file pinned to usememos/.github commit 13198225b2ef8e961c615f86b2a04278ffd706cf (2026-10-30). That repo builds these previews with tools/preview/build.mjs + preview.css, so they may be rendered mock-ups rather than raw app captures: owner check. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/miniflux/icon.svg",
@@ -263,18 +368,18 @@
       "notes": "Original geometric RSS illustration authored for this Market entry 2026-10-23; CC0-1.0. No upstream trademark artwork copied."
     },
     {
-      "path": "apps/miniflux/screenshots/platform-admin-feed.png",
-      "sha256": "sha256:704e64ae98b1c82b922b0d5d930e06d721467e10e2dc844be48408c2014022b1",
-      "source": "https://github.com/miniflux/v2",
+      "path": "apps/miniflux/screenshots/miniflux-feeds.png",
+      "sha256": "sha256:5ffbc61ca486a7527158fce356c80cb8ac69152d5d0d9e4754b250f6fd151b71",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Retained repository historical 2.3.3 demonstration capture, inspected 2026-10-23: Miniflux Apache-2.0 interface displaying public upstream release titles; no credentials, private links or personal data visible. Historical version stated in caption; current runtime evidence retained separately."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/miniflux/screenshots/standard-user-subscriptions.png",
-      "sha256": "sha256:3a66fde2f2aec82ce5516e32363d719a5a87aaf8c7aff889c2e3ebc00fd7a74f",
-      "source": "https://github.com/miniflux/v2",
-      "evidence": "local-capture",
-      "notes": "Retained repository historical 2.3.3 demonstration capture, inspected 2026-10-23: Miniflux Apache-2.0 interface displaying public upstream release titles; no credentials, private links or personal data visible. Historical version stated in caption; current runtime evidence retained separately."
+      "path": "apps/miniflux/screenshots/overview-default-theme.png",
+      "sha256": "sha256:582457c08ec6c7d2592bc2b2b53512bb4ab48ca0d89f64f7521d7d434e09aae4",
+      "source": "https://miniflux.app/images/overview.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/miniflux/v2/blob/v2.3.5/README.md. Licence: Apache-2.0 (miniflux/v2). README at tag v2.3.5 embeds this miniflux.app URL (website host, not version-pinned). Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/navidrome/icon.svg",
@@ -284,18 +389,18 @@
       "notes": "Original geometric CC0 musical-note icon; see apps/navidrome/ASSET-NOTICES.md."
     },
     {
-      "path": "apps/navidrome/screenshots/platform-admin-library-0.63.2.png",
-      "sha256": "sha256:fee6d123869441339ef0c565551119330ad71748d0ee8baf5e3b79f752850178",
-      "source": "https://github.com/navidrome/navidrome/tree/v0.64.2",
-      "evidence": "local-capture",
-      "notes": "Historical0.63.2 GPL UI capture cropped to exclude album artwork and bottom thumbnails; generic test labels; not current-version runtime proof. See ASSET-NOTICES.md."
+      "path": "apps/navidrome/screenshots/desktop-player.png",
+      "sha256": "sha256:4f3f8155c1841a1931fc7bd0f27f0171f77e567036089703f0269a3181077a60",
+      "source": "https://raw.githubusercontent.com/navidrome/navidrome/v0.64.2/.github/screenshots/ss-desktop-player.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/navidrome/navidrome/blob/v0.64.2/README.md. Licence: GPL-3.0 (navidrome/navidrome). README at tag links raw .../master/.github/screenshots/ss-desktop-player.png; fetched same path pinned to tag. Album art of commercial music possible. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/navidrome/screenshots/standard-user-player-0.63.2.png",
-      "sha256": "sha256:fee6d123869441339ef0c565551119330ad71748d0ee8baf5e3b79f752850178",
-      "source": "https://github.com/navidrome/navidrome/tree/v0.64.2",
-      "evidence": "local-capture",
-      "notes": "Historical0.63.2 GPL UI capture cropped to exclude album artwork and bottom thumbnails; generic test labels; not current-version runtime proof. See ASSET-NOTICES.md."
+      "path": "apps/navidrome/screenshots/mobile-album-view.png",
+      "sha256": "sha256:a0f23562cd3eb52c98f7ebf1f6aa10eb24b56685a72e05683ebe1d0512a903b4",
+      "source": "https://raw.githubusercontent.com/navidrome/navidrome/v0.64.2/.github/screenshots/ss-mobile-album-view.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/navidrome/navidrome/blob/v0.64.2/README.md. Licence: GPL-3.0 (navidrome/navidrome). README at tag links .../master/...; fetched pinned to tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/nextcloud/icon.svg",
@@ -305,18 +410,18 @@
       "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
     },
     {
-      "path": "apps/nextcloud/screenshots/admin-files.png",
-      "sha256": "sha256:c47d5c6ee1a1ac6913ab00f712d53aa5d1ce4ec81b2e84b3859ac1d04537bb4c",
-      "source": "https://github.com/nextcloud/server",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Bundled welcome media/photos visible: identify bundled asset licences; test text is visibly synthetic."
+      "path": "apps/nextcloud/screenshots/files-details-hub26.png",
+      "sha256": "sha256:7cd9738ab082694d30a1b0fa7fb8ad3f2fce85bc7eff0a5bd8c38249b9475c63",
+      "source": "https://nextcloud.com/c/uploads/2026/09/nextcloud-files-details-hub26-summer-1.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://nextcloud.com/. Licence: AGPL-3.0 (nextcloud/server); screenshots repo nextcloud/screenshots. Official website marketing image, not version-pinned; Hub 26 Summer UI. Example names/files. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/nextcloud/screenshots/user-files.png",
-      "sha256": "sha256:31fbb11f530a8fca6cb64827bba7de2b330334919124f979d01d3cd4ca3cad08",
-      "source": "https://github.com/nextcloud/server",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Bundled welcome media/photos visible: identify bundled asset licences; test text is visibly synthetic."
+      "path": "apps/nextcloud/screenshots/hub-25-files.png",
+      "sha256": "sha256:bb63a012a108987d833335a558a77492a390c7dab7d3c791fdfda42205a9d8d1",
+      "source": "https://raw.githubusercontent.com/nextcloud/screenshots/44fe757d7799e9820c1f2ce079d1450978810a38/nextcloud-hub-25-files.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/nextcloud/server/blob/v35.0.3/README.md. Licence: AGPL-3.0 (nextcloud/server); screenshots repo nextcloud/screenshots. README at tag v35.0.3 links raw nextcloud/screenshots/stable35/nextcloud-hub-25-files.png, which 404s (no stable35 branch); fetched the same file from nextcloud/screenshots master commit 44fe757 (2026-09-04). File name says Hub 25, older than the Hub generation of v35. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/open-webui/icon.svg",
@@ -326,18 +431,18 @@
       "notes": "Source link identifies the application project, not a verified origin for these exact icon bytes. No exact match found in current collection or sampled April collection commit; source still unresolved."
     },
     {
-      "path": "apps/open-webui/screenshots/platform-admin-chat-0.11.0.png",
-      "sha256": "sha256:7fe12e66484a2c58241d81c9ce7906f03608e66a35c856898bb93ec44a7e86d1",
-      "source": "https://github.com/open-webui/open-webui",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/open-webui/screenshots/admin-general-settings.png",
+      "sha256": "sha256:0a02e0e7a02931f893e26f89951a282f0c629937c4ef2ddd2bac5e6f6c905c01",
+      "source": "https://raw.githubusercontent.com/open-webui/docs/3072f18c3dce6b0078f8edd2447367263560f0f7/static/images/admin/admin-general.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/open-webui/docs/tree/3072f18c3dce6b0078f8edd2447367263560f0f7/static/images/admin. Licence: Open WebUI docs repo (open-webui/docs); app under Open WebUI License. Official docs repo pinned to commit 3072f18 (2026-11-16, matches the v0.13.x era); not tied to the app tag. Caption from file name. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/open-webui/screenshots/standard-user-chat-0.11.0.png",
-      "sha256": "sha256:da97a3e7f1cdb2e28dbf5a56418ef2b8c92c119fa51d099e25d2794802adbd4a",
-      "source": "https://github.com/open-webui/open-webui",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/open-webui/screenshots/docs-demo.png",
+      "sha256": "sha256:f98fb83399e24a43631bbfa6585827e3ab917c32bb1577e7303f5549ac84a152",
+      "source": "https://raw.githubusercontent.com/open-webui/docs/3072f18c3dce6b0078f8edd2447367263560f0f7/static/images/demo.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/open-webui/docs/tree/3072f18c3dce6b0078f8edd2447367263560f0f7/static/images. Licence: Open WebUI docs repo (open-webui/docs); app under Open WebUI License. Official docs repo pinned to commit 3072f18 (2026-11-16, matches the v0.13.x era); not tied to the app tag. Caption from file name. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/paperless-ngx/icon.svg",
@@ -347,18 +452,18 @@
       "notes": "Exact official v3.3.4 leaf logo; GPL-3.0 upstream licence retained in LICENSE.upstream.txt, identify application only; no endorsement asserted."
     },
     {
-      "path": "apps/paperless-ngx/screenshots/platform-admin-document-3.0.5.png",
-      "sha256": "sha256:8f3b985ff594d10ce6c78c0a23187b6709de86f99bc56924d8674c0d4b8d2fe3",
-      "source": "https://github.com/paperless-ngx/paperless-ngx",
-      "evidence": "local-capture",
-      "notes": "Historical repository capture of Paperless-NGX3.0.5; inspected full resolution2026-10-23. Only app UI and minimal synthetic first/second PDF text; no credentials, private links, personal documents or third-party media visible. Caption labels historical version. UI under retained upstream GPL-3.0; separate current acceptance evidence required."
+      "path": "apps/paperless-ngx/screenshots/dashboard.png",
+      "sha256": "sha256:612eaee59d04ff3dcc3f37aa0bb08c5cfc55d4c4b33860567daa9d788d3f1307",
+      "source": "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/v3.5.0/docs/assets/screenshots/dashboard.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/paperless-ngx/paperless-ngx/tree/v3.5.0/docs/assets/screenshots. Licence: GPL-3.0 (paperless-ngx/paperless-ngx). Docs screenshot at tag (used in docs/index). Demo documents. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/paperless-ngx/screenshots/standard-user-document-3.0.5.png",
-      "sha256": "sha256:6203e7e7a58657bc7d6f5c2ec0791ee3f70337c97067d723493ed108296d07d8",
-      "source": "https://github.com/paperless-ngx/paperless-ngx",
-      "evidence": "local-capture",
-      "notes": "Historical repository capture of Paperless-NGX3.0.5; inspected full resolution2026-10-23. Only app UI and minimal synthetic first/second PDF text; no credentials, private links, personal documents or third-party media visible. Caption labels historical version. UI under retained upstream GPL-3.0; separate current acceptance evidence required."
+      "path": "apps/paperless-ngx/screenshots/documents-smallcards.png",
+      "sha256": "sha256:5374b704a49c04c872d5b176f7d5516d48c81c70ed69573199810416a9db4567",
+      "source": "https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/v3.5.0/docs/assets/screenshots/documents-smallcards.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/paperless-ngx/paperless-ngx/blob/v3.5.0/README.md. Licence: GPL-3.0 (paperless-ngx/paperless-ngx). README at tag links raw .../main/docs/assets/screenshots/documents-smallcards.png; fetched pinned to tag. Demo documents. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/pingvin-share/icon.svg",
@@ -368,18 +473,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/pingvin-share/screenshots/platform-admin-share-1.22.1.png",
-      "sha256": "sha256:5e52b90aafe0fd5f729f66212e873aec6757228b96465b6312ad237938d56bb8",
-      "source": "https://github.com/smp46/pingvin-share-x",
+      "path": "apps/pingvin-share/screenshots/pingvin-share-sign-in.png",
+      "sha256": "sha256:4944e90114ed550b98edb900e5da39b9445f9a542491910f9398b2544df772d7",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Share URL visible: recapture with a non-sensitive expired demonstration share before public approval."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/pingvin-share/screenshots/standard-user-share-1.22.1.png",
-      "sha256": "sha256:8b7b929900a12816233e3b65aad9955b3bd77ae525bfb75d355fa60055a13bb1",
-      "source": "https://github.com/smp46/pingvin-share-x",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Share URL visible: recapture with a non-sensitive expired demonstration share before public approval."
+      "path": "apps/pingvin-share/screenshots/upload-page.png",
+      "sha256": "sha256:192a8708c7ae95c8fd1b89fe239fb1d0764cdec90bd8190d1e912a29e34285fc",
+      "source": "https://user-images.githubusercontent.com/58886915/225038319-b2ef742c-3a74-4eb6-9689-4207a36842a4.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/smp46/pingvin-share-x/blob/v2.1.1/docs/docs/introduction.md. Licence: BSD-2-Clause (smp46/pingvin-share-x). Docs at tag v2.1.1 embed this image, uploaded 2023-03 for the original stonith404/pingvin-share; UI may be slightly older than the -x fork we ship. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/prowlarr/icon.svg",
@@ -389,18 +494,18 @@
       "notes": "Original geometric radar symbol created for Market, CC0-1.0; no upstream logo copied. See app notices."
     },
     {
-      "path": "apps/prowlarr/screenshots/platform-admin-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:90c07a5aae4499d6fcf3c7105d9272067aca2f2aec033ee894bb4ab211c44f97",
-      "source": "https://github.com/Prowlarr/Prowlarr",
-      "evidence": "local-capture",
-      "notes": "Historical repository capture of Prowlarr2.5.2.5491, not current-version acceptance. Logo, fixture title/indexer and query removed with opaque redactions. No artwork, credentials or private links. GPL-3.0 UI attribution in app notices; no public-domain claim about original fixture."
+      "path": "apps/prowlarr/screenshots/indexers.png",
+      "sha256": "sha256:a76f86c59a3d40fd98dcb04a88cfdf90f3e1215e67496baac577b54f08786b4c",
+      "source": "https://prowlarr.com/img/indexer-index.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://prowlarr.com/. Licence: GPL-3.0 (Prowlarr/Prowlarr). Official website image, not version-pinned; the website does not state the version shown (the *arr UI has changed little across recent majors), owner check that it looks current. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/prowlarr/screenshots/standard-profile-public-domain-search-2.5.2.5491.png",
-      "sha256": "sha256:f741af7a8197f70302fc9790b95ec768c98887f8fe6f09b8a312880f0e13436a",
-      "source": "https://github.com/Prowlarr/Prowlarr",
-      "evidence": "local-capture",
-      "notes": "Historical repository capture of Prowlarr2.5.2.5491, not current-version acceptance. Logo, fixture title/indexer and query removed with opaque redactions. No artwork, credentials or private links. GPL-3.0 UI attribution in app notices; no public-domain claim about original fixture."
+      "path": "apps/prowlarr/screenshots/wiki-indexer-detail.png",
+      "sha256": "sha256:98169a7f76be8a88fa75acf7d6ad392c6f79e34803968c5a8edac46cc890d8bd",
+      "source": "https://wiki.servarr.com/assets/prowlarr/ind_3_indexer2.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wiki.servarr.com/prowlarr/indexers. Licence: Servarr wiki content; app GPL-3.0. Official wiki image, not version-pinned; age unknown. Dialog crop (622x800), not a full window. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/qbittorrent/icon.svg",
@@ -410,18 +515,18 @@
       "notes": "Original geometric download glyph CC0-1.0; ASSET-NOTICES.md."
     },
     {
-      "path": "apps/qbittorrent/screenshots/platform-admin-completed-download-5.2.3.png",
-      "sha256": "sha256:336330c818c6306b88747ac33a82666ed51eb024702fad5f2881dfdabfb5f438",
-      "source": "https://github.com/qbittorrent/qBittorrent",
+      "path": "apps/qbittorrent/screenshots/qbittorrent-webui-login.png",
+      "sha256": "sha256:c107c4bd42dd67625804c45585b32a86a625076a595f0bbd14b69ecd123b2abb",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical5.2.3 UI capture visually reviewed2026-10-23, no film frames/credentials/personal data. qBittorrent UI GPL3+; ASSET-NOTICES.md. Not current acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/qbittorrent/screenshots/standard-profile-completed-download-5.2.3.png",
-      "sha256": "sha256:d0341a8ed9f3f6141834e1a64d5b829dd689f4b3fac6ec45229d33262d650d63",
-      "source": "https://github.com/qbittorrent/qBittorrent",
+      "path": "apps/qbittorrent/screenshots/sonarr-download-clients.png",
+      "sha256": "sha256:8bb1cbf7e58ec8d0a3da331165a52e86837ce716a817d9062fd8f69a5b007a40",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical5.2.3 UI capture visually reviewed2026-10-23, no film frames/credentials/personal data. qBittorrent UI GPL3+; ASSET-NOTICES.md. Not current acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
     },
     {
       "path": "apps/radarr/icon.svg",
@@ -431,18 +536,18 @@
       "notes": "Original geometric film glyph CC0-1.0; see app notices."
     },
     {
-      "path": "apps/radarr/screenshots/platform-admin-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
-      "source": "https://github.com/Radarr/Radarr/tree/v6.3.0.10514",
+      "path": "apps/radarr/screenshots/radarr-movies.png",
+      "sha256": "sha256:29f80e90159af25a38cceada87c41458bea67f827bd5b0df844ed98062ccc0b2",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical6.3.0.10514 GPL3 UI capture, artwork/backdrop/synopsis redacted; not current candidate evidence. Attribution/limitations in app notices."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/radarr/screenshots/standard-profile-public-domain-movie-6.3.0.10514.png",
-      "sha256": "sha256:f342480452fd173651ac5347d6b9dc7d3ddec0b8e2a7a8bb0e26fc8b4f020b81",
-      "source": "https://github.com/Radarr/Radarr/tree/v6.3.0.10514",
-      "evidence": "local-capture",
-      "notes": "Historical6.3.0.10514 GPL3 UI capture, artwork/backdrop/synopsis redacted; not current candidate evidence. Attribution/limitations in app notices."
+      "path": "apps/radarr/screenshots/wiki-importing-existing.png",
+      "sha256": "sha256:02c7c7c5c1064a88fbaca9ebceed72dd593d7c0b474501687ebca1272ebf7095",
+      "source": "https://wiki.servarr.com/assets/radarr/Radarr-importing-existing.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wiki.servarr.com/radarr/quick-start-guide. Licence: Servarr wiki content. Official wiki image, not version-pinned; age unknown. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/razzia/icon.svg",
@@ -452,25 +557,18 @@
       "notes": "Exact bytes of the app's own icon at tag 4.0.2 (MIT-licensed repository); brand rights still require review."
     },
     {
-      "path": "apps/razzia/screenshots/host-lobby-waiting-for-players.png",
+      "path": "apps/razzia/screenshots/manager-room.png",
       "sha256": "sha256:2936087462830118ad45a479bfa4f3d016cdfd7f00017ab776dab7fe060d2e70",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.0.2/.github/previews/2.png",
+      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.0/.github/previews/2.png",
       "evidence": "exact-source",
-      "notes": "Official preview from the upstream README at tag 4.0.2 (MIT-licensed repository), byte-identical. Demo content only (placeholder players, example quiz, localhost join URL); the footer shows the UI version it was captured on (v1.0.0)."
+      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.0/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/razzia/screenshots/join-with-game-pin.png",
-      "sha256": "sha256:e238a23bb7d0c8efe2346805e39a9537da932de3d1af926ff395df3ba4b1ec01",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.0.2/.github/previews/1.png",
-      "evidence": "exact-source",
-      "notes": "Official preview from the upstream README at tag 4.0.2 (MIT-licensed repository), byte-identical. Demo content only (placeholder players, example quiz, localhost join URL); the footer shows the UI version it was captured on (v1.0.0)."
-    },
-    {
-      "path": "apps/razzia/screenshots/question-on-the-big-screen.png",
+      "path": "apps/razzia/screenshots/question-screen.png",
       "sha256": "sha256:408416fe45c63463153b07ba986cd7c95e4c3960b22814358485c9a0f4ee569f",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.0.2/.github/previews/3.png",
+      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.0/.github/previews/3.png",
       "evidence": "exact-source",
-      "notes": "Official preview from the upstream README at tag 4.0.2 (MIT-licensed repository), byte-identical. Demo content only (placeholder players, example quiz, localhost join URL); the footer shows the UI version it was captured on (v1.0.0)."
+      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.0/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/searxng/icon.svg",
@@ -480,18 +578,18 @@
       "notes": "Unmodified exact-source icon from Homarr dashboard-icons revision ce550a844bad92ea19b5926cb887285c46bac01a. Collection Apache-2.0 licence retained in apps/searxng/LICENSE-dashboard-icons.txt; see apps/searxng/ASSET-NOTICES.md. Used only to identify SearXNG; no trademark endorsement claimed."
     },
     {
-      "path": "apps/searxng/screenshots/admin-search-results.png",
-      "sha256": "sha256:d2b7b3f365884c31d95d4ed7e3e144b6fdd5ca2073f8e10d5fccfc87912602cd",
-      "source": "https://github.com/searxng/searxng",
+      "path": "apps/searxng/screenshots/searxng-home.png",
+      "sha256": "sha256:b470a546dcd8d397aa71e5c0adb799f27fcad53230ac7ef110035712560a5cf7",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Existing repository local acceptance capture of unmodified SearXNG 2026.8.12 UI, reviewed at full resolution 2026-10-23. No credentials, private links, account identifiers or third-party images. See apps/searxng/ASSET-NOTICES.md for source, licence and screenshot-content review; this older capture illustrates UI, not candidate runtime acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/searxng/screenshots/user-search-home.png",
-      "sha256": "sha256:0358d605c7a909949c1100fd4d5e1722e2bbe4128ae889a3a0c34e0725aea23f",
-      "source": "https://github.com/searxng/searxng",
+      "path": "apps/searxng/screenshots/searxng-results.png",
+      "sha256": "sha256:c2f790a79fce548b4a80b21935ff1f3310c19ee2f28618209e202d55c1d1ee55",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Existing repository local acceptance capture of unmodified SearXNG 2026.8.12 UI, reviewed at full resolution 2026-10-23. No credentials, private links, account identifiers or third-party images. See apps/searxng/ASSET-NOTICES.md for source, licence and screenshot-content review; this older capture illustrates UI, not candidate runtime acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
       "path": "apps/sonarr/icon.svg",
@@ -501,18 +599,18 @@
       "notes": "Original geometric TV glyph, CC0-1.0. See app notices."
     },
     {
-      "path": "apps/sonarr/screenshots/platform-admin-series-library-4.0.19.2979.png",
-      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
-      "source": "https://github.com/Sonarr/Sonarr/tree/v4.0.19.2979",
+      "path": "apps/sonarr/screenshots/sonarr-add-series.png",
+      "sha256": "sha256:4914edd102a396ccb4406bec2ff7885cb513654f5db05a66de128b126cf25c0a",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical 4.0.19.2979 UI capture; poster/backdrop/synopsis removed by opaque redaction. GPL3 UI attribution in notices. Not current-version acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/sonarr/screenshots/standard-profile-series-library-4.0.19.2979.png",
-      "sha256": "sha256:641ee42a5c6b3710b36167ac8b7ad67f0dd64f150ab636e30efff41d104863dc",
-      "source": "https://github.com/Sonarr/Sonarr/tree/v4.0.19.2979",
+      "path": "apps/sonarr/screenshots/sonarr-download-clients.png",
+      "sha256": "sha256:8bb1cbf7e58ec8d0a3da331165a52e86837ce716a817d9062fd8f69a5b007a40",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical 4.0.19.2979 UI capture; poster/backdrop/synopsis removed by opaque redaction. GPL3 UI attribution in notices. Not current-version acceptance."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
     },
     {
       "path": "apps/stirling-pdf/icon.svg",
@@ -522,18 +620,39 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/stirling-pdf/screenshots/platform-admin-toolkit-2.14.3.png",
-      "sha256": "sha256:7ce469ebc8f2d08a9141b651cca85c00f983ba1a637eb5624b990d11d5fd8ab0",
-      "source": "https://github.com/Stirling-Tools/Stirling-PDF",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/stirling-pdf/screenshots/dashboard-dark.png",
+      "sha256": "sha256:12a6bb3be7bb898b8ba6b80763dca0a27a65afee986c978d4b8f267429fbd7ac",
+      "source": "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v3.3.0/docs/images/home.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/Stirling-Tools/Stirling-PDF/tree/v3.3.0/docs/images. Licence: MIT core (Stirling-Tools/Stirling-PDF; some proprietary modules). Image in docs/images at tag, not embedded in the README; same view as the light one. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/stirling-pdf/screenshots/standard-user-toolkit-2.14.3.png",
-      "sha256": "sha256:c765c57cc23591c93ffb0cd26a22986beaeb29d975fe3200e7390a793a714fd8",
-      "source": "https://github.com/Stirling-Tools/Stirling-PDF",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/stirling-pdf/screenshots/dashboard-light.png",
+      "sha256": "sha256:4098e6d253812d141664daf3a18280121184c85cae8e3c200ec196f0994ce0e3",
+      "source": "https://raw.githubusercontent.com/Stirling-Tools/Stirling-PDF/v3.3.0/docs/images/home-light.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/Stirling-Tools/Stirling-PDF/blob/v3.3.0/README.md. Licence: MIT core (Stirling-Tools/Stirling-PDF; some proprietary modules). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/trek/icon.svg",
+      "sha256": "sha256:0d65f15269f844d1608bdb31e016211b6f5c42cea775df995611b43fcdc2c714",
+      "source": "https://raw.githubusercontent.com/liketrek/TREK/v5.1.4/client/public/icons/icon.svg",
+      "evidence": "exact-source",
+      "notes": "Upstream PWA icon at tag v5.1.4 (AGPL-3.0 repository); see upstream TRADEMARKS.md for name/logo use."
+    },
+    {
+      "path": "apps/trek/screenshots/showcase-desktop.webp",
+      "sha256": "sha256:2d050830873cfc32db317058167e084d4c60487453b64c71b7fd6dcb4c9c6163",
+      "source": "https://raw.githubusercontent.com/mauriceboe/TREK/v5.1.4/docs/screenshots/showcase-desktop-1.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/mauriceboe/TREK/blob/v5.1.4/README.md. Licence: AGPL-3.0 (mauriceboe/TREK). README image at tag. Composite marketing collage of several screens. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+    },
+    {
+      "path": "apps/trek/screenshots/showcase-mobile.webp",
+      "sha256": "sha256:e424feb4e8a0c19daeb5422aba146cc75c1bb46d4325b6d8c5acf5b424f96d44",
+      "source": "https://raw.githubusercontent.com/mauriceboe/TREK/v5.1.4/docs/screenshots/showcase-mobile.webp",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/mauriceboe/TREK/blob/v5.1.4/README.md. Licence: AGPL-3.0 (mauriceboe/TREK). README image at tag. Composite of phone screens. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/vaultwarden/icon.svg",
@@ -543,18 +662,18 @@
       "notes": "Byte-matched official 1.37.4 icon, AGPL-3.0-only; unmodified. See apps/vaultwarden/ASSET-NOTICES.md and LICENSE.upstream.txt."
     },
     {
-      "path": "apps/vaultwarden/screenshots/admin-secure-note.png",
-      "sha256": "sha256:bf870168225c84c46be062374f72f612098c38b0d0c3313d30957371ba5faaf1",
-      "source": "https://github.com/dani-garcia/vaultwarden",
+      "path": "apps/vaultwarden/screenshots/vaultwarden-admin-token.png",
+      "sha256": "sha256:77f1d116b0ead00006f5c9c74dc4bdd915b88d171b13796a808544c9464ac376",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical repository 1.37.1 local testing screenshot, full-resolution privacy review 2026-10-23: generic demonstration note or empty personal vault; no passwords/tokens/private links/media. Personal vault role is independent of platform administrator. Historical caption, not current acceptance. UI attribution and licence notes in apps/vaultwarden/ASSET-NOTICES.md."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/vaultwarden/screenshots/user-vault.png",
-      "sha256": "sha256:d313d55d5d91bad01eaa8b11ffaf7396e12abd4fa46c777bc520ebb4dea976be",
-      "source": "https://github.com/dani-garcia/vaultwarden",
+      "path": "apps/vaultwarden/screenshots/vaultwarden-sign-in.png",
+      "sha256": "sha256:fd9909ba35d2a78de8aa5035a8c08073280208bf7386b5b1a22dfcb1a3833220",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical repository 1.37.1 local testing screenshot, full-resolution privacy review 2026-10-23: generic demonstration note or empty personal vault; no passwords/tokens/private links/media. Personal vault role is independent of platform administrator. Historical caption, not current acceptance. UI attribution and licence notes in apps/vaultwarden/ASSET-NOTICES.md."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
       "path": "apps/vikunja/icon.svg",
@@ -564,18 +683,18 @@
       "notes": "Exact bytes matched; collection licence and underlying brand rights still require review."
     },
     {
-      "path": "apps/vikunja/screenshots/platform-admin-project.png",
-      "sha256": "sha256:ffd6f86e039066792e1a37d554f2df8e645425e991d491a447e63a52e67f0f6c",
-      "source": "https://github.com/go-vikunja/vikunja",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/vikunja/screenshots/kanban-board.png",
+      "sha256": "sha256:b85362dacf407dfb2ce2841dfdb84066c7ada17bf8c5c0d3b8092654474b3239",
+      "source": "https://vikunja.io/_astro/05-task-kanban.j2NbXre8_1XlU9X.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://vikunja.io/. Licence: AGPL-3.0 (go-vikunja/vikunja); website images (c) vikunja.io. Official homepage image (Astro-optimised asset), not version-pinned; screenshots appear to date from 2023 (Gantt alt mentions June-July 2023), the v2 UI may differ in details. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/vikunja/screenshots/standard-user-project.png",
-      "sha256": "sha256:aea3703096630919f38f3b0adc3beb8e17674659c6cd01b683286f3700f699b4",
-      "source": "https://github.com/go-vikunja/vikunja",
-      "evidence": "local-capture",
-      "notes": "Repository acceptance screenshot of the linked application. Application UI with acceptance/demo content visible. Confirm capture ownership, UI/logo terms and full-resolution privacy review."
+      "path": "apps/vikunja/screenshots/overview-dashboard.png",
+      "sha256": "sha256:b73c16e0fb7b63c1c72957ee9abde641f31e5aa3d1834ff83ec154265e3286b8",
+      "source": "https://vikunja.io/_astro/01-task-overview.C06F5JRi_1iEUW6.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://vikunja.io/. Licence: AGPL-3.0 (go-vikunja/vikunja); website images (c) vikunja.io. Official homepage image (Astro-optimised asset), not version-pinned; screenshots appear to date from 2023 (Gantt alt mentions June-July 2023), the v2 UI may differ in details. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/wallabag/icon.svg",
@@ -585,18 +704,18 @@
       "notes": "Official unmodified wallabag 2.6.14 logo, MIT source licence COPYING.md; identification only, no endorsement. Verified 2026-10-23."
     },
     {
-      "path": "apps/wallabag/screenshots/platform-admin-library-2.6.14.png",
-      "sha256": "sha256:d723cc4476f97eb2937c844edcae48ae2f995a18970da54df5e0c0268c04c5a4",
-      "source": "https://github.com/wallabag/wallabag",
-      "evidence": "local-capture",
-      "notes": "Historical repository 2.6.14 capture, inspected 2026-10-23: redacted demonstration accounts or empty quickstart UI, no credentials/private links/article media. Wallabag UI MIT. Not current runtime or role acceptance; caption explicitly historical."
+      "path": "apps/wallabag/screenshots/reading-list.png",
+      "sha256": "sha256:927d59013a3fce3a3c60b420aa0a58a396e98ab8c9a9bc67ecf7f57ca4fd5888",
+      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.17/.github/images/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://github.com/wallabag/wallabag/blob/2.6.17/README.md. Licence: MIT (wallabag/wallabag). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/wallabag/screenshots/standard-user-library-2.6.14.png",
-      "sha256": "sha256:18393cbfa27f97f0d59a30139f05d3e4f7501cd8ab25b5eda89a9f6fbed1af57",
-      "source": "https://github.com/wallabag/wallabag",
-      "evidence": "local-capture",
-      "notes": "Historical repository 2.6.14 capture, inspected 2026-10-23: redacted demonstration accounts or empty quickstart UI, no credentials/private links/article media. Wallabag UI MIT. Not current runtime or role acceptance; caption explicitly historical."
+      "path": "apps/wallabag/screenshots/website-saved-articles.png",
+      "sha256": "sha256:90598fc4ba83706d04debe6ea805a29ea26a55299f1566c540fc29b748252619",
+      "source": "https://wallabag.org/img/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from https://wallabag.org/. Licence: MIT (wallabag/wallabag). Official website image, not version-pinned; may duplicate the README screenshot. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/wikiless/icon.svg",
@@ -606,18 +725,18 @@
       "notes": "Original Market open-book vector, CC0-1.0; no upstream logo claim. See ASSET-NOTICES.md."
     },
     {
-      "path": "apps/wikiless/screenshots/platform-admin-article-0.1.3.png",
-      "sha256": "sha256:2a98b8a16a9fd191f70230c39b097ebf3baf3bd5661af34ae0e6c76289b6f078",
-      "source": "https://en.wikipedia.org/wiki/Open-source_software",
+      "path": "apps/wikiless/screenshots/wikiless-article.png",
+      "sha256": "sha256:dbf5cb132eac7c86ef9f450d005bbe149bb058228b05b452f1e516503d92c61d",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical local0.1.3 capture, cropped to article text only; Wikipedia contributors, CC BY-SA4.0, linked author history and licence in ASSET-NOTICES.md. Exact historical revision unknown. No desktop image/globe/private content remains; not current runtime evidence."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/wikiless/screenshots/standard-user-article-0.1.3.png",
-      "sha256": "sha256:2a98b8a16a9fd191f70230c39b097ebf3baf3bd5661af34ae0e6c76289b6f078",
-      "source": "https://en.wikipedia.org/wiki/Open-source_software",
+      "path": "apps/wikiless/screenshots/wikiless-home.png",
+      "sha256": "sha256:6c5f0fdab14bc68f4dba4bcbeef193b79ed9395b94b863de0abff4c3c7b0b7cf",
+      "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
-      "notes": "Historical local0.1.3 capture, cropped to article text only; Wikipedia contributors, CC BY-SA4.0, linked author history and licence in ASSET-NOTICES.md. Exact historical revision unknown. No desktop image/globe/private content remains; not current runtime evidence."
+      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     }
   ]
 }

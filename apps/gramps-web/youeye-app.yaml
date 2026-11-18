@@ -1,0 +1,118 @@
+schema: youeye.app.v1
+id: gramps-web
+version: 26.11.2
+name: Gramps Web
+# The worker mounts main's volumes (from: main), which YouEye reads from 0.6.9.
+requires: { youeye: ">=0.6.9" }
+listing:
+  tagline: Build your family tree together
+  description: Collaborative genealogy for the whole family
+  long_description: |
+    Gramps Web is the web version of Gramps, the free genealogy program: build your family tree together, with
+    people, families, events, places, sources and media, charts and a map, DNA matches and research tasks. It
+    imports and exports GEDCOM and Gramps XML, so you can bring an existing tree.
+
+    Sign-in: everyone signs in with YouEye ID. YouEye ID admins are Gramps owners (they manage users and the
+    tree); everyone else can view and edit the tree. With AI on, the Gramps assistant answers questions about
+    your tree through YouEye's AI.
+  release_notes: |
+    Gramps Web 26.11.2 is the first version in the YouEye Market: one shared family tree, signed in with YouEye ID,
+    with GEDCOM import and export, charts, maps and the AI assistant. Imports, exports and reports run in a
+    background worker, so a large GEDCOM no longer holds up the page. If you installed it from an earlier test
+    catalog, remove it and install it again: the worker can't be added to an existing install.
+  category: home
+  tags: [genealogy, family, history, family-tree]
+  icon: git-fork
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/interface.png
+      caption: "A person's page with events and relationships"
+    - path: screenshots/website-screenshot.png
+      caption: "Ancestor tree chart"
+  website: https://www.grampsweb.org
+  developer: Gramps project contributors
+  license: AGPL-3.0-only
+  source_code: https://github.com/gramps-project/gramps-web
+  support: https://gramps.discourse.group
+  docs: https://www.grampsweb.org
+# 26.11.2, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/gramps-project/grampsweb@sha256:80a1d75ca0f67f9203aecca60f7639312a2769fe0af45b34608b0add64f7c07f
+port: 5000
+# Unauthenticated JSON, answered once the API is up.
+health: {path: /api/oidc/config/, timeout: 180}
+internet: true
+data:
+  - /root/.gramps
+  - /app/users
+  - /app/media
+  - /app/indexdir
+  - {path: /app/thumbnail_cache, kind: cache}
+  # Uploads for import, exports and reports (GRAMPSWEB_EXPORT_DIR, _REPORT_DIR in the image): the worker writes
+  # them and the web serves them, so this is a volume both mount, not a cache.
+  - /app/cache
+env:
+  # Single-tree mode: one family tree for the household.
+  GRAMPSWEB_TREE: Family Tree
+  GRAMPSWEB_BASE_URL: ${app.url}
+  GRAMPSWEB_SECRET_KEY: ${secret.secret_key}
+  GRAMPSWEB_REGISTRATION_DISABLED: 'true'
+  GRAMPSWEB_DISABLE_TELEMETRY: 'true'
+  GUNICORN_NUM_WORKERS: '2'
+  # Imports, exports, reports and search reindexing run in the Celery worker (upstream's compose), queued in Valkey.
+  GRAMPSWEB_CELERY_CONFIG__broker_url: redis://${sidecar.valkey.host}:6379/0
+  GRAMPSWEB_CELERY_CONFIG__result_backend: redis://${sidecar.valkey.host}:6379/0
+  GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://${sidecar.valkey.host}:6379/1
+sidecars:
+  # Sidecars start in order, before main: Valkey, then the worker (which creates the tree on first start, as main
+  # would).
+  - name: valkey
+    # 8.1.11, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:8f836008e0986c36adf50da714c7060cf689dbb335f61fe077939d90fa650809
+  - name: worker
+    # The same image as main (keep the digests equal), running upstream's worker command.
+    image: ghcr.io/gramps-project/grampsweb@sha256:80a1d75ca0f67f9203aecca60f7639312a2769fe0af45b34608b0add64f7c07f
+    command: [celery, -A, gramps_webapi.celery, worker, --loglevel=INFO, --concurrency=2]
+    data:
+      - {path: /root/.gramps, from: main}
+      - {path: /app/users, from: main}
+      - {path: /app/media, from: main}
+      - {path: /app/indexdir, from: main}
+      - {path: /app/cache, from: main}
+    # Sidecars don't inherit main's env: the values the worker's app needs, repeated.
+    env:
+      GRAMPSWEB_TREE: Family Tree
+      GRAMPSWEB_BASE_URL: ${app.url}
+      GRAMPSWEB_SECRET_KEY: ${secret.secret_key}
+      GRAMPSWEB_REGISTRATION_DISABLED: 'true'
+      GRAMPSWEB_DISABLE_TELEMETRY: 'true'
+      GRAMPSWEB_CELERY_CONFIG__broker_url: redis://${sidecar.valkey.host}:6379/0
+      GRAMPSWEB_CELERY_CONFIG__result_backend: redis://${sidecar.valkey.host}:6379/0
+secrets:
+  secret_key: {kind: key, length: 48}
+  # Password of the disabled placeholder user (setup/install.yaml); it can never sign in.
+  placeholder_password: {length: 32}
+# Roles: Gramps reads one claim (GRAMPSWEB_OIDC_ROLE_CLAIM) and maps its values to roles at every sign-in.
+# YouEye ID sends gramps_role = admin for its admin group (Gramps "admin", role 5) and editor for everyone else
+# (role 3: view and edit the tree, no user management). Without a mapped value Gramps would create users disabled.
+sso:
+  callback: /api/oidc/callback/custom
+  role_claim: {claim: gramps_role, admin_value: admin, default_value: editor}
+  env:
+    GRAMPSWEB_OIDC_ENABLED: 'true'
+    GRAMPSWEB_OIDC_NAME: ${identity.name}
+    GRAMPSWEB_OIDC_ISSUER: ${sso.issuer}
+    GRAMPSWEB_OIDC_OPENID_CONFIG_URL: ${sso.discovery_url}
+    GRAMPSWEB_OIDC_CLIENT_ID: ${sso.client_id}
+    GRAMPSWEB_OIDC_CLIENT_SECRET: ${sso.client_secret}
+    GRAMPSWEB_OIDC_SCOPES: openid email profile gramps_role
+    GRAMPSWEB_OIDC_ROLE_CLAIM: gramps_role
+    GRAMPSWEB_OIDC_GROUP_ADMIN: admin
+    GRAMPSWEB_OIDC_GROUP_EDITOR: editor
+    # YouEye ID only. Recovery: set it to false and add a user with `python3 -m gramps_webapi user add`.
+    GRAMPSWEB_OIDC_DISABLE_LOCAL_AUTH: 'true'
+    GRAMPSWEB_OIDC_AUTO_REDIRECT: 'true'
+ai:
+  env:
+    GRAMPSWEB_LLM_BASE_URL: ${ai.openai_base_url}
+    GRAMPSWEB_LLM_MODEL: ${ai.default_model}
+    OPENAI_API_KEY: ${ai.api_key}

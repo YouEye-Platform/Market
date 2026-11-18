@@ -1,0 +1,71 @@
+schema: youeye.app.v1
+id: homebox
+version: 0.27.1
+name: Homebox
+listing:
+  tagline: Know what you own, where it is and when its warranty ends
+  description: Home inventory for households
+  long_description: |
+    Homebox is a home inventory app: record what you own, where it is kept, what it cost, its serial numbers,
+    manuals, receipts and warranty dates, print QR labels for boxes and shelves, and track maintenance. It is fast
+    and simple, and runs from a single small container.
+
+    Sign-in: everyone signs in with YouEye ID. Each person starts with their own collection ("Home"); share a
+    collection with someone in your household by inviting them from the collection settings. Homebox has no
+    admin role: whoever owns a collection manages it.
+  release_notes: |
+    Homebox 0.27.1 is the first version in the YouEye Market: home inventory with locations, tags, attachments,
+    warranty and maintenance tracking, QR labels and per-person collections, signed in with YouEye ID.
+  category: home
+  tags: [inventory, home, warranty, household, organisation]
+  icon: package
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/dashboard.png
+      caption: "Home dashboard with totals, recent items and locations"
+    - path: screenshots/item-view.png
+      caption: "An item with details, warranty and attachments"
+  website: https://homebox.software
+  developer: Homebox contributors (sysadminsmedia)
+  license: AGPL-3.0-only
+  source_code: https://github.com/sysadminsmedia/homebox
+  support: https://github.com/sysadminsmedia/homebox/issues
+  docs: https://homebox.software/en/
+# 0.27.1, multi-arch index (linux/amd64, linux/arm64). The maintained fork; hay-kot/homebox is archived.
+image: ghcr.io/sysadminsmedia/homebox@sha256:9d0b64776c694f018c0ca06faf52105a33ca376024f46bb58e6ab0e2b728bb61
+port: 7745
+# Upstream's own health check; unauthenticated JSON, answered once the database is migrated.
+health: /api/v1/status
+internet: true
+data:
+  - /data
+env:
+  HBOX_MODE: production
+  # Pins the host of the OIDC redirect URL; with TRUST_PROXY the scheme comes from Caddy's X-Forwarded-Proto
+  # (Caddy talks HTTP to the app, so without it the redirect would be http:// and YouEye ID would refuse it).
+  HBOX_OPTIONS_HOSTNAME: ${app.fqdn}
+  HBOX_OPTIONS_TRUST_PROXY: 'true'
+  HBOX_OPTIONS_ALLOW_REGISTRATION: 'false'
+  # YouEye shows app updates itself.
+  HBOX_OPTIONS_GITHUB_RELEASE_CHECK: 'false'
+  # Required since 0.27 (>= 32 bytes). Never rotate it: that would invalidate every API key.
+  HBOX_AUTH_API_KEY_PEPPER: ${secret.api_key_pepper}
+  HBOX_WEB_MAX_UPLOAD_SIZE: '50'
+  TZ: ${platform.timezone}
+secrets:
+  api_key_pepper: {kind: key, length: 48}
+# Homebox (backend/app/api/providers/oidc.go, 0.27.1) creates every new OIDC user with their own collection; it has
+# no admin role at all (IsSuperuser is never set and has no UI), so there is nothing to map: "no mapping".
+# Local login and registration are off, so there is no first-visitor window and no bootstrap account.
+sso:
+  callback: /api/v1/users/login/oidc/callback
+  env:
+    HBOX_OIDC_ENABLED: 'true'
+    # go-oidc NewProvider(): this must be the issuer itself (as for Vikunja and Miniflux).
+    HBOX_OIDC_ISSUER_URL: ${sso.issuer}
+    HBOX_OIDC_CLIENT_ID: ${sso.client_id}
+    HBOX_OIDC_CLIENT_SECRET: ${sso.client_secret}
+    HBOX_OIDC_BUTTON_TEXT: Sign in with ${identity.name}
+    HBOX_OIDC_AUTO_REDIRECT: 'true'
+    # YouEye ID only: no passwords, no local sign-up, no password reset.
+    HBOX_OPTIONS_ALLOW_LOCAL_LOGIN: 'false'

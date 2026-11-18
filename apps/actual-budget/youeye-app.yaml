@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: actual-budget
-version: 26.8.1
+version: 26.11.0
 name: Actual Budget
 listing:
   tagline: A private, local-first envelope budget for every device
@@ -15,25 +15,27 @@ listing:
     Actual cannot take roles from YouEye ID. A new app is open only to you until you share it, so sign in
     once yourself before sharing it. Further admins are set in Actual's User Directory.
   release_notes: |
-    Actual Budget 26.8.1 is the current hotfix release. It resolves performance
-    regressions reported in 26.8.0 and includes additional reliability fixes
-    across the server and responsive budgeting client.
+    Actual 26.11.0 brings three monthly releases of fixes and improvements to budgeting,
+    reports and bank sync. The server now runs on Node 24, can read its secrets from
+    files, and only lets a SimpleFIN bridge on a private network through when the server
+    allows it.
   category: productivity
   tags: [budget, finance, money, personal-finance]
   icon: wallet
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-budget.png
-      caption: Platform administrator creating and reviewing an envelope budget
-    - path: screenshots/standard-user-budget.png
-      caption: Standard user working in an independently isolated budget file
+    - path: screenshots/budget-overview-demo.png
+      caption: "Monthly budget with categories and what is left to spend"
+    - path: screenshots/reports-light.png
+      caption: "Reports: net worth over time and a spending calendar"
   website: https://actualbudget.org
   developer: Actual Budget contributors
   license: MIT
   source_code: https://github.com/actualbudget/actual
   support: https://github.com/actualbudget/actual/issues
   docs: https://actualbudget.org/docs/
-image: docker.io/actualbudget/actual-server@sha256:6478d9ddfc0924479c09e6699c205e354c6f2216dfe7de3c0fb7b590d6edcdc5
+# 26.11.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/actualbudget/actual-server@sha256:06cf186569cf58d93e12659ff1a517b65b5b0ebee7050a3991d4bd8a1d398da6
 port: 5006
 health: /
 internet: true

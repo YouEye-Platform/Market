@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: wallabag
-version: 2.6.14
+version: 2.6.17
 name: Wallabag
 listing:
   tagline: Save web pages now and read them later
@@ -10,25 +10,28 @@ listing:
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
   release_notes: |
-    wallabag 2.6.14 updates dependencies and its container base, adds an
-    annotations filter to the entries API, fixes short-article reading times,
-    and corrects multi-URL API saving.
+    wallabag 2.6.17 includes the 2.6.16 security release: author names are escaped,
+    annotations are checked against their owner, and "download images locally" no longer
+    fetches images from private network addresses. Imports are now uploaded to a
+    temporary folder and deleted afterwards. 2.6.15 added PHP 8.4 support and fixed
+    ePub exports.
   category: productivity
   tags: [bookmarks, articles, reading, archive]
   icon: bookmark
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/platform-admin-library-2.6.14.png
-      caption: Historical 2.6.14 application administrator user-management screen
-    - path: screenshots/standard-user-library-2.6.14.png
-      caption: Historical 2.6.14 standard-user quickstart screen
+    - path: screenshots/reading-list.png
+      caption: "Unread articles as cards"
+    - path: screenshots/website-saved-articles.png
+      caption: "Archived articles"
   website: https://wallabag.org
   developer: wallabag contributors
   license: MIT
   source_code: https://github.com/wallabag/wallabag
   support: https://github.com/wallabag/wallabag/discussions
   docs: https://doc.wallabag.org/
-image: docker.io/wallabag/wallabag@sha256:82ade66b403d67c05732f9f08003034509f6499e9f487b858c0b77524b28545d
+# 2.6.17, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/wallabag/wallabag@sha256:9055d92d6e7973abea2d902ecb5459f6063fce05595eaef37f6750e49ff8cdee
 port: 80
 health: {path: /api/version, timeout: 180}
 internet: true
