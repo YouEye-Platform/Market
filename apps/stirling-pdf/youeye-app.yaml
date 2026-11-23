@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: stirling-pdf
-version: 3.3.0
+version: 3.5.0
 name: Stirling-PDF
 listing:
   tagline: A private, self-hosted toolkit for everyday PDF work
@@ -10,11 +10,11 @@ listing:
     convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
     watermarking, page extraction, image-to-PDF, and many more operations.
   release_notes: |
-    Stirling-PDF 3.3.0 is a new major version with a redesigned workspace, faster tools,
-    optional AI features (off) and many fixes. Working in the browser stays free and
-    unlimited; automated and API use (pipelines, API keys, AI) is limited by Stirling to
-    1,000 PDFs a month on the free tier. Accounts stay Stirling's own (YouEye ID sign-in is
-    now free upstream but limited to five accounts, so it is not used yet).
+    Stirling-PDF 3.5.0 replaces LibreOffice and Calibre with Stirling's own office
+    converter inside the app. Some old formats are gone: saving as Word 97-2003 (.doc),
+    reading WordPerfect, Works, Lotus, AbiWord, Hangul and XPS files, and the PostScript
+    conversions. Fonts for the text editor can be added to the custom files folder.
+    Accounts stay Stirling's own.
   category: utilities
   tags: [pdf, documents, tools, converter]
   icon: file-text
@@ -30,8 +30,8 @@ listing:
   source_code: https://github.com/Stirling-Tools/Stirling-PDF
   support: https://github.com/Stirling-Tools/Stirling-PDF/issues
   docs: https://docs.stirlingpdf.com/
-# 3.3.0, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/stirlingtools/stirling-pdf@sha256:ed7b1775c6706b5e5ea24fa6155f078eff1027bd35a17d21834e4407036025e6
+# 3.5.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/stirlingtools/stirling-pdf@sha256:f5a38801f2dd551c26d0089ee3ea48d86a565e3adb414cb31e974bc9562cb48a
 port: 8080
 health: /api/v1/info/status
 internet: true
@@ -58,6 +58,9 @@ env:
   STORAGE_ENABLED: 'false'
   # 3.x asks the admin about analytics on first launch; answer no.
   SYSTEM_ENABLEANALYTICS: 'false'
+  # 3.4+ has a first-run setup wizard. Not needed here: the admin from SECURITY_INITIALLOGIN_* is
+  # created with its own password, and Stirling then marks setup done itself (InitialSecuritySetup
+  # markProvisionedServerSetUp; settings.yml beats env, so SYSTEM_SETUPCOMPLETED would do nothing).
 secrets:
   admin_password: {length: 24}
 credentials:

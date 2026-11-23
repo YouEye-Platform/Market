@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: gramps-web
-version: 26.11.2
+version: 26.11.3
 name: Gramps Web
 # The worker mounts main's volumes (from: main), which YouEye reads from 0.6.9.
 requires: { youeye: ">=0.6.9" }
@@ -16,10 +16,12 @@ listing:
     tree); everyone else can view and edit the tree. With AI on, the Gramps assistant answers questions about
     your tree through YouEye's AI.
   release_notes: |
-    Gramps Web 26.11.2 is the first version in the YouEye Market: one shared family tree, signed in with YouEye ID,
-    with GEDCOM import and export, charts, maps and the AI assistant. Imports, exports and reports run in a
-    background worker, so a large GEDCOM no longer holds up the page. If you installed it from an earlier test
-    catalog, remove it and install it again: the worker can't be added to an existing install.
+    Gramps Web 26.11.3 (with Gramps Web API 3.26): the AI assistant can propose changes to the
+    tree for people with edit rights to review (an option, off unless an admin turns it on),
+    YouEye ID sign-in works on servers with several trees, and the sign-in page offers
+    registration only when the server accepts new accounts. Your tree and users stay as they
+    are; the user database updates itself on first start. Its cache moves to Valkey 8.1.12, a
+    security fix.
   category: home
   tags: [genealogy, family, history, family-tree]
   icon: git-fork
@@ -35,8 +37,8 @@ listing:
   source_code: https://github.com/gramps-project/gramps-web
   support: https://gramps.discourse.group
   docs: https://www.grampsweb.org
-# 26.11.2, multi-arch index (linux/amd64, linux/arm64)
-image: ghcr.io/gramps-project/grampsweb@sha256:80a1d75ca0f67f9203aecca60f7639312a2769fe0af45b34608b0add64f7c07f
+# 26.11.3, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/gramps-project/grampsweb@sha256:bf672745c0428ec37f398f51a89e07a0dabe4f2abc1038fd0952e358ae0228a3
 port: 5000
 # Unauthenticated JSON, answered once the API is up.
 health: {path: /api/oidc/config/, timeout: 180}
@@ -66,11 +68,11 @@ sidecars:
   # Sidecars start in order, before main: Valkey, then the worker (which creates the tree on first start, as main
   # would).
   - name: valkey
-    # 8.1.11, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
-    image: docker.io/valkey/valkey@sha256:8f836008e0986c36adf50da714c7060cf689dbb335f61fe077939d90fa650809
+    # 8.1.12, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:5032c4dd7abe08d6fd9382054608183e2bf1f7e3895ef619b8784698454325f7
   - name: worker
     # The same image as main (keep the digests equal), running upstream's worker command.
-    image: ghcr.io/gramps-project/grampsweb@sha256:80a1d75ca0f67f9203aecca60f7639312a2769fe0af45b34608b0add64f7c07f
+    image: ghcr.io/gramps-project/grampsweb@sha256:bf672745c0428ec37f398f51a89e07a0dabe4f2abc1038fd0952e358ae0228a3
     command: [celery, -A, gramps_webapi.celery, worker, --loglevel=INFO, --concurrency=2]
     data:
       - {path: /root/.gramps, from: main}

@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: freshrss
-version: 1.30.4
+version: 1.31.0
 name: FreshRSS
 listing:
   tagline: A fast, private feed reader for every device
@@ -10,10 +10,10 @@ listing:
     and packed with features: multi-user support, OPML import/export, full-text search,
     keyboard shortcuts, mobile-friendly responsive design, and a rich extension system.
   release_notes: |
-    FreshRSS 1.30.4 brings a new base image (Debian 13, PHP 8.4), security fixes and
-    better sign-in handling. Since 1.30, FreshRSS refuses feeds on private network
-    addresses (other apps on this box or your home network) unless an admin allows them
-    in the system settings; public feeds work as before.
+    FreshRSS 1.31.0 is a security release with about twenty fixes (feed fetching, cached
+    data, HTML filtering, safer sign-in) plus faster mark-as-read. Feeds read from local
+    files are no longer supported; web feeds work as before. Feeds on private network
+    addresses still need an admin to allow them in the system settings.
   category: productivity
   tags: [rss, news, feeds, reader]
   icon: rss
@@ -29,8 +29,8 @@ listing:
   source_code: https://github.com/FreshRSS/FreshRSS
   support: https://github.com/FreshRSS/FreshRSS/issues
   docs: https://freshrss.github.io/FreshRSS/
-# 1.30.4, multi-arch index (linux/amd64, linux/arm, linux/arm64)
-image: docker.io/freshrss/freshrss@sha256:af44385229541bee24aa9148d0ff8f3b40e095373c63a2c0f74e09a27d3c59df
+# 1.31.0, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/freshrss/freshrss@sha256:31b0acfcb8e11600aa6ce697ff8d9d7ea620c85d766e5e764f487b433d20d066
 port: 80
 health: /i/
 internet: true
@@ -58,7 +58,10 @@ files:
     dir_mode: '0755'
     template: |
       FreshRSS Apache runtime directory
+  # FreshRSS's entrypoint makes data/ group-writable (0664) on every start; the CP rewrites this file on each
+  # update and refuses when the mode on disk differs from the manifest's, so say 0664 (default would be 0644).
   - path: /var/www/FreshRSS/data/config-user.custom.php
+    mode: '0664'
     dir_mode: '0770'
     template: |
       <?php

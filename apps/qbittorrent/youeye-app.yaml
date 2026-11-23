@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: qbittorrent
-version: 5.3.0
+version: 5.3.0.488
 name: qBittorrent
 listing:
   tagline: A fast, lightweight BitTorrent client
@@ -13,9 +13,9 @@ listing:
     hardlinks. YouEye generates the first WebUI administrator password and writes
     only qBittorrent's supported salted PBKDF2 hash before the service starts.
   release_notes: |
-    qBittorrent 5.3.0, packaged by LinuxServer 5.3.0_v2.1.2-ls484.
-    Includes libtorrent 2.1.2. Persistent configuration and shared media paths
-    are retained. The WebUI uses one shared generated credential.
+    qBittorrent 5.3.0 with libtorrent 2.1.2 in a fresh LinuxServer build (ls488) with
+    updated system packages. Settings, downloads and shared media paths are kept. The
+    WebUI uses one shared generated credential.
   category: downloaders
   tags: [downloader, torrent, bittorrent, arr]
   icon: download
@@ -31,8 +31,8 @@ listing:
   source_code: https://github.com/qbittorrent/qBittorrent
   support: https://github.com/qbittorrent/qBittorrent/wiki
   docs: https://github.com/qbittorrent/qBittorrent/wiki
-# 5.3.0_v2.1.2-ls487, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/linuxserver/qbittorrent@sha256:3d4c4545d51a690a0df15a2ff99038823a88a9822df8e794526447b9afbd7384
+# 5.3.0_v2.1.2-ls488, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/qbittorrent@sha256:afed7399d0f336ee22d6d011b3c8c50a44e3810f0af6e3c4083d79e566f1677a
 port: 8080
 health: /
 internet: true

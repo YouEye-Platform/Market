@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: open-webui
-version: 0.13.3
+version: 0.13.4
 name: Open WebUI
 listing:
   tagline: Chat with the model group selected in YouEye AI Settings
@@ -11,10 +11,11 @@ listing:
     model group's aliases and models available immediately. Open WebUI's own provider controls
     remain available for any additional providers you choose to configure later.
   release_notes: |
-    Open WebUI 0.13.3 brings two feature releases: faster chats and search, notes and
-    folders improvements, optional two-factor sign-in for local accounts, and many fixes.
-    The first start after the update migrates the database; YouEye keeps a restore point
-    until the update has finished.
+    Open WebUI 0.13.4 brings faster chats, better sign-in session handling and many fixes.
+    Personal "Direct connections" and "Direct tool servers" in a user's own settings were
+    removed upstream (they moved to the separate Tether app), so a model connection someone
+    added there for themselves is gone. Models from YouEye AI are not affected.
+    No database migration.
   category: ai
   tags: [ai, chat, openai-compatible, models]
   icon: message-circle
@@ -32,8 +33,8 @@ listing:
   source_code: https://github.com/open-webui/open-webui
   support: https://github.com/open-webui/open-webui/discussions
   docs: https://docs.openwebui.com
-# v0.13.3, multi-arch index (linux/amd64, linux/arm64)
-image: ghcr.io/open-webui/open-webui@sha256:46b59158e6558eeb980bc828e0f1b30238ad24d82ed84d5e5eda1dab2a082f14
+# v0.13.4, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/open-webui/open-webui@sha256:d5168bfbc28609eff5bea1b438dd864cf64d185cf6582c02244865e18385b901
 port: 8080
 health: {path: /health, timeout: 300}
 internet: true

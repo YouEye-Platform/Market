@@ -63,7 +63,7 @@ test('accepted apps have complete store listings with local icons and captioned 
 // The variable registry of YouEye docs/app-environment.md.
 const MANIFEST_VARIABLES = [
   /^platform\.(domain|version|locale|timezone|site_name)$/,
-  /^app\.(id|name|subdomain|fqdn|url|internal_url)$/,
+  /^app\.(id|name|subdomain|fqdn|url|internal_url|network_cidr)$/,
   /^sidecar\.[a-z0-9-]+\.(host|url)$/,
   /^secret\.[a-z0-9_]{1,40}$/,
   /^database\.(url|host|port|name|user|password)$/,

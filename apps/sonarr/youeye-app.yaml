@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: sonarr
-version: 4.0.20.3014
+version: 4.0.20.3014.6
 name: Sonarr
 listing:
   tagline: Your TV library, automated
@@ -11,9 +11,9 @@ listing:
     renames and organises them into your library — automatically. Quality profiles, season
     packs, failed-download handling, and calendar tracking are all built in.
   release_notes: |
-    Sonarr 4.0.20.3014 handles unknown database languages safely, updates
-    Jellyfin/Emby connection authentication, and avoids unnecessary disk-space
-    checks when prior specifications already reject a download.
+    Sonarr 4.0.20.3014 in a fresh LinuxServer build (ls6) with updated system packages.
+    The app itself is unchanged: it handles unknown database languages safely, updates
+    Jellyfin/Emby connection authentication, and avoids unneeded disk-space checks.
   category: media
   tags: [media, tv, pvr, automation, arr]
   icon: tv
@@ -29,8 +29,8 @@ listing:
   source_code: https://github.com/Sonarr/Sonarr
   support: https://wiki.servarr.com/sonarr
   docs: https://wiki.servarr.com/sonarr
-# 4.0.20.3014-ls5, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/linuxserver/sonarr@sha256:c7d1df25e428da6c9ace05daea0d34e59522978a3843ea1944812f855af4086c
+# 4.0.20.3014-ls6, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/sonarr@sha256:339814bbf50599ac3b59077c252f29833d0138b59a062d0e82ce37bdc7f04f86
 port: 8989
 health: /ping
 internet: true

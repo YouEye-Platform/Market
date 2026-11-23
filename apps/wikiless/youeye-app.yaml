@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: wikiless
-version: 2026.11.17
+version: 2026.11.23
 name: Wikiless
 listing:
   tagline: Read Wikipedia through a private, JavaScript-free frontend
@@ -12,8 +12,8 @@ listing:
     experience with language and theme preferences. It can also offer a useful route
     to Wikipedia content where the original site is blocked.
   release_notes: |
-    This Wikiless build (2026-11-17, commit 728ad9b) updates its dependencies and
-    Node runtime. Its cache moves to Valkey 8.1.11, a security fix.
+    The same Wikiless build (2026-11-17, commit 728ad9b) with its cache moved to
+    Valkey 8.1.12, a security fix.
   category: search
   tags: [wikipedia, privacy, wiki, knowledge, no-javascript]
   icon: book-open
@@ -46,7 +46,7 @@ env:
   wikimedia_useragent: Wikiless/0.1.3 (https://github.com/tiekoetter/Wikiless)
 sidecars:
   - name: redis
-    # 8.1.11, multi-arch index
-    image: docker.io/valkey/valkey@sha256:8f836008e0986c36adf50da714c7060cf689dbb335f61fe077939d90fa650809
+    # 8.1.12, multi-arch index
+    image: docker.io/valkey/valkey@sha256:5032c4dd7abe08d6fd9382054608183e2bf1f7e3895ef619b8784698454325f7
     data:
       - {path: /data, kind: cache}

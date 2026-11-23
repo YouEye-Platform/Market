@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: bazarr
-version: 1.6.2
+version: 1.6.2.373
 name: Bazarr
 # Its connect files post form data (form:), which YouEye reads from 0.6.9.
 requires: { youeye: ">=0.6.9" }
@@ -16,8 +16,9 @@ listing:
     your languages and at least one subtitle provider in its settings (many providers need a free account of
     their own). Bazarr has no accounts: YouEye's access gate decides who can open it.
   release_notes: |
-    Bazarr 1.6.2 is the first version in the YouEye Market: subtitle search, upgrades and language profiles for
-    Sonarr and Radarr, writing into the shared media folder.
+    Bazarr 1.6.2 in a fresh LinuxServer build (ls373) with updated system packages. The
+    app is unchanged: subtitle search, upgrades and language profiles for Sonarr and
+    Radarr, writing into the shared media folder.
   category: media
   tags: [media, subtitles, tv, movies, arr, automation]
   icon: captions
@@ -33,8 +34,8 @@ listing:
   source_code: https://github.com/morpheus65535/bazarr
   support: https://github.com/morpheus65535/bazarr/discussions
   docs: https://wiki.bazarr.media
-# v1.6.2-ls372, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/linuxserver/bazarr@sha256:832820dec70bce9e912c6eee7a95baf6551e03dbc63325a7208daaa455423752
+# v1.6.2-ls373, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/bazarr@sha256:e0c5d45965242830c5eeddaafe9ae2b5e8ca3f6c01ecda9ee9364f550921dc50
 port: 6767
 # Unauthenticated (bazarr/api/system/ping.py); answers once config and database are loaded.
 health: /api/system/ping

@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: ghostfolio
-version: 3.100.0
+version: 3.100.0.1
 name: Ghostfolio
 listing:
   tagline: All your investments in one private dashboard
@@ -17,8 +17,8 @@ listing:
     ETF holdings from Trackinsight, and asset logos from Google's favicon service. Your holdings are not sent;
     the symbols you track are.
   release_notes: |
-    Ghostfolio 3.100.0 is the first version in the YouEye Market: portfolio tracking for every member of the
-    household, signed in with YouEye ID.
+    Ghostfolio 3.100.0 with its cache moved to Valkey 9.1.4, a security fix. Portfolio
+    tracking for every member of the household, signed in with YouEye ID.
   category: productivity
   tags: [finance, investments, portfolio, wealth, budget]
   icon: line-chart
@@ -80,8 +80,8 @@ sidecars:
   # Sidecars start in this order and each must be healthy before the next: Valkey before Ghostfolio, which
   # needs it for its own health check.
   - name: valkey
-    # 9.1.3-alpine, multi-arch index
-    image: docker.io/valkey/valkey@sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b
+    # 9.1.4-alpine, multi-arch index
+    image: docker.io/valkey/valkey@sha256:56729e68bdda139cbd3f6a2538683dc3523325fc5711ea1a379938f1b37893f0
     port: 6379
     data:
       - {path: /data, kind: cache}

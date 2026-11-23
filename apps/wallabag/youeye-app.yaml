@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: wallabag
-version: 2.6.17
+version: 2.6.18
 name: Wallabag
 listing:
   tagline: Save web pages now and read them later
@@ -10,11 +10,11 @@ listing:
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
   release_notes: |
-    wallabag 2.6.17 includes the 2.6.16 security release: author names are escaped,
-    annotations are checked against their owner, and "download images locally" no longer
-    fetches images from private network addresses. Imports are now uploaded to a
-    temporary folder and deleted afterwards. 2.6.15 added PHP 8.4 support and fixed
-    ePub exports.
+    wallabag 2.6.18 is a security release: imported tagging rules are checked (invalid stored
+    rules are now ignored, so review rules that stop working), shared article pages link only
+    to web addresses, ePub exports no longer read files or fetch addresses from an article
+    (remote images become links; images wallabag stored are still included), and SVG images
+    are checked more strictly. Your articles, tags and settings stay as they are.
   category: productivity
   tags: [bookmarks, articles, reading, archive]
   icon: bookmark
@@ -30,8 +30,8 @@ listing:
   source_code: https://github.com/wallabag/wallabag
   support: https://github.com/wallabag/wallabag/discussions
   docs: https://doc.wallabag.org/
-# 2.6.17, multi-arch index (linux/amd64, linux/arm, linux/arm64)
-image: docker.io/wallabag/wallabag@sha256:9055d92d6e7973abea2d902ecb5459f6063fce05595eaef37f6750e49ff8cdee
+# 2.6.18, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7)
+image: docker.io/wallabag/wallabag@sha256:098392c764402eed720bb0e1b9a0649d0bf8d3f5b071b054c9495e7ae44dc15d
 port: 80
 health: {path: /api/version, timeout: 180}
 internet: true

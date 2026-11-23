@@ -1,6 +1,7 @@
 schema: youeye.app.v1
 id: nextcloud
-version: 35.0.3
+version: 35.0.3.1
+requires: { youeye: ">=0.6.15" }
 name: Nextcloud
 listing:
   tagline: Your files, contacts and calendars at home
@@ -10,10 +11,10 @@ listing:
     Features file sync, calendars, contacts, mail, talk, office document editing, and hundreds
     of community apps.
   release_notes: |
-    Nextcloud 35.0.3 is the next major version (one step from 34, as Nextcloud requires).
-    The first start upgrades the database and apps; YouEye keeps a restore point until it
-    has finished. Nextcloud now also knows the YouEye proxy, so sign-in throttling and
-    logs see the real client address. Its cache moves to Valkey 9.1.3.
+    Nextcloud 35.0.3 in a fresh image build (PHP 8.5.13). Nextcloud now trusts only its own
+    app network as its reverse proxy, not the whole range YouEye uses for app networks, so
+    sign-in throttling and logs keep seeing the real client address. Its cache moves to
+    Valkey 9.1.4, a security fix. No database migration.
   category: productivity
   tags: [cloud, storage, files, collaboration, office]
   icon: cloud
@@ -29,8 +30,8 @@ listing:
   source_code: https://github.com/nextcloud/server
   support: https://help.nextcloud.com
   docs: https://docs.nextcloud.com
-# 35.0.3-apache, multi-arch index (linux/386, linux/amd64, linux/arm, linux/arm64, linux/ppc64le, linux/s390x)
-image: docker.io/library/nextcloud@sha256:8a7a65b8bae82a79568fec2ed9cf3e374a1944eda2a22ebe130d79463336fee3
+# 35.0.3-apache (rebuild of 2026-11, PHP 8.5.13), multi-arch index (linux/386, linux/amd64, linux/arm, linux/arm64, linux/ppc64le, linux/s390x)
+image: docker.io/library/nextcloud@sha256:f22d1dd63844bd15bbf6c2019149653c3d1c775ba48b173b56c3c6ad5f386196
 port: 80
 health: {path: /status.php, timeout: 300}
 internet: true
@@ -46,8 +47,9 @@ env:
   NEXTCLOUD_ADMIN_PASSWORD: ${secret.admin_password}
   NEXTCLOUD_TRUSTED_DOMAINS: ${app.fqdn} localhost
   # The image reads TRUSTED_PROXIES (config/reverse-proxy.config.php, at every request); NEXTCLOUD_TRUSTED_PROXIES
-  # was never read before 35.0.3.
-  TRUSTED_PROXIES: 10.76.0.0/16
+  # was never read before 35.0.3. Caddy reaches the app from its NIC on the app's own bridge: trust exactly that
+  # /27 (${app.network_cidr}, YouEye 0.6.15). Nextcloud has no connects/provides, so only Caddy is in it.
+  TRUSTED_PROXIES: ${app.network_cidr}
   OVERWRITEPROTOCOL: https
   OVERWRITEHOST: ${app.fqdn}
   OVERWRITECLIURL: https://${app.fqdn}
@@ -72,5 +74,5 @@ smtp:
     SMTP_SECURE: tls
 sidecars:
   - name: valkey
-    # 9.1.3, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
-    image: docker.io/valkey/valkey@sha256:3add1a336a920ea54770a001ab6feb3da5fceea96a40373a3a2cd469b815f0b7
+    # 9.1.4, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:3ab0eca823ebbf0fe352476ebac330ac9e5f14b592b9a954eab296d341e81b0e

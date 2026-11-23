@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: audiobookshelf
-version: 2.37.2
+version: 2.38.0
 name: Audiobookshelf
 listing:
   tagline: Your audiobooks and podcasts, on your server
@@ -11,8 +11,11 @@ listing:
     and companion apps for Android and iOS. Import your audiobook collection and listen from
     anywhere.
   release_notes: |
-    Audiobookshelf 2.37.2 moves to Node 24, fixes sign-in sessions with YouEye ID and
-    brings many player, library scan and podcast fixes.
+    Audiobookshelf 2.38.0 is a security and fix release: listeners only see the books, sessions,
+    progress, collections and feeds they have access to, uploads need a sign-in, and podcast
+    descriptions are cleaned. Library scans no longer crash on duplicate authors or series or
+    on emoji in series names. Removing a book from a collection now needs the "update"
+    permission instead of "delete".
   category: media
   tags: [audiobooks, podcasts, media, streaming]
   icon: headphones
@@ -28,8 +31,8 @@ listing:
   source_code: https://github.com/advplyr/audiobookshelf
   support: https://github.com/advplyr/audiobookshelf/issues
   docs: https://www.audiobookshelf.org/docs/
-# 2.37.2, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/advplyr/audiobookshelf@sha256:b897c33f05972fb1bf484f7487bc878fa91ec8691335c1db6e2929c3a7658efa
+# 2.38.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/advplyr/audiobookshelf@sha256:60064c23f32fd9099fd39e82c5132c51701d1221135bbca04cd099b589e1edc3
 port: 80
 health: /healthcheck
 internet: true

@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: memos
-version: 26.11.1
+version: 26.11.2
 name: Memos
 listing:
   tagline: Capture ideas quickly in a private Markdown-first notebook
@@ -12,11 +12,10 @@ listing:
     Sign-in: everyone signs in with YouEye ID and is a regular Memos user; Memos cannot take roles from
     YouEye ID. The Memos admin is the setup account shown under Credentials; use it to promote others.
   release_notes: |
-    Memos 26.11.1 is a new major line (calendar versions): a faster editor and timeline,
-    per-memo usage limits, a new attachment index and many fixes. RSS feeds and member
-    export were removed upstream. Installed Memos 0.30 cannot update in place (Memos
-    requires a 0.31 step first): remove Memos with its data and install it again. Everyone
-    signs in again after the change.
+    Memos 26.11.2 is a fix release: comments are now memos of their own (the timeline can include
+    them), compact mode moved to Settings > Preferences, and the timeline can use the full width.
+    No data changes. Installed Memos 0.30 still cannot update in place (Memos requires a 0.31
+    step first): remove Memos with its data and install it again.
   category: productivity
   tags: [notes, memo, markdown]
   icon: sticky-note
@@ -32,8 +31,8 @@ listing:
   source_code: https://github.com/usememos/memos
   support: https://github.com/usememos/memos/issues
   docs: https://www.usememos.com/docs
-# 26.11.1, multi-arch index (linux/amd64, linux/arm, linux/arm64)
-image: docker.io/neosmemo/memos@sha256:5dcd6e6b973a55b964f2fe2ccdaa33319463ab448a23404ebb5d2acbd19299ba
+# 26.11.2, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/neosmemo/memos@sha256:3c7bd779510403350465ecabb7e6fbc0887206f9d55b8decf51a205613fa5616
 port: 5230
 health: /healthz
 internet: true
@@ -50,11 +49,3 @@ credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 sso:
   callback: /auth/callback
-surfaces:
-  - id: memo-alert
-    kind: notification
-    placement: notification-center
-    name: Memos notification
-    description: Render a Memos notification embed inside YouEye notifications.
-    embed: /embed/notification/memo-alert
-    permissions: ['notifications:send']

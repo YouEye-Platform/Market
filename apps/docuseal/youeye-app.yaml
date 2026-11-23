@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: docuseal
-version: 3.3.7
+version: 3.4.0
 name: DocuSeal
 listing:
   tagline: Create, fill, and sign documents on your own server
@@ -11,9 +11,10 @@ listing:
     form builder, multiple signature types, email notifications, API access, and audit
     trails.
   release_notes: |
-    DocuSeal 3.3.7 brings four patch releases of fixes for templates, signing forms and
-    the API. The first start after the update migrates the database, which takes a few
-    seconds on a household install.
+    DocuSeal 3.4.0 includes the 3.3.8 security release (a Ruby update for memory-safety
+    bugs) and adds security hardening: stricter checks on uploads, formulas, e-mail
+    addresses and certificate passwords. The first start after the update adds a database
+    index, which takes a few seconds on a household install.
   category: productivity
   tags: [documents, signing, pdf, forms]
   icon: pen-tool
@@ -29,8 +30,8 @@ listing:
   source_code: https://github.com/docusealco/docuseal
   support: https://github.com/docusealco/docuseal/issues
   docs: https://www.docuseal.com/docs
-# 3.3.7, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/docuseal/docuseal@sha256:d2e998dd1fbf9c462a1749df38e4b93f03f8bc552865aad6350d01511d450a65
+# 3.4.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/docuseal/docuseal@sha256:b664cc84014f607f090140973f2e082cc551954d42f6f17e07fdd54dee6fdc08
 port: 3000
 health: {path: /up, timeout: 300}
 internet: true

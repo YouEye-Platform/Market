@@ -1,6 +1,7 @@
 schema: youeye.app.v1
 id: navidrome
-version: 0.64.2
+version: 0.64.2.1
+requires: { youeye: ">=0.6.15" }
 name: Navidrome
 listing:
   tagline: Your music, your server, everywhere
@@ -11,10 +12,10 @@ listing:
     smart playlists, album art, lyrics, and fast transcoding. Works with DSub, Symfonium,
     play:Sub, and many more clients for your personal library.
   release_notes: |
-    Navidrome 0.64.2 improves scanning on slow storage, fixes initial administrator
-    creation and download filename handling, and includes the 0.64.1 security
-    fixes for authentication and per-library access. Existing databases must be
-    backed up before upgrading across 0.64 because internal IDs are re-encoded.
+    Navidrome 0.64.2 now trusts only its own app network for the YouEye sign-in header,
+    not the whole range YouEye uses for app networks. Nothing changes for listeners. The
+    app itself is unchanged (scanning on slow storage, administrator creation and
+    download filename fixes, the 0.64.1 security fixes).
   category: media
   tags: [music, streaming, subsonic, audio]
   icon: music
@@ -42,12 +43,15 @@ data:
 # identity headers and injects X-YouEye-Username after authentication; Navidrome's
 # current ExtAuth contract trusts only the platform proxy network. The first user to
 # arrive becomes the Navidrome administrator, and subsequent users are regular users.
+# Caddy reaches the app from its NIC on the app's own bridge: trust exactly that /27
+# (${app.network_cidr}, YouEye 0.6.15; never empty, a missing lease fails the install or update).
+# Navidrome has no connects/provides, so Caddy is the only other address in it.
 env:
   ND_BASEURL: ''
   ND_DATAFOLDER: /data
   ND_MUSICFOLDER: /music
   ND_DEFAULTLANGUAGE: ${platform.locale}
   ND_EXTAUTH_USERHEADER: X-YouEye-Username
-  ND_EXTAUTH_TRUSTEDSOURCES: 10.76.0.0/16
+  ND_EXTAUTH_TRUSTEDSOURCES: ${app.network_cidr}
   # Public share URLs cannot bypass YouEye forward-auth in this integration.
   ND_ENABLESHARING: 'false'
