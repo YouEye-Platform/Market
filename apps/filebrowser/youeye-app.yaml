@@ -1,0 +1,132 @@
+schema: youeye.app.v1
+# FileBrowser Quantum (gtsteffaniak/filebrowser), not the original filebrowser/filebrowser, which is a different project.
+id: filebrowser
+version: 2.0.2
+name: FileBrowser Quantum
+listing:
+  tagline: A modern web file manager for your household's files
+  description: Web file manager with search, previews, sharing and WebDAV
+  long_description: |
+    FileBrowser Quantum is a fast, modern web file manager. Browse, upload, move and rename files from any
+    browser, search them instantly (an index keeps searches quick), preview pictures, videos, documents and
+    Markdown, edit text files, download folders as archives, and share files or folders with links that can
+    have a password and an expiry date. WebDAV lets file managers and sync apps on your computers and phones
+    reach the same files with an API token.
+
+    Two folders: "household" is FileBrowser's own storage (on your YouEye, backed up, and placeable on a bigger
+    disk). "media" is YouEye's shared media folder, the one Jellyfin, qBittorrent, Sonarr, Radarr and Bazarr
+    use, so you can reach your films, shows and downloads here too. The folders and files those apps made can be
+    viewed and downloaded, but FileBrowser usually can't add, rename, move or delete anything inside them, because
+    the apps own them; new files and folders of your own in "media" work.
+
+    Everyone starts with view and download only, admins included (FileBrowser's own default): an admin gives
+    people, themselves first, the right to upload, change, delete and share, per folder, in Settings → Users.
+
+    Sign-in: everyone signs in with YouEye ID; their FileBrowser account is created at the first sign-in. Members
+    of YouEye ID's admin group become FileBrowser admins when they sign in; someone who later leaves that group
+    stays a FileBrowser admin until an admin unticks it in Settings → Users. The setup account under Credentials
+    (admin) is a recovery admin; its password is set again from YouEye at every start, so change it there, not
+    in FileBrowser.
+
+    FileBrowser has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with
+    public access: anyone on your network can reach the sign-in page and open share links, and WebDAV works.
+    To keep it to people with a YouEye account instead, turn public access off in the install dialog or later in
+    the app's access settings (share links and WebDAV then stop working for anyone without a YouEye sign-in).
+  release_notes: |
+    First release in the YouEye Market: FileBrowser Quantum 2.0.2 (stable), with YouEye ID sign-in, admins from
+    YouEye ID's admin group, its own files folder and the shared media folder.
+  category: productivity
+  tags: [files, file-manager, sharing, webdav]
+  icon: folder
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/view-mode-normal-dark.jpg
+      caption: "File listing with sizes and dates, dark theme"
+    - path: screenshots/view-mode-gallery-dark.jpg
+      caption: "Gallery view of the same folder"
+    - path: screenshots/markdown-viewer-dark.jpg
+      caption: "Markdown document in the file viewer"
+  website: https://filebrowserquantum.com
+  developer: Graham Steffaniak and contributors
+  license: Apache-2.0
+  source_code: https://github.com/gtsteffaniak/filebrowser
+  support: https://github.com/gtsteffaniak/filebrowser/issues
+  docs: https://filebrowserquantum.com/en/docs/
+# 2.0.2-stable, multi-arch index (linux/amd64, linux/arm64); the Go server is PID 1 and runs as uid 1000.
+image: ghcr.io/gtsteffaniak/filebrowser@sha256:de2b4c4d18485ea202ab2cdada5bd25d8f0b8ed071712c8216a67194c31285ae
+# config.yaml http.port: the image runs as uid 1000, which can't bind the default :80 here.
+port: 8080
+# 200 once the database, the admin and the sources are set up (they are before the server listens).
+health: {path: /health, timeout: 120}
+internet: true
+data:
+  # database.sqlite (+ an automatic .bak on schema changes); the image's FILEBROWSER_DATABASE_PATH.
+  - /home/filebrowser/data
+  # Only the config.yaml YouEye writes: its own folder, because the CP sets a files: parent directory to dir_mode,
+  # which must not touch the database folder.
+  - {path: /home/filebrowser/config, kind: config}
+  # The household's own files (source "household"); kind media lets the owner place it on a bigger disk.
+  - {path: /srv, kind: media}
+# YouEye's shared media folder (Jellyfin, qBittorrent, the *arr apps use it at /data too), source "media".
+shared:
+  media: /data
+env:
+  FILEBROWSER_CONFIG: /home/filebrowser/config/config.yaml
+  # Creates the admin at the first start (before the route exists) and is set again at every start
+  # (cmd/user.go:90). Without it 2.0.2 generates a password and prints it to the log.
+  FILEBROWSER_ADMIN_PASSWORD: ${secret.admin_password}
+secrets:
+  admin_password: {length: 24}
+files:
+  # Holds no secrets (those are env): readable by uid 1000. FileBrowser never writes its config file itself.
+  # The $YOUEYE_OIDC_* values are FileBrowser's own env expansion (config_env.go), not YouEye variables: kept in
+  # env, YouEye carries them over an update (an update can't recreate ${sso.*} for a file).
+  - path: /home/filebrowser/config/config.yaml
+    mode: '0644'
+    dir_mode: '0755'
+    template: |
+      http:
+        port: 8080
+        externalUrl: "${app.url}"
+        # The OIDC redirect_uri is built from X-Forwarded-Proto/Host (proxy.go:42-85); scheme, host and client IP only.
+        trustProxyHeaders: true
+      server:
+        sources:
+          - path: /srv
+            name: household
+            config:
+              defaultEnabled: true
+          - path: /data
+            name: media
+            config:
+              defaultEnabled: true
+      auth:
+        methods:
+          password:
+            enabled: true
+          oidc:
+            enabled: true
+            # go-oidc NewProvider(): the issuer, discovery appended, exact issuer match. Startup fails if it doesn't answer.
+            issuerUrl: $YOUEYE_OIDC_ISSUER
+            scopes: "openid email profile groups"
+            userIdentifier: preferred_username
+            groupsClaim: groups
+            # Exact match; granted at sign-in, never taken away (internal/web/auth.go:121).
+            adminGroup: $YOUEYE_OIDC_ADMIN_GROUP
+      frontend:
+        name: FileBrowser Quantum
+        oidcLoginButtonText: "Sign in with ${identity.name}"
+# Access: FileBrowser has its own sign-in (YouEye ID or the generated admin password; no sign-up, no first-visitor
+# admin), so it installs with public access: anyone on the household network (LAN/VPN) can reach it, protected by
+# the app (owner rule 2026-11-24, decisions.md "YouEye lives on the LAN; apps behave like upstream").
+public_access: true
+credentials:
+  - {label: Admin Account (set again from YouEye at every start), username: admin, password: admin_password}
+# No setup/sso.yaml: sign-in is always on (FileBrowser refuses to start with OIDC configured but unreachable).
+sso:
+  callback: /api/auth/oidc/callback
+  env:
+    FILEBROWSER_OIDC_CLIENT_ID: ${sso.client_id}
+    FILEBROWSER_OIDC_CLIENT_SECRET: ${sso.client_secret}
+    YOUEYE_OIDC_ISSUER: ${sso.issuer}
+    YOUEYE_OIDC_ADMIN_GROUP: ${sso.admin_group}
