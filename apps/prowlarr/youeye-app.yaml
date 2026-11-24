@@ -41,7 +41,10 @@ env:
   PGID: '0'
   TZ: Etc/UTC
 secrets:
-  api_key: {kind: key}
+  # Hex, not base64 (kind: key): Sonarr, Radarr and Lidarr put Prowlarr's key unencoded in ?apikey=, so a key with '+'
+  # reads as a space and every call gets 401 (about half of base64 keys; YE-197, 2026-11-24). Only new installs get a
+  # hex key; an installed copy keeps the key it was given (an update never regenerates a secret).
+  api_key: {kind: hex, length: 32}
 # Prowlarr's External authentication mode delegates interactive access to the
 # platform's forward-auth boundary while preserving its API-key authentication
 # for service wiring with Sonarr and Radarr.
