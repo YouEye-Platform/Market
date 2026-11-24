@@ -1,0 +1,101 @@
+schema: youeye.app.v1
+id: livesync
+version: 3.5.3
+name: Self-hosted LiveSync
+listing:
+  tagline: Sync your Obsidian vaults between your devices, end-to-end encrypted
+  description: Apache CouchDB set up as the sync server for the Obsidian plugin Self-hosted LiveSync
+  long_description: |
+    Self-hosted LiveSync is a community plugin for Obsidian that keeps your vaults in sync between
+    desktop and phone through your own server, with end-to-end encryption. This app is that server:
+    Apache CouchDB, already configured the way the plugin needs it (single node, sign-in required,
+    CORS for the Obsidian apps, large documents).
+
+    Set up the first device: in Obsidian install the community plugin "Self-hosted LiveSync", choose
+    "Configure a remote manually", turn on End-to-End Encryption and pick a vault passphrase, choose
+    CouchDB, and enter this app's address (https://livesync.<your site>), a username and password, and
+    a database name such as obsidian-anna (lower case). Then, on that device, run "Copy settings as a
+    new Setup URI" and open the URI on your other devices. Keep the vault passphrase and the Setup URI
+    passphrase in different places.
+
+    Accounts: YouEye creates a CouchDB administrator (the app's credentials). The simplest setup is one
+    database per person or vault with that account. To give each person their own account, open
+    /_utils on the app's address as the administrator, create the person's database, add a user to
+    the _users database, and make that user an admin of their database (Permissions).
+
+    CouchDB has its own sign-in, so it installs with public access: Obsidian can't use the YouEye
+    sign-in page, so keep public access on. Anyone on your network reaches only a password prompt.
+    Devices sync while they are on your home network or VPN; Obsidian on phones needs the HTTPS address.
+  release_notes: |
+    First release: Apache CouchDB 3.5.3, configured for Self-hosted LiveSync 1.0.
+  category: productivity
+  tags: [obsidian, notes, sync, markdown, couchdb]
+  icon: refresh-cw
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/connection-details.png, caption: "Connecting Obsidian to the server: address, account and database"}
+    - {path: screenshots/server-requirements.png, caption: "The plugin's server check passes"}
+    - {path: screenshots/synchronised-note.png, caption: "A note that arrived from another device"}
+  website: https://github.com/vrtmrz/obsidian-livesync
+  developer: vorotamoroz (plugin) and the Apache CouchDB project (server)
+  license: Apache-2.0 (CouchDB); the Obsidian plugin is MIT
+  source_code: https://github.com/apache/couchdb
+  support: https://github.com/vrtmrz/obsidian-livesync/issues
+  docs: https://github.com/vrtmrz/obsidian-livesync/blob/1.0.52/docs/setup_own_server.md
+# Research 2026-11-24 (YE-174; Notes/sessions/2026-11-24-ye174-research-livesync.md), CouchDB 3.5.3, plugin 1.0.52:
+# - The plugin needs exactly what its utils/couchdb/provision.ts sets; we set it in a local.d ini (files: below)
+#   because setup http steps can't send Basic auth and the image has no curl.
+# - The entrypoint writes the env admin into local.d/docker.ini before CouchDB starts and refuses to start without
+#   one, so there is never an "admin party". CouchDB writes runtime changes (hashed password, uuid, Fauxton edits)
+#   to the last ini in local.d = docker.ini; our 00-… file sorts first and is never edited by CouchDB.
+# - local.d is a data path: it keeps docker.ini (uuid, cookie secret, the owner's config changes) across updates.
+# - /_up answers anonymously (require_valid_user_except_for_up); everything else needs a CouchDB user.
+# - No YouEye ID: CouchDB has proxy-header and JWT auth only; the plugin has no OIDC flow. Own accounts, public.
+# - Node name stays nonode@nohost (never set NODENAME: renaming orphans the shards).
+# 3.5.3, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/library/couchdb@sha256:907eab5b7e55ab7cfd241d39b90b2a335ea40bef82acee5a37388c08bf201dda
+port: 5984
+health: /_up
+data:
+  - /opt/couchdb/data
+  - {path: /opt/couchdb/etc/local.d, kind: config}
+env:
+  COUCHDB_USER: admin
+  COUCHDB_PASSWORD: ${secret.admin_password}
+  COUCHDB_SECRET: ${secret.cookie_secret}
+secrets:
+  admin_password: {length: 32}
+  cookie_secret: {kind: hex, length: 32}
+files:
+  # Static: no variables, so rewriting it on every update changes nothing. Mode 0644 = what the entrypoint chmods
+  # config files to (an update fails on a mode mismatch). Keep the name sorting before docker.ini.
+  - path: /opt/couchdb/etc/local.d/00-youeye-livesync.ini
+    template: |
+      ; Written by YouEye on install and update. Change settings in Fauxton (/_utils, Config): CouchDB saves
+      ; them in docker.ini, which is read after this file and wins.
+      [couchdb]
+      single_node = true
+      max_document_size = 50000000
+
+      [cluster]
+      n = 1
+
+      [chttpd]
+      require_valid_user = true
+      require_valid_user_except_for_up = true
+      max_http_request_size = 4294967296
+      enable_cors = true
+
+      [chttpd_auth]
+      require_valid_user = true
+
+      [httpd]
+      WWW-Authenticate = Basic realm="couchdb"
+      enable_cors = true
+
+      [cors]
+      origins = app://obsidian.md,capacitor://localhost,http://localhost
+      credentials = true
+public_access: true
+credentials:
+  - {label: CouchDB administrator (Fauxton at /_utils and the Obsidian plugin), username: admin, password: admin_password}

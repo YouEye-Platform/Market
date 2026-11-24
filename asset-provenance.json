@@ -786,6 +786,34 @@
       "source": "https://codeberg.org/forgejo/website/raw/commit/7b38b7ed807898ce49abea45f6aabe081431b37b/src/content/blog/_images/2026-07-pull-request-commits.webp",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official Forgejo website repository (codeberg.org/forgejo/website, CC BY-SA 4.0, LICENSE) at commit 7b38b7ed; feature screenshot of the Forgejo UI from the release blog posts (v16.0 post, 2026-07). Reviewed visually 2026-11-24 (YouEye Market curator): public Codeberg project content only, no passwords, tokens or private addresses."
+    },
+    {
+      "path": "apps/livesync/icon.svg",
+      "sha256": "sha256:8e9fcb690fb55e42e21a11ed8cf1e4b11375036eb40b2dd0135b474c8f1757a1",
+      "source": "https://raw.githubusercontent.com/apache/couchdb-www/fd9abcbeb3b8a0fb9327816989bb0e6cea428215/CouchDB-visual-identity/logo/CouchDB-couch-symbol.svg",
+      "evidence": "exact-source",
+      "notes": "Apache CouchDB's couch symbol, copied byte for byte from the ASF's CouchDB brand kit (apache/couchdb-www, branch asf-site, commit fd9abcb, CouchDB-visual-identity/logo/CouchDB-couch-symbol.svg). The Self-hosted LiveSync plugin has no logo of its own; the app YouEye runs is the Apache CouchDB server. Apache-2.0; used unmodified to identify the CouchDB server under the ASF trademark policy's nominative use (https://www.apache.org/foundation/marks/), no endorsement implied."
+    },
+    {
+      "path": "apps/livesync/screenshots/connection-details.png",
+      "sha256": "sha256:7d0a64875c4dcff011872cc3cf9335a953bd91498573a243171f1703a95f3cbe",
+      "source": "https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/1.0.52/images/couchdb-manual/guide-couchdb-manual-connection-details.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Self-hosted LiveSync plugin repository (vrtmrz/obsidian-livesync) at tag 1.0.52 (commit 5070b67, 2026-11-22), MIT. Plugin UI (MIT), not the CouchDB web UI: the plugin is what people use with this server. Reviewed visually 2026-11-24 (YouEye Market curator): upstream test data only (example URL http://localhost:5989, user \"admin\", masked password, generated test database names), no real passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/livesync/screenshots/server-requirements.png",
+      "sha256": "sha256:b435db958359b498465c826ff70fe8c9a22b48ca3626848650e3b28701153e58",
+      "source": "https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/1.0.52/images/couchdb-manual/guide-couchdb-manual-server-requirements.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Self-hosted LiveSync plugin repository (vrtmrz/obsidian-livesync) at tag 1.0.52 (commit 5070b67, 2026-11-22), MIT. Plugin UI (MIT), not the CouchDB web UI: the plugin is what people use with this server. Reviewed visually 2026-11-24 (YouEye Market curator): upstream test data only (example URL http://localhost:5989, user \"admin\", masked password, generated test database names), no real passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/livesync/screenshots/synchronised-note.png",
+      "sha256": "sha256:2d23ba4f9a9a8343340274025d45c97dbc02644543430396670619698735a2f7",
+      "source": "https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/1.0.52/images/quick-setup/guide-quick-setup-synchronised-note.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Self-hosted LiveSync plugin repository (vrtmrz/obsidian-livesync) at tag 1.0.52 (commit 5070b67, 2026-11-22), MIT. Plugin UI (MIT), not the CouchDB web UI: the plugin is what people use with this server. Reviewed visually 2026-11-24 (YouEye Market curator): upstream test data only (example URL http://localhost:5989, user \"admin\", masked password, generated test database names), no real passwords, tokens, private addresses or personal data."
     }
   ]
 }
