@@ -1017,6 +1017,27 @@
       "source": "https://raw.githubusercontent.com/firefly-iii/firefly-iii/v6.7.9/.github/assets/img/ipad-complete.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official Firefly III repository at tag v6.7.9 (.github/assets/img/ipad-complete.png, shown in the README); AGPL-3.0 repository (LICENSE). Shows the reports page in a tablet mock-up (demo.firefly-iii.org): account balance over time, expenses by category and by budget (January 2020 sample data). Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/radicale/icon.svg",
+      "sha256": "sha256:ea4a940185e03462c56f53e6cf732d660caf9a1179cdd19f1dd6dc186817e88a",
+      "source": "https://raw.githubusercontent.com/Kozea/Radicale/v3.9.2/radicale/web/internal_data/css/logo.svg",
+      "evidence": "exact-source",
+      "notes": "Radicale's logo, copied byte for byte from the repository at tag v3.9.2 (commit c21fa45, 2026-11-17), radicale/web/internal_data/css/logo.svg (the logo of its own web page). GPL-3.0 like the repository (LICENSE.upstream.txt); no separate trademark or branding policy found."
+    },
+    {
+      "path": "apps/radicale/screenshots/collections.png",
+      "sha256": "sha256:5e36e484e4caa9389a5626f9ff33a59ff5997edf8b7964a7c5254312de6d1c0c",
+      "source": "https://github.com/YouEye-Platform/Market",
+      "evidence": "local-capture",
+      "notes": "Captured by Andrew (YouEye Market curator) on 2026-11-24 on a throw-away YouEye test box (Radicale 3.9.2 from this catalog, 1280x800), because upstream publishes no screenshots. Radicale's unmodified web page with demo content only: a throw-away test account \"probe\" (removed afterwards), made-up calendar, to-do and contact names, the test domain devvm.test. No passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/radicale/screenshots/new-calendar.png",
+      "sha256": "sha256:9e6280bd50947f41e67e178313eddc4ea0249f0674e82c278eb20f83ff0efddf",
+      "source": "https://github.com/YouEye-Platform/Market",
+      "evidence": "local-capture",
+      "notes": "Captured by Andrew (YouEye Market curator) on 2026-11-24 on a throw-away YouEye test box (Radicale 3.9.2 from this catalog, 1280x800), because upstream publishes no screenshots. Radicale's unmodified web page with demo content only: a throw-away test account \"probe\" (removed afterwards), made-up calendar, to-do and contact names, the test domain devvm.test. No passwords, tokens, private addresses or personal data."
     }
   ]
 }

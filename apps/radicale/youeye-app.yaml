@@ -1,0 +1,92 @@
+schema: youeye.app.v1
+id: radicale
+version: 3.9.2
+name: Radicale
+listing:
+  tagline: Shared calendars and contacts for your household
+  description: Small CalDAV and CardDAV server for phones, tablets and computers
+  long_description: |
+    Radicale keeps your household's calendars, to-do lists and address books on your YouEye box and syncs them with
+    the apps you already use: Calendar, Reminders and Contacts on iPhone, iPad and Mac, DAVx5 on Android, Thunderbird
+    and the GNOME and KDE desktops. Its web page (the app's address) lets you create, import, export and delete
+    calendars and address books.
+
+    One household account: Radicale has its own accounts, not YouEye ID (calendar apps can't use a web sign-in), and
+    YouEye can't add more accounts later. This install creates one account, "family", with a generated password; an
+    administrator finds it under the app's credentials. Everyone in the household uses this account, so every
+    calendar and address book in it is shared by everyone who connects.
+
+    Connect a device: add a CalDAV account (calendars, to-dos) and a CardDAV account (contacts) with the app's
+    address, https://radicale.<your site>, as the server, "family" as the user name and that password.
+    - iPhone and iPad: Settings > Apps > Calendar > Calendar Accounts > Add Account > Other > Add CalDAV Account;
+      for contacts, Add CardDAV Account there.
+    - Android: DAVx5 (F-Droid or Google Play), "Login with URL and user name".
+    - Mac: System Settings > Internet Accounts > Add Other Account > CalDAV account (and CardDAV account), type Manual.
+    - Thunderbird: New Calendar > On the Network, and New Address Book > Add CardDAV Address Book.
+    Create the first calendar and address book on the web page (or in DAVx5 or Thunderbird).
+
+    Radicale installs with public access: anyone on your home network or VPN reaches its sign-in prompt, and nothing
+    is readable without the password. Phones and computers need it to sync. To keep it to people with a YouEye
+    account instead, turn public access off in the install dialog or later in the app's access settings (devices
+    then can't sync).
+  release_notes: |
+    Radicale 3.9.2, new in the YouEye Market.
+  category: productivity
+  tags: [calendar, contacts, caldav, carddav, sync]
+  icon: calendar
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/collections.png, caption: "Calendars, to-do lists and an address book on Radicale's web page, each with its address for phones"}
+    - {path: screenshots/new-calendar.png, caption: "Creating a shared calendar on the web page"}
+  website: https://radicale.org
+  developer: Kozea and the Radicale contributors
+  license: GPL-3.0
+  source_code: https://github.com/Kozea/Radicale
+  support: https://github.com/Kozea/Radicale/discussions
+  docs: https://radicale.org/v3.html
+# Research 2026-11-24 (YE-178; Notes/sessions/2026-11-24-ye178-research-radicale.md in Andrew's notebook), v3.9.2:
+# - Auth: upstream default is denyall. No OIDC (DAV clients can't do a browser sign-in; Radicale's oauth2 is a
+#   password grant YouEye ID doesn't offer), and a login header would serve only the web page. So htpasswd with one
+#   household account "family" (owner 2026-11-24: one shared account). Nothing else can write the file on YouEye.
+# - No admin role, no sign-up, no setup page, no first-visitor window; rights owner_only (upstream default).
+# - /.well-known/caldav and /carddav redirect to /, so phones discover the server from the bare address.
+# 3.9.2, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7). Never `latest`: it is the nightly build.
+image: ghcr.io/kozea/radicale@sha256:c74545ef669a3166646ec13438a31b5d0bfff198d8ba7ecd214c0a5f40f03fb4
+port: 5232
+# The static web page answers 200 without sign-in once the server runs; `/` only redirects to it.
+health: /.web/
+data:
+  - /var/lib/radicale            # collections/ (calendars, address books), users (htpasswd), etc/config
+env:
+  RADICALE_CONFIG: /var/lib/radicale/etc/config
+  YOUEYE_FAMILY_PASSWORD: ${secret.family_password}
+secrets:
+  family_password: {length: 24}
+# Radicale refuses to start without its htpasswd file (radicale/auth/htpasswd.py:294-297), so it is created here,
+# before the server and only when it is missing (bcrypt, mode 0600, read from stdin: the password is not in argv).
+# One line without single quotes (Incus oci.entrypoint); exec keeps Radicale PID 1 so it stops cleanly on SIGTERM.
+# The image runs as radicale (uid 1000); the volume root is 0777, so it creates the file and collections/ itself.
+command: [/bin/sh, -c, "test -s /var/lib/radicale/users || (umask 077 && printf %s \"$YOUEYE_FAMILY_PASSWORD\" | htpasswd -i -B -c /var/lib/radicale/users family); exec /app/bin/python /app/bin/radicale"]
+files:
+  # Radicale never edits its config, so rewriting it on update is safe. In etc/ with dir_mode 0755: YouEye sets the
+  # file's folder to dir_mode, and the volume root itself must stay writable for uid 1000.
+  - path: /var/lib/radicale/etc/config
+    dir_mode: "0755"
+    template: |
+      # Written by YouEye on install and update; other settings keep Radicale's defaults (https://radicale.org/v3.html).
+      [server]
+      hosts = 0.0.0.0:5232
+
+      [auth]
+      # Upstream default is denyall. One household account in an htpasswd file (DAV clients can't use YouEye ID).
+      type = htpasswd
+      htpasswd_filename = /var/lib/radicale/users
+      htpasswd_encryption = autodetect
+
+      [storage]
+      filesystem_folder = /var/lib/radicale/collections
+credentials:
+  - {label: "Household account (phones, computers and the web page)", username: family, password: family_password}
+# Radicale has its own sign-in (HTTP Basic against its htpasswd file) and calendar apps can't pass the YouEye sign-in
+# page, so it installs with public access (owner rule 2026-11-24: YouEye lives on the LAN; apps behave like upstream).
+public_access: true
