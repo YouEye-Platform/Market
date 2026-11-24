@@ -1,0 +1,17 @@
+# While RomM has no admin, POST /api/users creates an account of any role without authentication
+# (endpoints/user.py add_user: USERS_WRITE is enforced only once an admin exists), and the setup wizard is open.
+# The install creates the admin before the route exists. "_youeye_admin": YouEye ID usernames can't start with "_",
+# so a YouEye ID sign-in never collides with it. Runs once (a second create is refused: an admin exists).
+# The Authorization header makes this an API-client call: RomM's CSRF check is for browser (cookie) requests and is
+# skipped for Basic/Bearer clients (handler/auth/middleware/csrf_middleware.py); without it every cookie-less POST
+# gets 403. "youeye-setup" is no RomM user, so the request stays unauthenticated (handler/auth/hybrid_auth.py).
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /api/heartbeat, timeout: 300}
+  - http:
+      method: POST
+      path: /api/users
+      headers: {Authorization: Basic eW91ZXllLXNldHVwOm5vbmU=}
+      body: {username: _youeye_admin, email: admin@youeye.invalid, password: '${secret.admin_password}', role: admin}
+      ok: [201]

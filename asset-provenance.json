@@ -814,6 +814,27 @@
       "source": "https://raw.githubusercontent.com/vrtmrz/obsidian-livesync/1.0.52/images/quick-setup/guide-quick-setup-synchronised-note.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official Self-hosted LiveSync plugin repository (vrtmrz/obsidian-livesync) at tag 1.0.52 (commit 5070b67, 2026-11-22), MIT. Plugin UI (MIT), not the CouchDB web UI: the plugin is what people use with this server. Reviewed visually 2026-11-24 (YouEye Market curator): upstream test data only (example URL http://localhost:5989, user \"admin\", masked password, generated test database names), no real passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/romm/icon.svg",
+      "sha256": "sha256:68443255875b12a6db3e0b42b82480ec5440797f2ebc3a5d3ae6e5da16a2a13f",
+      "source": "https://raw.githubusercontent.com/rommapp/romm/5.4.1/frontend/assets/isotipo.svg",
+      "evidence": "exact-source",
+      "notes": "RomM's logo (isotipo), copied byte for byte from the repo at tag 5.4.1 (frontend/assets/isotipo.svg; identical to .github/resources/isotipo.svg). Used unmodified in its standard colours to say the listing installs RomM, as RomM's brand guidelines allow (docs about/brand-guidelines.md); no endorsement implied. See ASSET-NOTICES.md."
+    },
+    {
+      "path": "apps/romm/screenshots/gallery.png",
+      "sha256": "sha256:27e137a54c03343afc5991ac5d51942e3a7ee447f3214f6f57ec9c5ca8935069",
+      "source": "https://raw.githubusercontent.com/rommapp/romm/5.4.1/.github/resources/screenshots/gallery.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the RomM repository at tag 5.4.1 (.github/resources/screenshots/gallery.png, the README's gallery picture). Licence: AGPL-3.0-only (rommapp/romm). Reviewed visually 2026-11-24 (YouEye Market curator): RomM's library gallery with the platforms sidebar; commercial game cover art as fetched by RomM's metadata providers, upstream's demo user \"zurdi\" (admin); no passwords, tokens or private addresses."
+    },
+    {
+      "path": "apps/romm/screenshots/upload-roms.png",
+      "sha256": "sha256:603bfb855eec516cc346da5804b6e0adbd63a6396e3e21e848f3f08278320d63",
+      "source": "https://raw.githubusercontent.com/rommapp/docs/0333d84e593a6274e4ba9f7d886ccc2d9ce43d98/docs/resources/quickstart/upload_roms.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official RomM docs repository (rommapp/docs, CC0-1.0, LICENSE; no tags, pinned at commit 0333d84e), docs/resources/quickstart/upload_roms.png, used in the Quick Start guide. Reviewed visually 2026-11-24 (YouEye Market curator): the upload dialog with four demo file names for PlayStation; no passwords, tokens or private addresses."
     }
   ]
 }

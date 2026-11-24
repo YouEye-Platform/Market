@@ -1,0 +1,121 @@
+schema: youeye.app.v1
+id: romm
+version: 5.4.1
+name: RomM
+listing:
+  tagline: Scan, enrich, browse and play your ROM collection
+  description: Self-hosted ROM manager and player for 400+ platforms
+  long_description: |
+    RomM (ROM Manager) organises your retro game collection: it scans your games for 400+ platforms, adds
+    titles, descriptions and cover art, and lets you browse, search, download and play many of them right in
+    the browser (EmulatorJS and RuffleRS), with saves and states kept per user. Collections, notes, ratings and
+    companion apps (handheld and desktop clients) are part of it.
+
+    Adding games: an admin uploads ROMs in the app (the upload button; pick or add a platform first). RomM keeps
+    them in its own library on your YouEye. Only use files you have the right to use.
+
+    Metadata comes from Hasheous (matches games by file hash) and Libretro thumbnails (cover art), which need no
+    keys. Providers that need personal API keys (IGDB, ScreenScraper, MobyGames, SteamGridDB, RetroAchievements)
+    are set by environment only, which YouEye can't fill in yet.
+
+    Sign-in: people sign in with YouEye ID ("Login with YouEye ID"); their RomM account is created at the first
+    sign-in, named after their YouEye username. Members of YouEye ID's admin group are RomM admins, everyone else
+    a RomM user who can browse, play and download; this follows YouEye ID at every sign-in. The setup account
+    _youeye_admin under Credentials is a recovery admin.
+
+    RomM has its own sign-in, so it installs with public access: anyone on your network can reach its sign-in
+    page, and RomM's companion apps can connect. To keep it to people with a YouEye account instead, turn public
+    access off in the install dialog or later in the app's access settings.
+  release_notes: |
+    First release in the YouEye Market: RomM 5.4.1, with YouEye ID sign-in, admins from YouEye ID's admin group,
+    the box's PostgreSQL and keyless metadata (Hasheous, Libretro).
+  category: media
+  tags: [games, emulation, roms, retro]
+  icon: gamepad-2
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/gallery.png
+      caption: "Game library with platforms and cover art"
+    - path: screenshots/upload-roms.png
+      caption: "Uploading games to a platform"
+  website: https://romm.app
+  developer: RomM contributors
+  license: AGPL-3.0-only
+  source_code: https://github.com/rommapp/romm
+  support: https://github.com/rommapp/romm/issues
+  docs: https://docs.romm.app/latest/
+# 5.4.1, multi-arch index (linux/amd64, linux/arm64). One container: /init starts the internal Valkey (REDIS_HOST
+# unset), runs the alembic migrations, gunicorn, three RQ workers, the RQ cron and nginx on :8080; its trap stops
+# them in reverse order on SIGTERM (docker/init_scripts/init).
+image: docker.io/rommapp/romm@sha256:8677fb7b81b1d3db20b849e989a1dadc2a11159e51eb34a2acdcb01102274edf
+port: 8080
+# Unauthenticated, reads the admin users from the database, so 2xx means nginx, gunicorn and PostgreSQL are up.
+# The first start runs ~146 alembic migrations.
+health: {path: /api/heartbeat, timeout: 300}
+# The image's entrypoint and CMD, without SSL_CERT_FILE: docker-entrypoint.sh loads every *_FILE env as a Docker
+# secret file into the variable without the suffix, so YouEye's SSL_CERT_FILE (the 220 KB trust bundle, set for
+# sign-in apps) became an env value too long for exec ("Argument list too long") and RomM never started. RomM
+# reaches YouEye ID over plain HTTP on the app network; REQUESTS_CA_BUNDLE stays set. env execs, so the entrypoint
+# and then /init stay PID 1.
+command: [/usr/bin/env, -u, SSL_CERT_FILE, /docker-entrypoint.sh, /init]
+# Metadata (Hasheous, Libretro thumbnails), UPC lookup, EmulatorJS cores.
+internet: true
+# The box's PostgreSQL, database and user "romm"; PostgreSQL is CI-tested upstream (pytest and migrations, PG 18).
+database: postgres
+data:
+  # Everything under ROMM_BASE_PATH in one volume, as upstream's own VOLUME ["/romm"]: library, resources (covers,
+  # upload staging), assets (saves, states), config.yml, sync, launchbox. One filesystem keeps the hardlinks and
+  # moves of uploads cheap (docker/Dockerfile). kind media: the owner can place it on a bigger disk.
+  - {path: /romm, kind: media}
+  # The internal Valkey's dump (sessions and task history live in Valkey).
+  - /redis-data
+env:
+  # Links in mails and notifications (utils/urls.py).
+  ROMM_BASE_URL: ${app.url}
+  # Without it /init generates a new one at every start and everyone is signed out.
+  ROMM_AUTH_SECRET_KEY: ${secret.auth_secret}
+  ROMM_SESSION_SECURE_COOKIE: 'true'
+  TZ: ${platform.timezone}
+  ROMM_DB_DRIVER: postgresql
+  DB_HOST: ${database.host}
+  # RomM defaults to 3306.
+  DB_PORT: ${database.port}
+  DB_NAME: ${database.name}
+  DB_USER: ${database.user}
+  DB_PASSWD: ${database.password}
+  # Keyless metadata, as upstream's reference compose (docs: "The Quick Starter").
+  HASHEOUS_API_ENABLED: 'true'
+  # Password login, kiosk mode (off), UPC lookup and the rest stay at RomM's defaults (owner rule 2026-11-24).
+secrets:
+  auth_secret: {kind: hex, length: 32}
+  admin_password: {length: 24}
+# Access: RomM has its own sign-in (YouEye ID and local accounts; the install creates the admin, so there is no
+# first-visitor window), so it installs with public access: anyone on the household network (LAN/VPN) can reach it
+# (owner rule 2026-11-24, decisions.md "YouEye lives on the LAN; apps behave like upstream").
+public_access: true
+credentials:
+  - {label: Admin Account (recovery; sign in with YouEye ID normally), username: _youeye_admin, password: admin_password}
+sso:
+  # GET /api/oauth/openid (endpoints/auth.py); the button starts at /api/login/openid with OIDC_REDIRECT_URI.
+  callback: /api/oauth/openid
+  env:
+    OIDC_ENABLED: 'true'
+    OIDC_PROVIDER: ${identity.name}
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    OIDC_REDIRECT_URI: ${sso.callback_url}
+    OIDC_SERVER_METADATA_URL: ${sso.discovery_url}
+    # Admin from YouEye ID's groups claim, re-synced at every sign-in; everyone else is a RomM user ("*"), so no
+    # admitted YouEye user is refused with "not been granted any roles" (handler/auth/base_handler.py).
+    OIDC_CLAIM_ROLES: groups
+    OIDC_ROLE_ADMIN: ${sso.admin_group}
+    OIDC_ROLE_VIEWER: '*'
+smtp:
+  env:
+    SMTP_HOST: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_USERNAME: ${smtp.user}
+    SMTP_PASSWORD: ${smtp.password}
+    SMTP_FROM: ${smtp.from}
+    # starttls | none (RomM also knows tls).
+    SMTP_SECURITY: ${smtp.security}
