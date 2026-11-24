@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: wikiless
-version: 2026.11.23
+version: 2026.11.24
 name: Wikiless
 listing:
   tagline: Read Wikipedia through a private, JavaScript-free frontend
@@ -12,8 +12,10 @@ listing:
     experience with language and theme preferences. It can also offer a useful route
     to Wikipedia content where the original site is blocked.
   release_notes: |
-    The same Wikiless build (2026-11-17, commit 728ad9b) with its cache moved to
-    Valkey 8.1.12, a security fix.
+    A new Wikiless build (2026-11-24, commit 640feca). The only change upstream is a
+    small dependency update: express-rate-limit, which limits how fast one visitor
+    can send requests, goes from 8.7.4 to 8.7.5. Nothing changes in the settings,
+    the pages or the stored data.
   category: search
   tags: [wikipedia, privacy, wiki, knowledge, no-javascript]
   icon: book-open
@@ -29,9 +31,9 @@ listing:
   source_code: https://github.com/tiekoetter/Wikiless
   support: https://github.com/tiekoetter/Wikiless/issues
   docs: https://github.com/tiekoetter/Wikiless#readme
-# sha-728ad9b (upstream commit 728ad9b of 2026-11-17; Wikiless has no releases, so the version is the build date).
-# Upstream publishes linux/amd64 only.
-image: ghcr.io/tiekoetter/wikiless@sha256:8da26a927e61f441c92f86966754ae97b0de9fbde5e6c1fe4334368cdaa5aa44
+# sha-640feca (upstream commit 640feca, built 2026-11-24; Wikiless has no releases, so the version is the build date).
+# Index digest of :latest; upstream publishes linux/amd64 only (plus an attestation manifest).
+image: ghcr.io/tiekoetter/wikiless@sha256:8e48c6d4615bb1f3274c4e55dda8ad19f2ce937b151552102cafc6ab3660bfaa
 port: 8080
 health: /health
 internet: true
