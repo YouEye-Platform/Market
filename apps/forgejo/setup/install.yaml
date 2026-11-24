@@ -1,0 +1,20 @@
+# Forgejo makes the first account created on the web its admin (routers/web/auth/auth.go:638) and keeps
+# registration open (its default, kept): the install creates the admin before the route exists. "admin" is a
+# reserved name (models/user/user.go:662). The CLI refuses root (modules/setting/setting.go:236), so it runs as the
+# image's git user through busybox su; the password is one argv element, never shell text. Runs once (create is not
+# idempotent).
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /api/healthz, timeout: 180}
+  - exec:
+      run:
+        - su
+        - git
+        - -s
+        - /bin/sh
+        - -c
+        - exec /usr/local/bin/gitea admin user create --admin --username youeye-admin --email youeye-admin@youeye.invalid --must-change-password=false --password="$1"
+        - sh
+        - ${secret.admin_password}
+      timeout: 120

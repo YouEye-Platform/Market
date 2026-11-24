@@ -1,0 +1,104 @@
+schema: youeye.app.v1
+id: forgejo
+version: 17.0.2
+name: Forgejo
+listing:
+  tagline: "Beyond coding. We forge."
+  description: Git hosting with issues, pull requests, wikis and packages
+  long_description: |
+    Forgejo is a self-hosted software forge: Git repositories with a web interface, issues and milestones,
+    pull requests with code review, wikis, releases, a package registry, project boards, mirrors of repositories
+    elsewhere, and migrations from GitHub, GitLab, Gitea and others. It is community-run free software under the
+    Codeberg e.V. umbrella and powers Codeberg.org.
+
+    Git works over HTTPS: sign in to Forgejo, create an access token (Settings → Applications) and use it as the
+    password with git, e.g. `git clone https://forgejo.<your address>/<user>/<repo>.git`. SSH is not available on
+    YouEye.
+
+    Sign-in: people sign in with YouEye ID ("Sign in with YouEye"); their Forgejo account is created at the first
+    sign-in, named after their YouEye username. Members of YouEye ID's admin group are Forgejo site admins, and
+    that follows YouEye ID at every sign-in. The setup account youeye-admin under Credentials is a recovery admin.
+
+    Forgejo has its own sign-in, so it installs with public access: anyone on your network can reach it, git
+    over HTTPS works, and as in Forgejo's defaults anyone there can see public repositories and can register a
+    Forgejo account of their own (Register). To keep it to people with a YouEye account instead, turn public
+    access off in the install dialog or later in the app's access settings (git over HTTPS then stops working).
+    Make repositories private to keep them to their owners and collaborators.
+  release_notes: |
+    First release in the YouEye Market: Forgejo 17.0.2, with YouEye ID sign-in, site admins from YouEye ID's
+    admin group, git over HTTPS and the box's PostgreSQL.
+  category: productivity
+  tags: [git, code, forge, issues, pull-requests]
+  icon: git-branch
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/issue-pr-autocompletion.webp
+      caption: "Comment editor suggesting issues and pull requests"
+    - path: screenshots/pull-request-commits.webp
+      caption: "Commits of a pull request"
+  website: https://forgejo.org
+  developer: Forgejo contributors (Codeberg e.V.)
+  license: GPL-3.0-or-later
+  source_code: https://codeberg.org/forgejo/forgejo
+  support: https://codeberg.org/forgejo/forgejo/issues
+  docs: https://forgejo.org/docs/v17.0/
+# 17.0.2-rootless, multi-arch index (linux/amd64, linux/arm64, linux/arm/v6). Rootless: one process (dumb-init →
+# gitea web) as uid 1000 "git"; the root image runs s6 with an SSH server, which YouEye can't route anyway.
+image: codeberg.org/forgejo/forgejo@sha256:39362ab93a94c0c9b8b330d2a877ddbb3f02fa8c0cba1b8d686d437b39f36a04
+port: 3000
+# 200 only with the database up (424 otherwise, routers/web/healthcheck/check.go); the first start migrates.
+health: {path: /api/healthz, timeout: 180}
+# Migrations and mirrors from other forges, webhooks, avatars.
+internet: true
+# The box's PostgreSQL, database and user "forgejo".
+database: postgres
+data:
+  # Repositories, LFS, attachments, avatars and custom/conf/app.ini (the image's VOLUME).
+  - /var/lib/gitea
+env:
+  # The entrypoint writes app.ini from its template once, then writes every FORGEJO__<section>__<key> env into it
+  # at each start (environment-to-ini). Never template app.ini: Forgejo writes its own generated secrets into it.
+  FORGEJO__server__DOMAIN: ${app.fqdn}
+  FORGEJO__server__ROOT_URL: ${app.url}/
+  FORGEJO__server__HTTP_PORT: '3000'
+  # YouEye routes only HTTP(S): git over HTTPS with an access token.
+  FORGEJO__server__DISABLE_SSH: 'true'
+  FORGEJO__server__START_SSH_SERVER: 'false'
+  FORGEJO__database__DB_TYPE: postgres
+  FORGEJO__database__HOST: ${database.host}:${database.port}
+  FORGEJO__database__NAME: ${database.name}
+  FORGEJO__database__USER: ${database.user}
+  FORGEJO__database__PASSWD: ${database.password}
+  FORGEJO__database__SSL_MODE: disable
+  # No install wizard (it would let the first visitor configure the instance); setup/install.yaml creates the admin.
+  FORGEJO__security__INSTALL_LOCK: 'true'
+  # An empty SECRET_KEY means a constant from the source (modules/setting/security.go:437). Never change it after
+  # install: it encrypts 2FA and sign-in source secrets.
+  FORGEJO__security__SECRET_KEY: ${secret.secret_key}
+  # YouEye ID sign-in creates the account at the first sign-in, named after the YouEye username (the default,
+  # nickname, is a claim YouEye ID doesn't send: people would get a register-or-link form).
+  FORGEJO__oauth2_client__ENABLE_AUTO_REGISTRATION: 'true'
+  FORGEJO__oauth2_client__USERNAME: preferred_username
+  FORGEJO__time__DEFAULT_UI_LOCATION: ${platform.timezone}
+  # Registration, public repositories and local sign-in stay at Forgejo's defaults (owner rule 2026-11-24).
+secrets:
+  secret_key: {length: 64}
+  admin_password: {length: 24}
+# Access: Forgejo has its own sign-in (YouEye ID and local accounts; the install creates the admin, INSTALL_LOCK
+# closes the wizard, SECRET_KEY is generated), so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, and git over HTTPS works (owner rule 2026-11-24, decisions.md "YouEye lives on the LAN;
+# apps behave like upstream"). Open registration is Forgejo's default and stays (owner decision for YE-87).
+public_access: true
+credentials:
+  - {label: Admin Account (recovery), username: youeye-admin, password: admin_password}
+sso:
+  # /user/oauth2/<source name>/callback (routers/web/web.go:883): the source is named YouEye in setup/sso.yaml.
+  callback: /user/oauth2/YouEye/callback
+smtp:
+  env:
+    FORGEJO__mailer__ENABLED: 'true'
+    FORGEJO__mailer__SMTP_ADDR: ${smtp.host}
+    FORGEJO__mailer__SMTP_PORT: ${smtp.port}
+    FORGEJO__mailer__USER: ${smtp.user}
+    FORGEJO__mailer__PASSWD: ${smtp.password}
+    FORGEJO__mailer__FROM: ${smtp.from}

@@ -1,0 +1,50 @@
+# YouEye ID as the sign-in source "YouEye" (its name is the callback path, see the manifest). Forgejo takes
+# sign-in sources only from its database (CLI or the admin pages), not from env. Re-runs (sign-in toggled on again,
+# a new client secret) update the existing source instead of adding a second one. Admins follow YouEye ID's admin
+# group at every sign-in (routers/web/auth/oauth.go:1265, 1414). The CLI refuses root: busybox su to git; the
+# client values are argv elements ($1..$4), never shell text. The CLI writes only the database: the running server
+# keeps the provider it registered (with the old client secret: "invalid_client" after sign-in off → on), so the
+# app restarts to load it.
+schema: youeye.setup.v1
+for: sso
+steps:
+  - exec:
+      run:
+        - su
+        - git
+        - -s
+        - /bin/sh
+        - -c
+        - |
+          key=$1 secret=$2 discovery=$3 admins=$4
+          id=$(/usr/local/bin/gitea admin auth list | awk '$2 == "YouEye" { print $1 }')
+          if [ -n "$id" ]; then set -- update-oauth --id "$id"; else set -- add-oauth; fi
+          exec /usr/local/bin/gitea admin auth "$@" --name YouEye --provider openidConnect --key="$key" --secret="$secret" --auto-discover-url="$discovery" --scopes profile --scopes email --scopes groups --group-claim-name groups --admin-group="$admins"
+        - sh
+        - ${sso.client_id}
+        - ${sso.client_secret}
+        - ${sso.discovery_url}
+        - ${sso.admin_group}
+      timeout: 120
+  - restart: main
+  - wait: {http: /api/healthz, timeout: 180}
+# Sign-in off: delete the source while no account is linked to it. Once people have signed in with YouEye ID,
+# Forgejo refuses to delete it (services/auth/source.go, ErrSourceInUse) and there is no CLI switch to deactivate
+# an OAuth2 source, so it stays; its button then ends at YouEye ID, which has deleted the app's client, and those
+# accounts can't sign in until sign-in is on again (the steps above then update the same source with the new
+# client). A required-claim trick would change nothing visible (YouEye ID stops the flow first), so the simplest
+# undo is kept. Admins can still sign in with local accounts (youeye-admin).
+remove:
+  - exec:
+      run:
+        - su
+        - git
+        - -s
+        - /bin/sh
+        - -c
+        - id=$(/usr/local/bin/gitea admin auth list | awk '$2 == "YouEye" { print $1 }'); [ -z "$id" ] || exec /usr/local/bin/gitea admin auth delete --id "$id"
+      allow_failure: true
+      timeout: 120
+  # A deleted source keeps its button until the server restarts.
+  - restart: main
+  - wait: {http: /api/healthz, timeout: 180}
