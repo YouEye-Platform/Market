@@ -30,8 +30,8 @@ listing:
   screenshots:
     - path: screenshots/vaultwarden-sign-in.png
       caption: "Sign-in page with single sign-on through YouEye ID"
-    - path: screenshots/vaultwarden-admin-token.png
-      caption: "The admin page stays locked behind its admin token"
+    - path: screenshots/vaultwarden-vault.png
+      caption: "The vault with a few demo items: logins, a secure note and a card"
   website: https://github.com/dani-garcia/vaultwarden
   developer: Daniel García
   license: AGPL-3.0

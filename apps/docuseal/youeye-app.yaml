@@ -22,8 +22,8 @@ listing:
   screenshots:
     - path: screenshots/readme-demo.png
       caption: "Template builder with signature, date and text fields, and the phone signing view"
-    - path: screenshots/website-demo-poster.png
-      caption: "Signing form as a recipient fills it in"
+    - path: screenshots/docuseal-signing-form.png
+      caption: "Signing form as a recipient fills it in: name, date and a typed signature"
   website: https://www.docuseal.com
   developer: DocuSeal LLC and contributors
   license: AGPL-3.0-only

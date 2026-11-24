@@ -26,8 +26,8 @@ listing:
   icon: share-2
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/upload-page.png
-      caption: "Upload page for a new share"
+    - path: screenshots/pingvin-share-upload.png
+      caption: "Upload page with three files ready to share"
     - path: screenshots/pingvin-share-sign-in.png
       caption: "Sign-in page (Pingvin Share keeps its own accounts)"
   website: https://smp46.github.io/pingvin-share-x/

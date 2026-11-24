@@ -31,8 +31,8 @@ listing:
   screenshots:
     - path: screenshots/qbittorrent-webui-login.png
       caption: "qBittorrent web interface sign-in (its own password, shown under Credentials)"
-    - path: screenshots/sonarr-download-clients.png
-      caption: "Sonarr sending downloads to qBittorrent once the connection is approved"
+    - path: screenshots/qbittorrent-transfer-list.png
+      caption: "Transfer list with two Debian installer torrents downloading"
   website: https://www.qbittorrent.org
   developer: The qBittorrent project
   license: GPL-3.0-or-later

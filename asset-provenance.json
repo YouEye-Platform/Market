@@ -102,11 +102,11 @@
       "notes": "Copied byte for byte from https://github.com/docusealco/docuseal/blob/3.4.0/README.md. Licence: AGPL-3.0 (docusealco/docuseal). README at tag 3.4.0 embeds this user-attachments URL; content not visually verified. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
-      "path": "apps/docuseal/screenshots/website-demo-poster.png",
-      "sha256": "sha256:6b3b8831e05b4cfcadd86e2190190ee0791e76d09490ac85d3645949ae5653a8",
-      "source": "https://www.docuseal.com/packs/static/images/demo-d48660a7efba50c89f51.png",
-      "evidence": "exact-source",
-      "notes": "Copied byte for byte from https://www.docuseal.com/. Licence: site content (c) DocuSeal; repo AGPL-3.0. Official website image, not version-pinned (fetched 2026-11-17). It is the poster frame of the homepage demo video; may duplicate the README demo view. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+      "path": "apps/docuseal/screenshots/docuseal-signing-form.png",
+      "sha256": "sha256:546a7c11ab1eb331395590e5cdbe40e7de4c169a7c7c16f931d1671a8038fadb",
+      "source": "https://github.com/docusealco/docuseal",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone, destroyed afterwards) at DocuSeal 3.4.0, with demo data only. Shows the signing form of a demo agreement as a demo recipient fills in the name, date and a typed signature."
     },
     {
       "path": "apps/freshrss/icon.svg",
@@ -480,11 +480,11 @@
       "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/pingvin-share/screenshots/upload-page.png",
-      "sha256": "sha256:192a8708c7ae95c8fd1b89fe239fb1d0764cdec90bd8190d1e912a29e34285fc",
-      "source": "https://user-images.githubusercontent.com/58886915/225038319-b2ef742c-3a74-4eb6-9689-4207a36842a4.png",
-      "evidence": "exact-source",
-      "notes": "Copied byte for byte from https://github.com/smp46/pingvin-share-x/blob/v2.1.1/docs/docs/introduction.md. Licence: BSD-2-Clause (smp46/pingvin-share-x). Docs at tag v2.1.1 embed this image, uploaded 2023-03 for the original stonith404/pingvin-share; UI may be slightly older than the -x fork we ship. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+      "path": "apps/pingvin-share/screenshots/pingvin-share-upload.png",
+      "sha256": "sha256:9a4309ef1c7ccfe769526f9d92f7534516c9771cb1c56a5ede0ad88b5a981e1a",
+      "source": "https://github.com/smp46/pingvin-share-x",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone, destroyed afterwards) at Pingvin Share X 2.1.1, with demo data only. Shows the upload page of a demo account with three demo files queued for a new share."
     },
     {
       "path": "apps/prowlarr/icon.svg",
@@ -522,11 +522,11 @@
       "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, user view, because upstream publishes no usable image of this view."
     },
     {
-      "path": "apps/qbittorrent/screenshots/sonarr-download-clients.png",
-      "sha256": "sha256:8bb1cbf7e58ec8d0a3da331165a52e86837ce716a817d9062fd8f69a5b007a40",
-      "source": "https://github.com/YouEye-Platform/Market",
+      "path": "apps/qbittorrent/screenshots/qbittorrent-transfer-list.png",
+      "sha256": "sha256:b7591cd32e896d2813325e42a1cf2a2cfd701d27ec3aa0793adc91f1a6140242",
+      "source": "https://github.com/qbittorrent/qBittorrent",
       "evidence": "local-capture",
-      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone, destroyed afterwards) at qBittorrent 5.3.0 (linuxserver 5.3.0_v2.1.2-ls488), with demo data only. Shows the WebUI transfer list with two legal Debian 13.8.0 netinst torrents (amd64, arm64) downloading."
     },
     {
       "path": "apps/radarr/icon.svg",
@@ -662,11 +662,11 @@
       "notes": "Byte-matched official icon (unchanged at 1.37.5), AGPL-3.0-only; unmodified. See apps/vaultwarden/ASSET-NOTICES.md and LICENSE.upstream.txt."
     },
     {
-      "path": "apps/vaultwarden/screenshots/vaultwarden-admin-token.png",
-      "sha256": "sha256:77f1d116b0ead00006f5c9c74dc4bdd915b88d171b13796a808544c9464ac376",
-      "source": "https://github.com/YouEye-Platform/Market",
+      "path": "apps/vaultwarden/screenshots/vaultwarden-vault.png",
+      "sha256": "sha256:d892e307994b780a66098273dff04ec505c27c8da509b316cf795666edeb1e27",
+      "source": "https://github.com/dani-garcia/vaultwarden",
       "evidence": "local-capture",
-      "notes": "Captured by Andrew (YouEye Market curator) on a YouEye test box with demo content only, admin view, because upstream publishes no usable image of this view."
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone, destroyed afterwards) at Vaultwarden 1.37.5 (web vault 2026.10.1), with demo data only. Shows the web vault after a YouEye ID sign-in by the test user, with four demo items (two logins, a secure note and a test card number)."
     },
     {
       "path": "apps/vaultwarden/screenshots/vaultwarden-sign-in.png",
