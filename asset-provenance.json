@@ -968,6 +968,34 @@
       "source": "https://raw.githubusercontent.com/donetick/frontend/v1.2.78/assets/ipad_dashbard_calendar.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official Donetick frontend repository at tag v1.2.78 (assets/ipad_dashbard_calendar.png; the web app embedded in the v0.1.89 image is built from that repository); AGPL-3.0 repository (LICENSE.md). Shows the tablet dashboard: two-month calendar (September/October 2025), the tasks of the chosen day, Tasks by Assignee and Recent Activities for the demo user \"Demo\". Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/sabnzbd/icon.svg",
+      "sha256": "sha256:7568bb862c70372f43bf2acbb4f012333b3fe57fbdb9ad4956a271344e2afe54",
+      "source": "https://raw.githubusercontent.com/sabnzbd/sabnzbd/5.1.3/icons/logo-arrow.svg",
+      "evidence": "exact-source",
+      "notes": "SABnzbd's own logo (the arrow mark), copied byte for byte from the repository at tag 5.1.3 (icons/logo-arrow.svg; identical to interfaces/Config/templates/staticcfg/images/logo-arrow.svg). GPL-2.0-or-later repository (LICENSE.txt, GPL2.txt, GPL3.txt); no separate trademark or logo policy found in the repository or on sabnzbd.org. Rendered and checked 2026-11-24 (the first path is the black outline, transformed onto the canvas). Used unmodified to identify the application, no endorsement claimed."
+    },
+    {
+      "path": "apps/sabnzbd/screenshots/sabnzbd-queue-history.png",
+      "sha256": "sha256:c505bc6f78b497f730b3b0d63a9d2c8c2d25cddc09602305e4628fde6472bd9a",
+      "source": "https://raw.githubusercontent.com/sabnzbd/sabnzbd.github.io/c8092ea063567d7afe987cc3cc2355a2c1ea7c90/images/landing/screenshots/interface.png",
+      "evidence": "exact-source",
+      "notes": "Queue (three jobs, one at 34%) and history (completed jobs) in the Glitter interface, light theme. Copied byte for byte from the official SABnzbd website repository sabnzbd/sabnzbd.github.io at commit c8092ea0 (2026-11-18; the repository has no tags), shown on https://sabnzbd.org's landing page; GPL-3.0 (LICENSE.md). The capture dates from 2016 (history dates 06/2016): the Glitter interface, still SABnzbd 5.1's default, with the same layout; details differ in 5.1.3, so the listing does not present it as a 5.1.3 capture. Reviewed visually 2026-11-24 (YouEye Market curator): job names are blurred by upstream; no passwords, API keys, server names, private addresses or personal data."
+    },
+    {
+      "path": "apps/sabnzbd/screenshots/sabnzbd-add-nzb.png",
+      "sha256": "sha256:3a4354b3225d44e080df31c4dbea3dcf943acbaed0306b34cef4d4bf301a0dda",
+      "source": "https://raw.githubusercontent.com/sabnzbd/sabnzbd.github.io/c8092ea063567d7afe987cc3cc2355a2c1ea7c90/images/landing/screenshots/add-nzb.png",
+      "evidence": "exact-source",
+      "notes": "The Add NZB dialog: fetch by URL or upload, optional name, category, priority, post-processing and script selectors (all Default). Copied byte for byte from the official SABnzbd website repository sabnzbd/sabnzbd.github.io at commit c8092ea0 (2026-11-18; the repository has no tags), shown on https://sabnzbd.org's landing page; GPL-3.0 (LICENSE.md). The capture dates from 2016 (history dates 06/2016): the Glitter interface, still SABnzbd 5.1's default, with the same layout; details differ in 5.1.3, so the listing does not present it as a 5.1.3 capture. Reviewed visually 2026-11-24 (YouEye Market curator): job names are blurred by upstream; no passwords, API keys, server names, private addresses or personal data."
+    },
+    {
+      "path": "apps/sabnzbd/screenshots/sabnzbd-night-mode.png",
+      "sha256": "sha256:4b013d0aa2e703e9d62a684e8aecc4e486d8fde0478f51ecff209b5cccdb3987",
+      "source": "https://raw.githubusercontent.com/sabnzbd/sabnzbd.github.io/c8092ea063567d7afe987cc3cc2355a2c1ea7c90/images/landing/screenshots/night-mode.png",
+      "evidence": "exact-source",
+      "notes": "Night mode: queue and history with the details of a finished download expanded (all values blurred by upstream). Copied byte for byte from the official SABnzbd website repository sabnzbd/sabnzbd.github.io at commit c8092ea0 (2026-11-18; the repository has no tags), shown on https://sabnzbd.org's landing page; GPL-3.0 (LICENSE.md). The capture dates from 2016 (history dates 06/2016): the Glitter interface, still SABnzbd 5.1's default, with the same layout; details differ in 5.1.3, so the listing does not present it as a 5.1.3 capture. Reviewed visually 2026-11-24 (YouEye Market curator): job names are blurred by upstream; no passwords, API keys, server names, private addresses or personal data."
     }
   ]
 }

@@ -1,0 +1,55 @@
+# SABnzbd registers itself as Radarr's download client (target: peer; Radarr calls it back on this connection's NIC).
+# Radarr refuses a client whose category is missing in SABnzbd (Download/Clients/Sabnzbd/Sabnzbd.cs, the category test),
+# and the owner may have deleted it in SABnzbd, so it is created or updated first
+# (sabnzbd/api.py handle_cat_api: set_config on section categories is create-or-update), with its own folder under
+# usenet/complete. Delete-then-create by name, so a re-run leaves exactly one client.
+schema: youeye.setup.v1
+for: connect:radarr
+steps:
+  # Our own API may still be starting right after install.
+  - wait: {http: '/api?mode=version&output=json', timeout: 180}
+  # SABnzbd adds its default categories (tv, movies, ...) only when its category list is first read
+  # (config.py get_categories), and then overwrites any of them set before: read the list first.
+  - http:
+      method: POST
+      path: /api
+      form: {mode: get_cats, apikey: '${secret.api_key}', output: json}
+  - http:
+      method: POST
+      path: /api
+      form: {mode: set_config, section: categories, keyword: movies, dir: movies, apikey: '${secret.api_key}', output: json}
+  - http:
+      method: DELETE
+      path: /api/v3/downloadclient/${item.id}
+      target: peer
+      headers: {X-Api-Key: '${peer.api_key}'}
+      for_each: {path: /api/v3/downloadclient, where: {name: SABnzbd}}
+  - http:
+      method: POST
+      path: /api/v3/downloadclient
+      target: peer
+      headers: {X-Api-Key: '${peer.api_key}'}
+      body:
+        enable: true
+        protocol: usenet
+        priority: 1
+        name: SABnzbd
+        implementation: Sabnzbd
+        configContract: SabnzbdSettings
+        tags: []
+        fields:
+          - {name: host, value: '${self.host}'}
+          - {name: port, value: 8080}
+          - {name: useSsl, value: false}
+          - {name: urlBase, value: ''}
+          - {name: apiKey, value: '${self.api_key}'}
+          - {name: movieCategory, value: movies}
+remove:
+  # Runs on disconnect, and when SABnzbd is uninstalled (only Radarr must be up).
+  - http:
+      method: DELETE
+      path: /api/v3/downloadclient/${item.id}
+      target: peer
+      headers: {X-Api-Key: '${peer.api_key}'}
+      for_each: {path: /api/v3/downloadclient, where: {name: SABnzbd}}
+      allow_failure: true
