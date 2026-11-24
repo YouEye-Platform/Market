@@ -1,0 +1,100 @@
+schema: youeye.app.v1
+id: donetick
+version: 0.1.89
+name: Donetick
+listing:
+  tagline: Simplify tasks and chores, together
+  description: Shared chores and tasks for the household
+  long_description: |
+    Donetick organises chores and tasks: recurring schedules (daily, weekly, "every 3 months", or adaptive from when
+    things really get done), assignee rotation, subtasks, labels and priorities, points and rewards, "things" that
+    track a value, a calendar view and per-person notifications. Type a task in plain words ("Take the trash out
+    every Monday at 6 pm") and it picks up the date and the repeat. Photos can be attached to tasks, and the mobile
+    apps for iOS and Android connect to your box.
+
+    Households are circles, as upstream ships it: everyone who signs in gets a circle of their own and is its admin.
+    To share chores, one person gives the others their circle's invite code (Settings), they ask to join, and the
+    circle's admin accepts them. An admin can also add simple sub-accounts for children.
+
+    Sign-in: sign in with YouEye ID, or with a Donetick account and password; anyone can create a Donetick account, as
+    upstream ships it. Donetick installs with public access, so the mobile apps, calendar feeds and everyone on your
+    network can reach it; its own sign-in protects it. To keep it to people with a YouEye account instead, turn
+    public access off in the install dialog or later in the app's access settings (the mobile apps then can't
+    connect).
+  release_notes: |
+    Donetick 0.1.89, new in the YouEye Market.
+  category: productivity
+  tags: [chores, tasks, family, household, todo]
+  icon: list-checks
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/donetick-task-list.png, caption: "Chores grouped by due date, with repeats and labels"}
+    - {path: screenshots/donetick-dashboard-calendar.png, caption: "Tablet dashboard: calendar, tasks by assignee and recent activity"}
+  website: https://donetick.com
+  developer: Donetick contributors
+  license: AGPL-3.0
+  source_code: https://github.com/donetick/donetick
+  support: https://github.com/donetick/donetick/issues
+  docs: https://docs.donetick.com
+# v0.1.89, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7)
+image: docker.io/donetick/donetick@sha256:cfe1875c9d04ea89b2e6a60f1a36b28c32661ff2d48c5b8e26dca265bb69d984
+port: 2021
+# Registered on the router, which listens only after the database migrations ran (main.go OnStart), so a 2xx means
+# the database is up and migrated. PID 1 is the Go binary (no entrypoint script); it stops on SIGTERM.
+health: {path: /api/v1/health, timeout: 180}
+internet: true                    # profile pictures from YouEye ID, Telegram/Pushover/webhooks, push Bridge
+database: postgres                # shared YouEye PostgreSQL; upstream supports postgres natively
+data:
+  - /donetick-data                # photos and attachments (local storage)
+  - {path: /config, kind: config} # selfhosted.yaml, written by the app on first start (upstream defaults, e.g. CORS for the mobile apps)
+# Every config key is settable as DT_<SECTION>_<KEY> and env beats /config/selfhosted.yaml (config/config.go, viper).
+env:
+  DT_ENV: selfhosted
+  TZ: ${platform.timezone}
+  DT_JWT_SECRET: ${secret.jwt_secret}        # signs sessions and local file URLs; must stay stable
+  DT_DATABASE_TYPE: postgres
+  DT_DATABASE_HOST: ${database.host}
+  DT_DATABASE_PORT: ${database.port}
+  DT_DATABASE_NAME: ${database.name}
+  DT_DATABASE_USER: ${database.user}
+  DT_DATABASE_PASSWORD: ${database.password}
+  DT_SERVER_PUBLIC_HOST: ${app.url}          # calendar-feed links (not taken from request headers)
+  # Upstream's default storage is S3 (an empty type means S3), so without this photo uploads fail. Local storage with
+  # upstream's documented limits (docs.donetick.com Storage: 100 MB per circle, 2 MB per file; the web app shrinks
+  # photos to 1 MB before upload).
+  DT_STORAGE_STORAGE_TYPE: local
+  DT_STORAGE_BASE_PATH: /donetick-data/files
+  DT_STORAGE_MAX_USER_STORAGE: '104857600'
+  DT_STORAGE_MAX_FILE_SIZE: '2097152'
+secrets:
+  jwt_secret: {kind: key, length: 48}        # Donetick refuses a secret under 32 characters
+# Access: Donetick has its own sign-in (YouEye ID through the app, and its own password accounts with optional TOTP),
+# so it installs with public access: anyone on the household network (LAN/VPN) can reach it, protected by the app
+# (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the LAN; apps behave like upstream"). The
+# mobile apps and calendar feeds need it. Upstream defaults kept (owner, YE-182): every account gets its own circle and
+# is its admin, sign-up stays open, so there is no instance admin and no first-visitor window to close.
+public_access: true
+sso:
+  callback: /auth/oauth2
+  extra_callbacks: ['donetick://auth/oauth2']   # the iOS/Android apps (docs.donetick.com OpenID Connect setup)
+  env:
+    # Plain OAuth2, no discovery: the browser gets auth_url (public HTTPS); token and userinfo are server-side over
+    # YouEye ID's doorway on the app network (same values as HedgeDoc). Accounts are matched by email; scopes are the
+    # web app's default (openid profile email). No DT_OAUTH2_ADMIN_GROUPS: with it, every non-admin YouEye user would
+    # be demoted to member of their own circle on each sign-in.
+    DT_OAUTH2_NAME: ${identity.name}
+    DT_OAUTH2_CLIENT_ID: ${sso.client_id}
+    DT_OAUTH2_CLIENT_SECRET: ${sso.client_secret}
+    DT_OAUTH2_AUTH_URL: ${identity.external_url}/application/o/authorize/
+    DT_OAUTH2_TOKEN_URL: ${identity.internal_url}/application/o/token
+    DT_OAUTH2_USER_INFO_URL: ${identity.internal_url}/application/o/userinfo
+    DT_OAUTH2_REDIRECT_URL: ${sso.callback_url}
+smtp:
+  env:
+    # Password reset and email verification (gomail: STARTTLS when offered, implicit TLS on 465).
+    DT_EMAIL_HOST: ${smtp.host}
+    DT_EMAIL_PORT: ${smtp.port}
+    DT_EMAIL_USER: ${smtp.user}
+    DT_EMAIL_KEY: ${smtp.password}
+    DT_EMAIL_EMAIL: ${smtp.from}
+    DT_EMAIL_APP_HOST: ${app.url}
