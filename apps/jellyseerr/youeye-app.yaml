@@ -21,13 +21,13 @@ listing:
   category: media
   tags: [media, requests, discovery, jellyfin, plex, emby, arr]
   icon: popcorn
-  icon_file: icon.png
+  icon_file: icon.svg
   screenshots:
     - path: screenshots/seerr-preview.jpg
       caption: "Discover page with recently added, requests and trending titles"
     - path: screenshots/settings-metadata-providers.png
       caption: "Settings: metadata providers (admin)"
-  website: https://docs.seerr.dev
+  website: https://seerr.dev
   developer: Seerr Team & contributors
   license: MIT
   source_code: https://github.com/seerr-team/seerr

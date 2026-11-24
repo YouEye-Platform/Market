@@ -1,21 +1,22 @@
 schema: youeye.app.v1
 id: stirling-pdf
 version: 3.5.0
-name: Stirling-PDF
+name: Stirling PDF
 listing:
   tagline: A private, self-hosted toolkit for everyday PDF work
   description: All-in-one PDF toolkit for merging, splitting, and converting
   long_description: |
-    Stirling-PDF is a powerful, locally-hosted PDF manipulation tool. Merge, split, rotate,
-    convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
-    watermarking, page extraction, image-to-PDF, and many more operations.
+    Stirling PDF is a powerful, open-source PDF editing platform. Edit, sign, redact, convert
+    and automate PDFs without sending documents to external services: more than 50 tools
+    (merge, split, OCR, compress and more), no-code pipelines and a REST API for nearly every
+    tool, in an interface available in 40+ languages.
 
-    Stirling-PDF has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
+    Stirling PDF has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
     with public access: anyone on your network can reach it, and scripts with an API key and the phone scanner
     upload work. To keep it to people with a YouEye account instead, turn public access off in the install
     dialog or later in the app's access settings.
   release_notes: |
-    Stirling-PDF 3.5.0 replaces LibreOffice and Calibre with Stirling's own office
+    Stirling PDF 3.5.0 replaces LibreOffice and Calibre with Stirling's own office
     converter inside the app. Some old formats are gone: saving as Word 97-2003 (.doc),
     reading WordPerfect, Works, Lotus, AbiWord, Hangul and XPS files, and the PostScript
     conversions. Fonts for the text editor can be added to the custom files folder.
@@ -32,7 +33,7 @@ listing:
       caption: "Workspace with every PDF tool in the side panel"
     - path: screenshots/dashboard-dark.png
       caption: "The same workspace in the dark theme"
-  website: https://stirlingpdf.io
+  website: https://www.stirling.com
   developer: Stirling PDF Inc. and contributors
   license: MIT with upstream proprietary component carve-outs
   source_code: https://github.com/Stirling-Tools/Stirling-PDF

@@ -8,8 +8,8 @@ listing:
   long_description: |
     Audiobookshelf is a self-hosted audiobook and podcast server. Features include per-user
     progress tracking, chapter support, bookmarks, sleep timer, playback speed control,
-    and companion apps for Android and iOS. Import your audiobook collection and listen from
-    anywhere.
+    and companion apps for Android and iOS (both in beta; the iOS beta is currently full).
+    Import your audiobook collection and listen from anywhere.
 
     Audiobookshelf has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with
     public access: anyone on your network can reach it, and the Audiobookshelf phone apps and podcast feeds

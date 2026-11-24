@@ -1,4 +1,4 @@
-# Paperless-NGX assets
+# Paperless-ngx assets
 
 Official leaf logo from https://github.com/paperless-ngx/paperless-ngx/blob/v3.3.4/docs/assets/logo_leaf.svg, fetched2026-10-23. GPL-3.0 project licence retained in LICENSE.upstream.txt. Used to identify the project without endorsement.
 

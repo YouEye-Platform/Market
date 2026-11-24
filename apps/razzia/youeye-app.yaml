@@ -9,7 +9,8 @@ listing:
     Razzia is an open-source live quiz game. The host builds quizzes in the manager, starts a
     game and shows the questions on a big screen; players join from their phones with the room
     code and answer against the clock. Single-answer, multiple-answer and estimation rounds,
-    images, audio and video in questions, a live leaderboard, and saved results.
+    images, audio and video in questions, a live leaderboard, and saved results. A survey mode
+    collects opinions instead: no scores, no leaderboard, a summary at the end.
 
     To host, open /manager on the app's address and enter the manager password that YouEye
     generates (no username; find it under the app's credentials). Players open the app's address
@@ -37,7 +38,7 @@ listing:
   license: MIT
   source_code: https://github.com/Ralex91/Razzia
   support: https://github.com/Ralex91/Razzia/issues
-  docs: https://github.com/Ralex91/Razzia/tree/4.0.2/docs
+  docs: https://github.com/Ralex91/Razzia/tree/4.1.0/docs
 # Research at 4.0.2 (commit 8345663):
 # - One image (alpine + s6): nginx on :3000 serves the web build and proxies /api and /ws (Socket.IO) to the
 #   Node socket server on 127.0.0.1:3001. Caddy's plain reverse_proxy carries the WebSocket upgrade.
@@ -51,7 +52,7 @@ listing:
 # - Access: the app has its own protection (manager password, game PIN), so it installs with public access
 #   (owner rule 2026-11-13). The manager login has no rate limit upstream; the 24-character generated
 #   password makes guessing impractical.
-# - Screenshots: the official README previews at tag 4.0.2 (.github/previews/1-3.png, MIT repository).
+# - Screenshots: the official README previews at tag 4.1.0 (.github/previews/2-3.png, MIT repository).
 # 4.1.0, multi-arch index (linux/amd64, linux/arm64)
 image: docker.io/ralex91/razzia@sha256:c7e63ded6bc4f6878bbfd5052a69663175f6ae32e663ac8168039d91094c2e4c
 port: 3000

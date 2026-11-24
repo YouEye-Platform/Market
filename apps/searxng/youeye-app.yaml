@@ -3,11 +3,11 @@ id: searxng
 version: 2026.11.23
 name: SearXNG
 listing:
-  tagline: Private metasearch across dozens of search engines
+  tagline: Private metasearch across more than 200 search services
   description: Privacy-respecting metasearch engine
   long_description: |
     SearXNG is a free, privacy-respecting metasearch engine that aggregates
-    results from dozens of independent search services. It does not profile
+    results from more than 200 search services. It does not profile
     users, and supports web, image, news, map, video, JSON, and RSS results.
   release_notes: |
     This SearXNG build (2026-11-23) turns the Brave web search engine off by default (it hides

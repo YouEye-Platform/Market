@@ -2,7 +2,7 @@
 
 Observed 2026-10-23 for DocuSeal 3.3.3.
 
-Official unchanged logo: https://raw.githubusercontent.com/docusealco/docuseal/3.3.3/public/logo.svg
+Official unchanged logo: https://raw.githubusercontent.com/docusealco/docuseal/3.4.0/public/logo.svg (byte-identical at 3.3.3 and 3.4.0)
 Copyright 2023-2026 DocuSeal LLC. Identifies the upstream product; no endorsement claimed.
 
 The two retained 3.2.0 screenshots are historical repository demonstration captures, not current-version test evidence. Visually inspected: template editor with minimal Dummy PDF file/sample-document test text and a recipient using the fictitious Accepted User signature. No real contracts, personal data, or external artwork. App UI is covered by the upstream licence; original DocuSeal attribution is retained.

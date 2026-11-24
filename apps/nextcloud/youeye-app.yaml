@@ -7,9 +7,11 @@ listing:
   tagline: Your files, contacts and calendars at home
   description: Cloud storage, collaboration, and file sharing
   long_description: |
-    Nextcloud is a suite of client-server software for creating and using file hosting services.
-    Features file sync, calendars, contacts, mail, talk, office document editing, and hundreds
-    of community apps.
+    Nextcloud is a safe home for all your data: store and sync your files, contacts, calendars and
+    more on your own server. YouEye installs Nextcloud Server with its built-in apps (Files, Photos,
+    Activity, Dashboard and sharing), and phones and computers sync contacts and calendars with it
+    over CardDAV and CalDAV. Calendar, Contacts, Mail, Talk, office document editing and hundreds of
+    community apps are Nextcloud apps you add from its app store (Apps, in an admin's account menu).
 
     Nextcloud has its own sign-in (YouEye ID; the desktop and phone apps use app passwords; the
     local admin, password under the app's credentials, at /login?direct=1), so it installs with

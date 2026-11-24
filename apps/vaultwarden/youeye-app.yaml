@@ -6,8 +6,10 @@ listing:
   tagline: Lightweight Bitwarden-compatible server
   description: Lightweight Bitwarden-compatible password manager
   long_description: |
-    Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
-    Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
+    Vaultwarden is an alternative server implementation of the Bitwarden Client API, written in
+    Rust and compatible with the official Bitwarden clients. Lightweight, fast, and self-hosted.
+    Vaultwarden is not associated with Bitwarden, Inc.; report problems to Vaultwarden, not to
+    Bitwarden's support.
 
     Vaultwarden has its own sign-in (YouEye ID and your master password; the admin page needs the token YouEye
     generates), so it installs with public access: anyone on your network can reach it, and the Bitwarden phone

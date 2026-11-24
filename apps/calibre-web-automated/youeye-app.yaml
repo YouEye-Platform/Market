@@ -40,7 +40,7 @@ listing:
       caption: "Admin: import, conversion and fix statistics"
   website: https://github.com/crocodilestick/Calibre-Web-Automated
   developer: crocodilestick and Calibre-Web contributors
-  license: GPL-3.0-only
+  license: GPL-3.0-or-later
   source_code: https://github.com/crocodilestick/Calibre-Web-Automated
   support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
   docs: https://github.com/crocodilestick/Calibre-Web-Automated/wiki

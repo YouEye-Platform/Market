@@ -1,4 +1,4 @@
-# Wallabag assets
+# wallabag assets
 
 Official logo from https://raw.githubusercontent.com/wallabag/wallabag/2.6.14/web/img/logo-square.svg, unchanged. Identification does not imply endorsement. Historical 2.6.14 repository screenshots show redacted user-management and empty quickstart views; inspected 2026-10-23 with no credentials/private links or third-party articles. They are marketing illustrations, not current runtime evidence.
 

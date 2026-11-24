@@ -28,7 +28,7 @@ listing:
   license: AGPL-3.0-only
   source_code: https://github.com/tiekoetter/Wikiless
   support: https://github.com/tiekoetter/Wikiless/issues
-  docs: https://github.com/tiekoetter/Wikiless/wiki
+  docs: https://github.com/tiekoetter/Wikiless#readme
 # sha-728ad9b (upstream commit 728ad9b of 2026-11-17; Wikiless has no releases, so the version is the build date).
 # Upstream publishes linux/amd64 only.
 image: ghcr.io/tiekoetter/wikiless@sha256:8da26a927e61f441c92f86966754ae97b0de9fbde5e6c1fe4334368cdaa5aa44

@@ -27,10 +27,10 @@ listing:
   icon: rss
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/reader-screenshot.png
-      caption: "Reading view with feeds and categories in the sidebar"
-    - path: screenshots/theme-dark-preview.png
-      caption: "The same reader in the dark theme"
+    - path: screenshots/reader-light.webp
+      caption: "Main stream with feeds and categories in the sidebar"
+    - path: screenshots/reader-dark.webp
+      caption: "The same stream in a dark theme"
   website: https://freshrss.org
   developer: FreshRSS contributors
   license: AGPL-3.0

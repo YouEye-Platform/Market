@@ -1,16 +1,16 @@
 schema: youeye.app.v1
 id: wallabag
 version: 2.6.18
-name: Wallabag
+name: wallabag
 listing:
   tagline: Save web pages now and read them later
   description: Read-it-later app to save and archive web articles
   long_description: |
-    Wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
+    wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
 
-    Wallabag has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
+    wallabag has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
     with public access: anyone on your network can reach it, and wallabag's phone apps, browser extensions and
     e-readers work. To keep it to people with a YouEye account instead, turn public access off in the install
     dialog or later in the app's access settings.

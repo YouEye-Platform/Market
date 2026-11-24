@@ -40,7 +40,7 @@ listing:
       caption: "Ancestor tree chart"
   website: https://www.grampsweb.org
   developer: Gramps project contributors
-  license: AGPL-3.0-only
+  license: AGPL-3.0-or-later
   source_code: https://github.com/gramps-project/gramps-web
   support: https://gramps.discourse.group
   docs: https://www.grampsweb.org

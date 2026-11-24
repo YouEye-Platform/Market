@@ -28,8 +28,8 @@ listing:
   icon: package
   icon_file: icon.svg
   screenshots:
-    - path: screenshots/dashboard.png
-      caption: "Home dashboard with totals, recent items and locations"
+    - path: screenshots/locations-tree.png
+      caption: "Locations as a tree: a garage, a cabinet and its shelves"
     - path: screenshots/item-view.png
       caption: "An item with details, warranty and attachments"
   website: https://homebox.software

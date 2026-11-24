@@ -36,7 +36,7 @@ listing:
   developer: Linkwarden contributors
   license: AGPL-3.0
   source_code: https://github.com/linkwarden/linkwarden
-  support: https://github.com/linkwarden/linkwarden/discussions
+  support: https://github.com/linkwarden/linkwarden/issues
   docs: https://docs.linkwarden.app/
 # v2.17.0, multi-arch index (linux/amd64, linux/arm64)
 image: ghcr.io/linkwarden/linkwarden@sha256:7c11fde57d1a0c819b6de0079966eba3a33584d718464af7dacde22bd470ae46
