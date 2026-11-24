@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: nextcloud
-version: 35.0.3.2
+version: 35.0.3.3
 requires: { youeye: ">=0.6.15" }
 name: Nextcloud
 listing:
@@ -20,11 +20,13 @@ listing:
     YouEye account instead, turn public access off in the install dialog or later in the app's
     access settings; Nextcloud's own apps then can't connect.
   release_notes: |
-    Background jobs now run every 5 minutes on their own, not only while someone has Nextcloud
-    open, and Nextcloud calls itself on its local address, so the first sign-in is quick again.
-    New installs are reachable by anyone on your network so the desktop and phone apps can
-    connect; on an installed Nextcloud, turn on public access in the app's access settings for
-    that. The cache moves to Valkey 9.2.0. No database migration.
+    Nextcloud's own setup checks are clean now: heavy daily jobs run in a maintenance window
+    at 01:00 UTC, missing database indices are added, the mimetype migrations run once, and
+    the server sends HSTS. Since 35.0.3.2, background jobs run every 5 minutes on their own
+    and Nextcloud calls itself on its local address, so the first sign-in is quick. New
+    installs are reachable by anyone on your network so the desktop and phone apps can
+    connect; on an installed Nextcloud, turn on public access in the app's access settings
+    for that. No database migration.
   category: productivity
   tags: [cloud, storage, files, collaboration, office]
   icon: cloud
@@ -52,10 +54,16 @@ port: 80
 #   system value circles.force_nc_base (circles ConfigService::getLoopbackInstance) points it at http://localhost
 #   (a trusted domain); `occ circles:check` then passes. The dot in the name rules out an env var (NC_*), so a
 #   background loop sets it once Nextcloud is installed and not upgrading.
-# An update applies `command:`, so installed copies get both (a cron sidecar would change the container set,
+# - Nextcloud's own setup checks (occ setupchecks; owner 2026-11-24, YE-172): the maintenance window starts at 01:00
+#   UTC unless an admin set one; missing optional database indices are added at every start (a no-op when none are
+#   missing); the expensive repair (mimetype migrations) runs once per Nextcloud version, marked in
+#   data/.youeye-expensive-repair; and Apache sends HSTS (max-age 15552000, the value the check asks for). HSTS is
+#   set in the app, not in YouEye's Caddy route: the route is the platform's, and Nextcloud's docs put it in the web
+#   server config. mod_headers is on in the image; the conf file lives in the container and is written at each start.
+# An update applies `command:`, so installed copies get all of it (a cron sidecar would change the container set,
 # which updates refuse; setup files don't run on update). Keep it ONE line with no single quotes: Incus cannot run
 # a multi-line oci.entrypoint ("/bin/sh: 0: -c requires an argument", the update rolled back; VM 156, 2026-11-23).
-command: [/bin/sh, -c, 'busybox crond -b -L /dev/null; o() { runuser -u www-data -- php /var/www/html/occ "$@"; }; (until o status --output=json 2>/dev/null | grep -q "\"installed\":true,.*\"maintenance\":false,\"needsDbUpgrade\":false"; do sleep 10; done; o config:system:set circles.force_nc_base --value=http://localhost >/dev/null) & exec /entrypoint.sh apache2-foreground']
+command: [/bin/sh, -c, 'busybox crond -b -L /dev/null; printf "Header always set Strict-Transport-Security \"max-age=15552000\"\n" > /etc/apache2/conf-enabled/youeye-hsts.conf; o() { runuser -u www-data -- php /var/www/html/occ "$@"; }; (until o status --output=json 2>/dev/null | grep -q "\"installed\":true,.*\"maintenance\":false,\"needsDbUpgrade\":false"; do sleep 10; done; o config:system:set circles.force_nc_base --value=http://localhost >/dev/null; o config:system:get maintenance_window_start >/dev/null || o config:system:set maintenance_window_start --type=integer --value=1 >/dev/null; o db:add-missing-indices >/dev/null 2>&1; v=$(o config:system:get version); [ "$(cat /var/www/html/data/.youeye-expensive-repair 2>/dev/null)" = "$v" ] || { o maintenance:repair --include-expensive >/dev/null 2>&1 && echo "$v" > /var/www/html/data/.youeye-expensive-repair; }) & exec /entrypoint.sh apache2-foreground']
 health: {path: /status.php, timeout: 300}
 internet: true
 database: postgres
