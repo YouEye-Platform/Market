@@ -1,0 +1,37 @@
+# Runs once, before the app has a route.
+# 1. Wallos makes the first account it registers user id 1, its only admin, and offers that registration to the
+#    first visitor while it has no users (login.php -> registration.php). Register "admin" with the generated
+#    password; registration then closes (admin.registrations_open defaults to 0) and /registration.php redirects.
+# 2. YouEye ID's back channel (token, userinfo) is id.youeye:3002 on the app network, a private address that Wallos'
+#    SSRF guard refuses unless allowlisted (includes/ssrf_helper.php validate_oidc_endpoint_url: exact host, IP,
+#    host:port or IP:port). Add exactly id.youeye:3002 to the admin's allowlist in the database (not SSRF_ALLOWLIST,
+#    which would replace the admin's own list for LAN webhooks and grey it out).
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /registration.php, timeout: 300}      # 200 only once the database exists and has no users
+  - http:
+      method: POST
+      path: /registration.php
+      form:
+        username: admin
+        firstname: YouEye
+        lastname: Admin
+        email: admin@youeye.local
+        password: '${secret.admin_password}'
+        confirm_password: '${secret.admin_password}'
+        main_currency: EUR
+        language: en
+      ok: [302]                                          # -> login.php?registered=true; a 200 is the form with an error
+  - http: {method: GET, path: /registration.php, ok: [302]}   # registration is closed now
+  - exec:
+      run:
+        - sqlite3
+        - /var/www/html/db/wallos.db
+        - >-
+          UPDATE admin SET local_webhook_notifications_allowlist = CASE
+          WHEN instr(',' || replace(coalesce(local_webhook_notifications_allowlist, ''), ' ', '') || ',', ',id.youeye:3002,') > 0
+          THEN local_webhook_notifications_allowlist
+          WHEN trim(coalesce(local_webhook_notifications_allowlist, '')) = '' THEN 'id.youeye:3002'
+          ELSE local_webhook_notifications_allowlist || ',id.youeye:3002' END WHERE id = 1;
+      timeout: 60

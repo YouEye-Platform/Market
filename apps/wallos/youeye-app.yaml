@@ -1,0 +1,92 @@
+schema: youeye.app.v1
+id: wallos
+version: 5.11.3
+name: Wallos
+listing:
+  tagline: Keep track of every subscription and recurring bill
+  description: Personal subscription and recurring-expense tracker
+  long_description: |
+    Wallos keeps all your subscriptions and recurring bills in one place: what each costs, how often it renews and
+    when the next payment is due. It converts between currencies, sorts subscriptions into categories and household
+    members, shows monthly and yearly totals against a budget, and puts payments on a calendar you can subscribe to.
+    Reminders before a payment or a cancellation date go out by email, Discord, Telegram, Pushover, Gotify, ntfy or
+    webhooks.
+
+    Sign-in: everyone signs in with YouEye ID and gets their own private Wallos account. Wallos' administrator is a
+    separate account called "admin" that YouEye creates (Wallos makes its first account the administrator and can't
+    take administrators from YouEye ID); its password is under the app's credentials. Use it for the admin page:
+    users, registration, mail settings, security settings and backups. Wallos' own sign-up page stays closed, as
+    upstream ships it; the administrator can open it.
+
+    Wallos installs with public access: anyone on your network can reach its sign-in page, and the Wallos web app
+    works on every device; its own sign-in protects it. To keep it to people with a YouEye account instead, turn
+    public access off in the install dialog or later in the app's access settings. Don't turn on "Disable login" in
+    Wallos' admin page while public access is on: it opens the admin account to everyone on the network. Keep
+    id.youeye:3002 in the admin page's local-address allowlist (Security settings): YouEye ID sign-in needs it.
+  release_notes: |
+    Wallos 5.11.3, new in the YouEye Market, with YouEye ID sign-in.
+  category: productivity
+  tags: [finance, subscriptions, budget, bills, reminders]
+  icon: wallet
+  icon_file: icon.png
+  screenshots:
+    - {path: screenshots/wallos-subscriptions-light.png, caption: "Subscriptions with logos, prices, renewal periods and next payment dates"}
+    - {path: screenshots/wallos-dashboard-light.png, caption: "Dashboard with overdue renewals, upcoming payments and the budget"}
+    - {path: screenshots/wallos-stats.png, caption: "Statistics: monthly and yearly cost, trends and a 12-month forecast"}
+  website: https://wallosapp.com
+  developer: Miguel Ribeiro (ellite) and contributors
+  license: GPL-3.0
+  source_code: https://github.com/ellite/Wallos
+  support: https://github.com/ellite/Wallos/issues
+  docs: https://github.com/ellite/Wallos#readme
+# 5.11.3, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7)
+image: docker.io/bellamy/wallos@sha256:84c3b218e144a1292b2be6ad2f0b9d620277e860d307c3cfa5aff3ee629aae17
+port: 80
+# Static 200 from nginx + php-fpm (upstream's own HEALTHCHECK). /login.php would touch the database but fetches the
+# OIDC discovery document on every load; setup/install.yaml waits on /registration.php, which needs the database.
+health: /health.php
+internet: true                         # exchange rates, logo search, notifications, update check
+# No command: the image's entrypoint (dumb-init -> startup.sh) starts php-fpm, crond and nginx, creates and migrates
+# the database, and traps TERM/QUIT for a clean stop.
+data:
+  - /var/www/html/db                   # SQLite wallos.db; startup.sh chmods it 755 on every start: no files: here
+  - /var/www/html/images/uploads/logos # uploaded and searched logos, avatars (also chmodded on every start)
+env:
+  TZ: ${platform.timezone}             # cron times and payment dates
+  # Password-reset and verification mail links (the admin page's "Server URL", shown read-only when set by env).
+  WALLOS_SERVER_URL: ${app.url}
+secrets:
+  admin_password: {length: 24}
+# Access: Wallos has its own sign-in (YouEye ID, its own passwords, TOTP), so it installs with public access: anyone
+# on the household network (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24,
+# "YouEye lives on the LAN; apps behave like upstream"). setup/install.yaml registers the admin before the route
+# exists (Wallos makes whoever registers first, user id 1, its only admin); registration then stays closed, as
+# upstream ships it.
+public_access: true
+credentials:
+  - {label: Wallos admin (the admin page; YouEye ID accounts are never Wallos admins), username: admin, password: admin_password}
+sso:
+  # Any page handles ?code&state (includes/checksession.php); / is index.php. Not upstream's /index.php: Wallos also
+  # sends OIDC_REDIRECT_URL as the logout's post_logout_redirect_uri, and YouEye ID accepts only the app's root there
+  # (checked live: /index.php gets "invalid_post_logout_redirect_uri").
+  callback: /
+  env:
+    # Env-only OIDC (includes/oidc_settings.php): env overrides the admin page and is never written to the database.
+    # Admin is not mapped from YouEye ID: Wallos' admin is only user id 1 (the install's bootstrap account).
+    OIDC_ENABLED: 'true'
+    OIDC_PROVIDER_NAME: ${identity.name}
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    # Discovery from the app-network issuer (Wallos trims the trailing / and appends /.well-known/openid-configuration
+    # = ${sso.discovery_url}). Token and userinfo go to id.youeye:3002, a private address: Wallos' SSRF guard allows
+    # it only because setup/install.yaml adds exactly id.youeye:3002 to its allowlist.
+    OIDC_ISSUER: ${sso.issuer}
+    OIDC_REDIRECT_URL: ${sso.callback_url}
+    OIDC_LOGOUT_URL: ${sso.logout_url}
+    OIDC_USER_IDENTIFIER: sub
+    OIDC_SCOPES: openid email profile
+    # New YouEye ID users get their own Wallos account (a normal user). Existing local accounts are linked by
+    # verified email (YouEye ID sends email_verified: true).
+    OIDC_AUTO_CREATE_USER: 'true'
+    # Password login stays on (upstream default): the admin is user id 1, a local account with no YouEye ID link.
+    OIDC_DISABLE_PASSWORD_LOGIN: 'false'
