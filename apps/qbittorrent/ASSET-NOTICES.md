@@ -6,4 +6,7 @@ icon.svg is qBittorrent's own logo, copied unmodified from
 https://raw.githubusercontent.com/qbittorrent/qBittorrent/release-5.3.0/dist/unix/menuicons/scalable/apps/qbittorrent.svg
 (GPL, see COPYING.GPLv2 and COPYING.GPLv3: qBittorrent's binaries are GPLv3+ because of GPLv3+ assets such as images; 2026-11-24).
 
-Both screenshots are historical 5.2.3 repository captures, explicitly labelled, not 5.3.0 acceptance evidence. Visually reviewed: only qBittorrent WebUI and a Big Buck Bunny filename/progress, no film frames, personal data or credentials. UI attributed to the qBittorrent project under GPL-3.0-or-later. No claim of a current download or film licence clearance is derived from the filename. Current runtime evidence is retained separately. Exact hashes are in asset-provenance.json.
+Both screenshots are our own captures on YouEye test boxes with demo data only (no personal data or credentials):
+the WebUI sign-in page, and the transfer list at qBittorrent 5.3.0 (linuxserver 5.3.0_v2.1.2-ls488, 2026-11-24) with
+two legal Debian 13.8.0 netinst torrents. qBittorrent 5.3.1 (a bug-fix release) leaves both views unchanged. UI
+attributed to the qBittorrent project under GPL-3.0-or-later. Exact hashes are in asset-provenance.json.
