@@ -63,6 +63,3 @@ curation:
     - id: media-and-files
       label: Media & files
       apps: [jellyfin, immich, nextcloud]
-
-# Native apps are named by id only; the box finds each one's release through its channel index.
-native: [notes, wiki, search, translate, weather, cinema]

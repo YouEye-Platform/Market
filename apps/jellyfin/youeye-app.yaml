@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: jellyfin
-version: 12.4.0
+version: 12.4.0.1
 name: Jellyfin
 listing:
   tagline: The free software media system
@@ -17,12 +17,9 @@ listing:
     with Quick Connect). To keep it to people with a YouEye account instead, turn public access off in the
     install dialog or later in the app's access settings.
   release_notes: |
-    Jellyfin 12.4 is a new major version (10.12 was renumbered 12): a new database
-    layer, faster library scans, and the end of old Emby-style client authorization.
-    Sign-in with YouEye ID now uses the maintained SSO-Auth 6.1 plugin. The move is
-    one-way and old plugins cannot be carried over, so installed Jellyfin 10.11 must be
-    reinstalled: remove Jellyfin with its data (your media folder stays) and install it
-    again, then scan the library.
+    Jellyfin's cache moves from memory to its own disk storage, so Jellyfin installs and
+    starts on boxes with less memory too (it needs 2 GB free for its cache). Thumbnails are
+    made again once after the update.
 
     New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
     copy, turn on public access in the app's access settings if you want that.
@@ -53,6 +50,12 @@ shared:
   media: /data
 env:
   JELLYFIN_PublishedServerUrl: ${app.url}
+  # Jellyfin 12 refuses to start with less than 2 GiB free in its cache folder (StorageHelper.
+  # TestCommonPathsForStorageCapacity). /cache above is a RAM-sized tmpfs (kind: cache), so a box with less than ~4.5 GB
+  # RAM could never install Jellyfin (1.9 GiB on a 4 GB box; YE-170). The cache (images, transcodes) lives on the
+  # config volume instead, on disk, as upstream's own installs keep it. /cache stays declared (an update can't change
+  # data paths) and is left empty.
+  JELLYFIN_CACHE_DIR: /config/cache
 secrets:
   admin_password: {length: 24}
 # Access: Jellyfin has its own sign-in, so it installs with public access: anyone on the household network

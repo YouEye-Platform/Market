@@ -63,7 +63,8 @@ test('the catalog builds into a market the format accepts, twice byte for byte',
   assert.equal(sha256(indexBytes), pointer.index.sha256);
   const index = JSON.parse(indexBytes);
   assert.deepEqual(index.apps.map((app) => app.id), apps);
-  assert.deepEqual(index.native, ['notes', 'wiki', 'search', 'translate', 'weather', 'cinema']);
+  assert.equal(index.native, undefined, 'native apps are app folders (YE-142), not an id list');
+  assert.deepEqual(index.apps.filter((app) => app.kind === 'native').map((app) => app.id), ['cinema', 'notes', 'search', 'translate', 'weather', 'wiki']);
   assert.deepEqual(index.bundles.map((bundle) => bundle.id), readdirSync(join(root, 'bundles')).sort());
   for (const app of index.apps) {
     const bundle = JSON.parse(readFileSync(join(first, app.bundle.path), 'utf8'));
@@ -71,7 +72,8 @@ test('the catalog builds into a market the format accepts, twice byte for byte',
     for (const [name, file] of Object.entries(bundle.files)) {
       assert.equal(sha256(readFileSync(join(first, file))), sha256(readFileSync(join(root, 'apps', app.id, name))), `${app.id}/${name}`);
     }
-    assert.ok(app.icon && Object.values(bundle.files).includes(app.icon), `${app.id} has its icon`);
+    // A native app's listing is its release's: a symbol icon (listing.icon) and no picture files.
+    if (app.kind !== 'native') assert.ok(app.icon && Object.values(bundle.files).includes(app.icon), `${app.id} has its icon`);
   }
   // Licence and notice files are published beside the market, byte for byte, always as text: a name that does not
   // end in .txt or .md gets .txt (LICENSE -> LICENSE.txt), so nothing there is ever served as a page.
@@ -92,7 +94,8 @@ test('the generator refuses a broken catalog and names every problem', { skip },
   edit('apps/memos/youeye-app.yaml', (text) => text.replace(/@sha256:[0-9a-f]{64}/, ':latest'));
   edit('apps/sonarr/youeye-app.yaml', (text) => text.replace('setup/connect-prowlarr.yaml', 'setup/connect-missing.yaml'));
   edit('bundles/private-search/bundle.yaml', (text) => text.replace('id: private-search', 'id: other'));
-  edit('catalog.yaml', (text) => text.replace('native: [notes,', 'native: [jellyfin, notes,').replace('apps: [searxng, wikiless]', 'apps: [searxng, nowhere]'));
+  edit('catalog.yaml', (text) => text.replace('apps: [searxng, wikiless]', 'apps: [searxng, nowhere]'));
+  edit('apps/notes/youeye-app.yaml', (text) => text.replace(/^  package:\n(?:    .*\n)+/m, ''));
   edit('asset-provenance.json', (text) => {
     const provenance = JSON.parse(text);
     provenance.assets = provenance.assets.filter((asset) => asset.path !== 'apps/immich/icon.svg');
@@ -107,11 +110,21 @@ test('the generator refuses a broken catalog and names every problem', { skip },
     /apps\/memos: .*image must be pinned by digest/,
     /apps\/sonarr: .*setup\/connect-missing\.yaml does not exist/,
     /bundles\/private-search\/bundle\.yaml: id is "other"/,
-    /native app "jellyfin" also has an app folder/,
+    /apps\/notes: .*source\.package: a native app from a market names its package/,
     /curation\.collections\.private-search names "nowhere"/,
     /apps\/immich\/icon\.svg: picture has no record in asset-provenance\.json/,
     /asset-provenance\.json: apps\/jellyfin\/.*: sha256 is stale/,
   ]) assert.match(result.stderr, pattern);
+  assert.deepEqual(readdirSync(out), [], 'nothing is written');
+});
+
+test('the generator refuses the old native: list in catalog.yaml (native apps are app folders since 0.6.20)', { skip }, (t) => {
+  const repo = copy(t);
+  writeFileSync(join(repo, 'catalog.yaml'), `${readFileSync(join(repo, 'catalog.yaml'), 'utf8')}native: [notes]\n`);
+  const out = scratch(t, 'market-out-');
+  const result = build(repo, out);
+  assert.equal(result.status, 1, result.stdout);
+  assert.match(result.stderr, /native: is gone; a native app is an apps\/<id>\/ folder/);
   assert.deepEqual(readdirSync(out), [], 'nothing is written');
 });
 

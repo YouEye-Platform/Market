@@ -33,11 +33,16 @@ function block(text, key) {
 // Accepted apps passed their own fresh-install acceptance; new apps start in REMAINING_DEBT.
 const ACCEPTED = new Set(['bazarr', 'calibre-web-automated', 'ghostfolio', 'trek', 'gramps-web', 'homebox', 'actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
 const REMAINING_DEBT = new Set(['razzia']);
+// Native apps (YE-142, YouEye 0.6.20): their manifest is the app release's own (Tools/market/native-pin), listed as
+// the release ships it; they implement their own widgets and embeds.
+const NATIVE = new Set(['notes', 'wiki', 'search', 'translate', 'weather', 'cinema']);
 
 test('the completeness baseline accounts for every app folder exactly once', () => {
-  const overlap = [...ACCEPTED].filter((id) => REMAINING_DEBT.has(id));
+  const overlap = [...ACCEPTED, ...REMAINING_DEBT].filter((id) => NATIVE.has(id))
+    .concat([...ACCEPTED].filter((id) => REMAINING_DEBT.has(id)));
   assert.deepEqual(overlap, []);
-  assert.deepEqual([...new Set([...ACCEPTED, ...REMAINING_DEBT])].sort(), apps);
+  assert.deepEqual([...new Set([...ACCEPTED, ...REMAINING_DEBT, ...NATIVE])].sort(), apps);
+  for (const id of NATIVE) assert.match(manifest(id), /^source:\n(?:  .*\n)*  package:\n/m, `${id} is a native app with source.package`);
 });
 
 test('accepted apps have complete store listings with local icons and captioned screenshots', () => {
@@ -151,7 +156,7 @@ test('no old-format fields or variable names remain', () => {
 });
 
 test('external apps do not advertise dashboard widgets without a YouEye embed implementation', () => {
-  const offenders = apps.filter((id) => /kind:\s*widget/.test(manifest(id)) && /placement:\s*dashboard/.test(manifest(id)));
+  const offenders = apps.filter((id) => !NATIVE.has(id)).filter((id) => /kind:\s*widget/.test(manifest(id)) && /placement:\s*dashboard/.test(manifest(id)));
   assert.deepEqual(offenders, []);
 });
 
