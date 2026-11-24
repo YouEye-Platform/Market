@@ -877,6 +877,27 @@
       "source": "https://github.com/kiwix/kiwix-tools",
       "evidence": "local-capture",
       "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on the same throw-away test box at kiwix-serve 3.8.2: the Wikipedia article Ray Charles served offline from the ZIM wikipedia_en_ray-charles_maxi_2026-10 (Kiwix viewer). Article text from English Wikipedia, CC BY-SA 4.0 (Wikipedia contributors); infobox photo Ray_Charles_classic_piano_pose.jpg (Maurice Seymour, 1969), public domain per Wikimedia Commons. No passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/karakeep/icon.svg",
+      "sha256": "sha256:71f0e5b203e76354c35646451515c199b87e00ed49b9761551e79b6f45f26940",
+      "source": "https://raw.githubusercontent.com/karakeep-app/karakeep/v0.35.0/apps/web/public/icons/logo-icon.svg",
+      "evidence": "exact-source",
+      "notes": "Karakeep's own app icon, copied byte for byte from the repo at tag v0.35.0 (apps/web/public/icons/logo-icon.svg; logo-full.svg adds the word mark). The repository is AGPL-3.0 (LICENSE); no separate trademark or branding policy found in the repo. Used unmodified to identify the application, no endorsement claimed."
+    },
+    {
+      "path": "apps/karakeep/screenshots/homepage.png",
+      "sha256": "sha256:8ded8654c87e06bdee610e156e82f6b5e54aa5cf59ee28c54fec5636c3aa1044",
+      "source": "https://raw.githubusercontent.com/karakeep-app/karakeep/v0.35.0/docs/static/img/screenshots/homepage.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Karakeep repository at tag v0.35.0 (docs/static/img/screenshots/homepage.png, shown on docs.karakeep.com's screenshots page); AGPL-3.0 repository (LICENSE). Shows the home grid (Karakeep v0.29.3 in its footer; the docs' screenshots page at v0.35.0 still uses it, and the 0.35 home grid has the same layout): demo bookmarks with AI tags, user shown as \"D\". Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/karakeep/screenshots/bookmark-preview.png",
+      "sha256": "sha256:f0dba0e02b1fccb43a9de4513abf56a6b39e02a0ab34d892836a9665f8bff59d",
+      "source": "https://raw.githubusercontent.com/karakeep-app/karakeep/v0.35.0/docs/static/img/screenshots/bookmark-preview.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Karakeep repository at tag v0.35.0 (docs/static/img/screenshots/bookmark-preview.png, shown on docs.karakeep.com's screenshots page); AGPL-3.0 repository (LICENSE). Shows a saved article open in Reader View with AI tags, attachments (banner, full-page archive, screenshot) and the note field (Karakeep v0.32.0 in its footer): public TechCrunch article text, user shown as \"D\". Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
     }
   ]
 }

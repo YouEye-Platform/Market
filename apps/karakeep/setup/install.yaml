@@ -1,0 +1,12 @@
+# Before the route exists: Karakeep makes its FIRST account admin (auth.ts isFirstUser), and sign-up is open (upstream
+# default), so the install makes that account itself with a generated password (owner, 2026-11-24). better-auth
+# checks the origin against the request's host: send the app's public host and origin.
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /api/health, timeout: 300}
+  - http:
+      method: POST
+      path: /api/auth/sign-up/email
+      headers: {X-Forwarded-Host: '${app.fqdn}', X-Forwarded-Proto: https, Origin: '${app.url}'}
+      body: {name: Admin, email: admin@youeye.local, password: '${secret.admin_password}'}

@@ -1,0 +1,108 @@
+schema: youeye.app.v1
+id: karakeep
+version: 0.35.0
+name: Karakeep
+listing:
+  tagline: Bookmark everything, with a touch of AI
+  description: Bookmarks, notes and images with archiving, search and AI tags
+  long_description: |
+    Karakeep (formerly Hoarder) keeps the things you want to come back to: links, notes, images and PDFs. It fetches
+    each page's title, picture and text, can keep a screenshot or a full copy of the page, finds anything again with
+    full-text search, and sorts it into lists you can share. RSS feeds, rules, highlights, a reader view, browser
+    extensions and phone apps for iOS and Android are included.
+
+    With Use AI Settings on, Karakeep tags your bookmarks automatically through YouEye AI (the model group you pick);
+    nothing goes to an AI provider you haven't set up in YouEye. Without it, everything else works.
+
+    Sign-in: sign in with YouEye ID, or with a Karakeep email and password; anyone can create a Karakeep account, as
+    upstream ships it. YouEye creates Karakeep's administrator account (under the app's credentials); use it to make
+    others administrators in Admin > Users. Signing in with YouEye ID doesn't make you a Karakeep administrator.
+
+    Karakeep installs with public access, so phones, browser extensions and everyone on your network can reach it; its
+    own sign-in protects it. To keep it to people with a YouEye account instead, turn public access off in the
+    install dialog or later in the app's access settings (the phone apps and extensions then can't connect).
+  release_notes: |
+    Karakeep 0.35.0, new in the YouEye Market.
+  category: productivity
+  tags: [bookmarks, read-later, archive, notes, ai]
+  icon: bookmark
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/homepage.png, caption: "Bookmarks with previews and AI tags"}
+    - {path: screenshots/bookmark-preview.png, caption: "A saved article in Reader View, with AI tags and its archived copies"}
+  website: https://karakeep.com
+  developer: Mohamed Bassem and contributors
+  license: AGPL-3.0
+  source_code: https://github.com/karakeep-app/karakeep
+  support: https://github.com/karakeep-app/karakeep/issues
+  docs: https://docs.karakeep.com
+# 0.35.0, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/karakeep-app/karakeep@sha256:6f7d32ef296ddf1fc7c67ff56b8a201b7006a6a47b92b202afee1338841b353d
+port: 3000
+# 200 from the web service, which s6 starts only after the database migration (init-db-migration).
+health: {path: /api/health, timeout: 300}
+internet: true
+data:
+  - /data                       # DATA_DIR: SQLite db.db and assets (screenshots, archives, uploads)
+# No command: s6-overlay's /init must be PID 1, and Incus runs only an entrypoint of exactly /init as PID 1 (any
+# /bin/sh -c wrapper runs under Incus's own init: "s6-overlay-suexec: fatal: can only run as pid 1"). With AI Settings
+# off every ${ai.*} is empty and Incus drops empty environment keys, so Karakeep's config never sees
+# OPENAI_BASE_URL="" (it would refuse it): checked live, it starts with AI off.
+env:
+  DATA_DIR: /data
+  NEXTAUTH_URL: ${app.url}
+  NEXTAUTH_SECRET: ${secret.nextauth_secret}
+  MEILI_ADDR: ${sidecar.meilisearch.url}
+  MEILI_MASTER_KEY: ${secret.meili_master_key}
+  BROWSER_WEB_URL: ${sidecar.chrome.url}
+  CRAWLER_BROWSER_TIMEZONE: ${platform.timezone}
+secrets:
+  nextauth_secret: {kind: key, length: 48}
+  meili_master_key: {kind: hex, length: 32}
+  admin_password: {length: 24}
+# Access: Karakeep has its own sign-in (YouEye ID through the app, and email/password), so it installs with public
+# access (owner rules 2026-11-13 and 2026-11-24, "YouEye lives on the LAN; apps behave like upstream"). Sign-up stays
+# open as upstream ships it; the install creates the admin so no visitor becomes it (setup/install.yaml).
+public_access: true
+credentials:
+  - {label: Karakeep admin account (makes others admins in Admin > Users), username: admin@youeye.local, password: admin_password}
+sso:
+  callback: /api/auth/callback/custom
+  env:
+    # better-auth genericOAuth (apps/web/server/auth.ts): provider id "custom", discovery over the app network.
+    # Admin is not mapped from YouEye ID: Karakeep makes only its first account admin (the install's bootstrap).
+    OAUTH_WELLKNOWN_URL: ${sso.discovery_url}
+    OAUTH_CLIENT_ID: ${sso.client_id}
+    OAUTH_CLIENT_SECRET: ${sso.client_secret}
+    OAUTH_PROVIDER_NAME: ${identity.name}
+ai:
+  env:
+    OPENAI_BASE_URL: ${ai.openai_base_url}     # includes /v1, as the OpenAI SDK expects
+    OPENAI_API_KEY: ${ai.api_key}
+    INFERENCE_TEXT_MODEL: ${ai.default_model}
+    INFERENCE_IMAGE_MODEL: ${ai.default_model}
+sidecars:
+  - name: meilisearch
+    # v1.55.0 (the version Karakeep 0.35.0's compose pins), multi-arch index (linux/amd64, linux/arm64)
+    image: docker.io/getmeili/meilisearch@sha256:ff546679970126f8822e15d1b6a06bfbff1f2ce2e43f810cfb5258012f92de5c
+    port: 7700
+    health: /health
+    data:
+      - /meili_data               # the search index; rebuildable from Karakeep (Admin > Reindex all bookmarks)
+    env:
+      MEILI_MASTER_KEY: ${secret.meili_master_key}
+      MEILI_NO_ANALYTICS: 'true'  # as upstream's compose
+      # A later Meilisearch image upgrades its index in place instead of refusing to start (--upgrade-db; v1.55.0's
+      # --help: env MEILI_UPGRADE_DB, the former experimental dumpless upgrade).
+      MEILI_UPGRADE_DB: 'true'
+  - name: chrome
+    # 157.0.8103.78-r1 (= release), multi-arch index (linux/amd64, linux/arm64)
+    image: ghcr.io/karakeep-app/karakeep-chrome@sha256:00fb4fa9c37aa74c58e74d0bdd16c4e3b81dddb5f264917c879f9579c3b3ad95
+    port: 9222
+    health: /json/version
+    # Incus sets HOME from the passwd entry of the image's user (65534: /nonexistent) instead of the image's HOME=/tmp;
+    # Chrome's crash handler then exits at start ("--database is required"), so give it the image's HOME back.
+    env:
+      HOME: /tmp
+    # The image entrypoint (socat 9222 -> Chrome 9223, --no-sandbox) plus upstream compose's flags.
+    command: [/usr/local/bin/chrome-entrypoint.sh, --disable-gpu, --disable-dev-shm-usage, --hide-scrollbars, --disable-blink-features=AutomationControlled, "--window-size=1440,900"]

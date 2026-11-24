@@ -32,7 +32,7 @@ function block(text, key) {
 
 // Accepted apps passed their own fresh-install acceptance; new apps start in REMAINING_DEBT.
 const ACCEPTED = new Set(['bazarr', 'calibre-web-automated', 'ghostfolio', 'trek', 'gramps-web', 'homebox', 'actual-budget', 'audiobookshelf', 'docuseal', 'freshrss', 'hedgedoc', 'immich', 'jellyfin', 'jellyseerr', 'kavita', 'linkwarden', 'mealie', 'memos', 'miniflux', 'navidrome', 'nextcloud', 'open-webui', 'paperless-ngx', 'pingvin-share', 'prowlarr', 'qbittorrent', 'radarr', 'searxng', 'sonarr', 'stirling-pdf', 'vaultwarden', 'vikunja', 'wallabag', 'wikiless']);
-const REMAINING_DEBT = new Set(['razzia', 'filebrowser', 'livesync', 'forgejo', 'romm', 'changedetection', 'kiwix']);
+const REMAINING_DEBT = new Set(['razzia', 'filebrowser', 'livesync', 'forgejo', 'romm', 'changedetection', 'kiwix', 'karakeep']);
 // Native apps (YE-142, YouEye 0.6.20): their manifest is the app release's own (Tools/market/native-pin), listed as
 // the release ships it; they implement their own widgets and embeds.
 const NATIVE = new Set(['notes', 'wiki', 'search', 'translate', 'weather', 'cinema']);
