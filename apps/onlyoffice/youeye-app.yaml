@@ -1,0 +1,82 @@
+schema: youeye.app.v1
+id: onlyoffice
+version: 10.0.0
+name: ONLYOFFICE Docs
+listing:
+  tagline: Edit documents, spreadsheets and slides together
+  description: Online office suite that opens Word, Excel and PowerPoint files in your other apps
+  long_description: |
+    ONLYOFFICE Docs is an online office suite: editors for text documents, spreadsheets, presentations, PDFs and
+    forms (and a diagram viewer), fully compatible with Microsoft Office files (.docx, .xlsx, .pptx), with real-time
+    co-editing, comments, track changes and version history. It has no file storage of its own: in YouEye it is the
+    editor that your other apps open documents in.
+
+    Nextcloud: install both, then approve the connection "Nextcloud → ONLYOFFICE Docs" (Nextcloud's page, or the
+    suggestion YouEye shows). YouEye installs and configures Nextcloud's ONLYOFFICE app with the shared secret, and
+    Word, Excel and PowerPoint files in Nextcloud open in the editor, also from share links and Nextcloud's phone
+    and desktop apps. Approving the connection replaces any ONLYOFFICE settings made by hand in Nextcloud; removing
+    it turns Nextcloud's ONLYOFFICE app off again (before YouEye 0.6.20, remove the connection first and then
+    ONLYOFFICE Docs; otherwise Nextcloud keeps sending documents to the removed editor until you connect it again).
+    The connection expects ONLYOFFICE Docs at its default address, https://onlyoffice.<your site>.
+
+    ONLYOFFICE Docs installs with public access: anyone on your home network or VPN can reach it, as Nextcloud's
+    phone and desktop apps and share-link guests need, and no document opens, converts or saves without the secret
+    the connected apps hold (a JWT). Its address shows only a welcome page.
+
+    Community Edition: up to 20 people at once are recommended; on phones, documents open for viewing (the mobile
+    web editors are in the paid editions). It needs about 2 GB of memory, 4 GB recommended, and the first start
+    takes a few minutes (it prepares its fonts). It uses the internet to update its plugins (the AI plugin can use
+    your own AI provider's key).
+
+    ONLYOFFICE is a trademark of Ascensio System SIA. YouEye installs the unmodified official image.
+  release_notes: |
+    ONLYOFFICE Docs 10.0.0, new in the YouEye Market. Nextcloud 35.0.3.4 and later connect to it.
+  category: productivity
+  tags: [office, documents, spreadsheets, presentations, collaboration]
+  icon: file-text
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/onlyoffice-docs.png, caption: "Document, spreadsheet, presentation and PDF editors"}
+    - {path: screenshots/nextcloud-editor.png, caption: "Editing a document in Nextcloud"}
+  website: https://www.onlyoffice.com
+  developer: Ascensio System SIA (ONLYOFFICE)
+  license: AGPL-3.0
+  source_code: https://github.com/ONLYOFFICE/DocumentServer
+  support: https://community.onlyoffice.com
+  docs: https://helpcenter.onlyoffice.com/docs/installation/community
+# 10.0.0 (Docker tags 10.0.0 = 10.0.0.1 = latest, package 10.0.0-169), OCI index: linux/amd64, linux/arm64
+image: docker.io/onlyoffice/documentserver@sha256:ca17889f10b11141cc6441836aebdd2835cf3e1b49681b2fd6e155c94b7850b3
+port: 80
+# No command: PID 1 (/app/ds/run-document-server.sh) traps SIGTERM, saves open documents (documentserver-prepare4shutdown)
+# and exits. The Community Edition has no database, Redis or RabbitMQ (only PRODUCT_EDITION turns them on).
+# /healthcheck is the endpoint Nextcloud's connector checks too. The first start regenerates fonts and updates
+# plugins: a few minutes.
+health: {path: /healthcheck, timeout: 300}
+# Upstream default: the plugin manager updates plugins from the internet at every start; the AI plugin calls the
+# provider the user configures.
+internet: true
+data:
+  - /var/www/onlyoffice/Data   # runtime.json (AI plugin settings), the release marker, WOPI keys
+  - /var/lib/onlyoffice        # the document cache
+env:
+  JWT_ENABLED: 'true'
+  # Without JWT_SECRET the entrypoint makes a new random secret at every start. Connected apps read it as their
+  # ${peer.api_key} (api_key: below).
+  JWT_SECRET: ${secret.jwt_secret}
+  JWT_HEADER: Authorization          # the upstream default, which Nextcloud's connector uses too
+  # Connected apps reach the suite, and it downloads from and calls back to them, on private 10.x connection
+  # addresses; upstream's request filter refuses private addresses unless this is set.
+  ALLOW_PRIVATE_IP_ADDRESS: 'true'
+secrets:
+  # hex: the entrypoint writes the secret into a single-quoted JavaScript string.
+  jwt_secret: {kind: hex, length: 32}
+api_key: {secret: jwt_secret}
+provides:
+  # Matched by type once connections by type can carry a setup file; until then Nextcloud connects to the app id
+  # onlyoffice (its setup/connect-onlyoffice.yaml).
+  - {type: office-onlyoffice, description: ONLYOFFICE Docs editors (document API with a JWT secret), port: 80, scope: service}
+# Access: the browser loads the editors from this address (Nextcloud's page, its phone and desktop apps, share-link
+# guests), and none of those can pass the YouEye gate. Every document request needs a JWT signed with the shared
+# secret; without it only the welcome page, /healthcheck, the formats list and the static editor files answer.
+# Public, as upstream runs it (owner 2026-11-24, YE-192).
+public_access: true

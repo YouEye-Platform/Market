@@ -1038,6 +1038,27 @@
       "source": "https://github.com/YouEye-Platform/Market",
       "evidence": "local-capture",
       "notes": "Captured by Andrew (YouEye Market curator) on 2026-11-24 on a throw-away YouEye test box (Radicale 3.9.2 from this catalog, 1280x800), because upstream publishes no screenshots. Radicale's unmodified web page with demo content only: a throw-away test account \"probe\" (removed afterwards), made-up calendar, to-do and contact names, the test domain devvm.test. No passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/onlyoffice/icon.svg",
+      "sha256": "sha256:1c6250cd518e629b5f78755d9d109cad985a9c6a4127542c9bf0ec296a7dc3a2",
+      "source": "https://raw.githubusercontent.com/ONLYOFFICE/web-apps/v10.0.0.169/apps/common/main/resources/img/about/logo_s.svg",
+      "evidence": "project-reference",
+      "notes": "ONLYOFFICE's three-layer mark, derived from the colour logo logo_s.svg in ONLYOFFICE/web-apps at tag v10.0.0.169 (the editors' About logo): its three coloured paths are copied unchanged, the wordmark path is left out and the svg size/viewBox fit the mark (the project uses this mark alone as its favicon). Not byte-identical to the source, hence project-reference. ONLYOFFICE is a trademark of Ascensio System SIA; used to identify the unmodified software (trademark policy). See ASSET-NOTICES.md."
+    },
+    {
+      "path": "apps/onlyoffice/screenshots/onlyoffice-docs.png",
+      "sha256": "sha256:993ac689e7aa4af1b0c1424dff3a7e403720fe8b850d2bf929ab52ed97c83a6f",
+      "source": "https://raw.githubusercontent.com/ONLYOFFICE/DocumentServer/v10.0.0/screenshots/ONLYOFFICE%20Docs.png",
+      "evidence": "exact-source",
+      "notes": "ONLYOFFICE's own screenshot of the editors (the repository README image), copied byte for byte from ONLYOFFICE/DocumentServer at tag v10.0.0 (3012x1730). AGPL-3.0 repository."
+    },
+    {
+      "path": "apps/onlyoffice/screenshots/nextcloud-editor.png",
+      "sha256": "sha256:08e9d49d3ee8fc065b6b9326d97675a16d4a60150da4a85e05ba6e2742734f7c",
+      "source": "https://raw.githubusercontent.com/ONLYOFFICE/onlyoffice-nextcloud/v10.2.1/screenshots/main.png",
+      "evidence": "exact-source",
+      "notes": "ONLYOFFICE's own screenshot of its document editor inside Nextcloud (the connector's app-store screenshot), copied byte for byte from ONLYOFFICE/onlyoffice-nextcloud at tag v10.2.1 (1064x580). AGPL-3.0 repository."
     }
   ]
 }

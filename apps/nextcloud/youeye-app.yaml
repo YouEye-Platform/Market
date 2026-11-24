@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: nextcloud
-version: 35.0.3.3
+version: 35.0.3.4
 requires: { youeye: ">=0.6.15" }
 name: Nextcloud
 listing:
@@ -10,8 +10,12 @@ listing:
     Nextcloud is a safe home for all your data: store and sync your files, contacts, calendars and
     more on your own server. YouEye installs Nextcloud Server with its built-in apps (Files, Photos,
     Activity, Dashboard and sharing), and phones and computers sync contacts and calendars with it
-    over CardDAV and CalDAV. Calendar, Contacts, Mail, Talk, office document editing and hundreds of
-    community apps are Nextcloud apps you add from its app store (Apps, in an admin's account menu).
+    over CardDAV and CalDAV. Calendar, Contacts, Mail, Talk and hundreds of community apps are
+    Nextcloud apps you add from its app store (Apps, in an admin's account menu).
+
+    Office documents: install ONLYOFFICE Docs from the Market and approve its connection to Nextcloud;
+    YouEye sets up Nextcloud's ONLYOFFICE app, and Word, Excel and PowerPoint files open in the editor
+    (approving it replaces ONLYOFFICE settings made by hand in Nextcloud).
 
     Nextcloud has its own sign-in (YouEye ID; the desktop and phone apps use app passwords; the
     local admin, password under the app's credentials, at /login?direct=1), so it installs with
@@ -20,13 +24,10 @@ listing:
     YouEye account instead, turn public access off in the install dialog or later in the app's
     access settings; Nextcloud's own apps then can't connect.
   release_notes: |
-    Nextcloud's own setup checks are clean now: heavy daily jobs run in a maintenance window
-    at 01:00 UTC, missing database indices are added, the mimetype migrations run once, and
-    the server sends HSTS. Since 35.0.3.2, background jobs run every 5 minutes on their own
-    and Nextcloud calls itself on its local address, so the first sign-in is quick. New
-    installs are reachable by anyone on your network so the desktop and phone apps can
-    connect; on an installed Nextcloud, turn on public access in the app's access settings
-    for that. No database migration.
+    Nextcloud can now connect to ONLYOFFICE Docs from the Market: approve the connection and
+    office documents open and save in the editor. Nothing changes until you approve it. Since
+    35.0.3.3, Nextcloud's own setup checks are clean (maintenance window at 01:00 UTC, database
+    indices, HSTS), and background jobs run every 5 minutes on their own. No database migration.
   category: productivity
   tags: [cloud, storage, files, collaboration, office]
   icon: cloud
@@ -60,10 +61,12 @@ port: 80
 #   data/.youeye-expensive-repair; and Apache sends HSTS (max-age 15552000, the value the check asks for). HSTS is
 #   set in the app, not in YouEye's Caddy route: the route is the platform's, and Nextcloud's docs put it in the web
 #   server config. mod_headers is on in the image; the conf file lives in the container and is written at each start.
+# - Connections (YE-192): YouEye brings up a connection's network interface inside the app with `ip` and `udhcpc`
+#   (or dhclient), which the image lacks; its busybox has both, so they are linked into /usr/local/bin.
 # An update applies `command:`, so installed copies get all of it (a cron sidecar would change the container set,
 # which updates refuse; setup files don't run on update). Keep it ONE line with no single quotes: Incus cannot run
 # a multi-line oci.entrypoint ("/bin/sh: 0: -c requires an argument", the update rolled back; VM 156, 2026-11-23).
-command: [/bin/sh, -c, 'busybox crond -b -L /dev/null; printf "Header always set Strict-Transport-Security \"max-age=15552000\"\n" > /etc/apache2/conf-enabled/youeye-hsts.conf; o() { runuser -u www-data -- php /var/www/html/occ "$@"; }; (until o status --output=json 2>/dev/null | grep -q "\"installed\":true,.*\"maintenance\":false,\"needsDbUpgrade\":false"; do sleep 10; done; o config:system:set circles.force_nc_base --value=http://localhost >/dev/null; o config:system:get maintenance_window_start >/dev/null || o config:system:set maintenance_window_start --type=integer --value=1 >/dev/null; o db:add-missing-indices >/dev/null 2>&1; v=$(o config:system:get version); [ "$(cat /var/www/html/data/.youeye-expensive-repair 2>/dev/null)" = "$v" ] || { o maintenance:repair --include-expensive >/dev/null 2>&1 && echo "$v" > /var/www/html/data/.youeye-expensive-repair; }) & exec /entrypoint.sh apache2-foreground']
+command: [/bin/sh, -c, 'busybox crond -b -L /dev/null; ln -sf /usr/bin/busybox /usr/local/bin/ip; ln -sf /usr/bin/busybox /usr/local/bin/udhcpc; printf "Header always set Strict-Transport-Security \"max-age=15552000\"\n" > /etc/apache2/conf-enabled/youeye-hsts.conf; o() { runuser -u www-data -- php /var/www/html/occ "$@"; }; (until o status --output=json 2>/dev/null | grep -q "\"installed\":true,.*\"maintenance\":false,\"needsDbUpgrade\":false"; do sleep 10; done; o config:system:set circles.force_nc_base --value=http://localhost >/dev/null; o config:system:get maintenance_window_start >/dev/null || o config:system:set maintenance_window_start --type=integer --value=1 >/dev/null; o db:add-missing-indices >/dev/null 2>&1; v=$(o config:system:get version); [ "$(cat /var/www/html/data/.youeye-expensive-repair 2>/dev/null)" = "$v" ] || { o maintenance:repair --include-expensive >/dev/null 2>&1 && echo "$v" > /var/www/html/data/.youeye-expensive-repair; }) & exec /entrypoint.sh apache2-foreground']
 health: {path: /status.php, timeout: 300}
 internet: true
 database: postgres
@@ -79,7 +82,8 @@ env:
   NEXTCLOUD_TRUSTED_DOMAINS: ${app.fqdn} localhost
   # The image reads TRUSTED_PROXIES (config/reverse-proxy.config.php, at every request); NEXTCLOUD_TRUSTED_PROXIES
   # was never read before 35.0.3. Caddy reaches the app from its NIC on the app's own bridge: trust exactly that
-  # /27 (${app.network_cidr}, YouEye 0.6.15). Nextcloud has no connects/provides, so only Caddy is in it.
+  # /27 (${app.network_cidr}, YouEye 0.6.15). Only Caddy is in it: a connection (connects: below) gives Nextcloud
+  # a NIC on the other app's bridge, never puts that app on Nextcloud's /27.
   TRUSTED_PROXIES: ${app.network_cidr}
   OVERWRITEPROTOCOL: https
   OVERWRITEHOST: ${app.fqdn}
@@ -108,6 +112,14 @@ smtp:
     SMTP_PASSWORD: ${smtp.password}
     MAIL_FROM_ADDRESS: ${smtp.from}
     SMTP_SECURE: tls
+# ONLYOFFICE Docs (YE-192): by app id, because a connection by type can't carry a setup file yet; the suite also
+# provides type office-onlyoffice for when it can. The setup file installs and configures Nextcloud's onlyoffice app.
+connects:
+  - app: onlyoffice
+    name: ONLYOFFICE Docs
+    description: Open and edit office documents in Nextcloud with ONLYOFFICE Docs
+    scope: service
+    setup: setup/connect-onlyoffice.yaml
 sidecars:
   - name: valkey
     # 9.2.0, multi-arch index (linux/amd64, linux/arm/v7, linux/arm64, linux/ppc64le)

@@ -1,0 +1,74 @@
+schema: youeye.setup.v1
+for: connect:onlyoffice
+# Wires Nextcloud's ONLYOFFICE app (the connector from Nextcloud's app store) to ONLYOFFICE Docs. Every step runs in
+# Nextcloud; nothing runs in the suite. Idempotent: config:*:set overwrites, app:enable is a no-op when enabled, and
+# approving the connection again rewrites everything.
+# Two network paths:
+# - the browser loads the editors from the suite's public https address (DocumentServerUrl): the connector refuses
+#   http while Nextcloud itself is https;
+# - server to server over the connection: Nextcloud calls the suite on its connection address
+#   (DocumentServerInternalUrl = ${peer.url}), and the suite downloads files from and saves back to Nextcloud on
+#   Nextcloud's own address on that connection (StorageUrl = ${self.url}). Apps can't call each other's public names.
+steps:
+  - wait: { http: /status.php, timeout: 300 }
+  # The suite's first start regenerates fonts and takes minutes: wait for its health check (curl is in the image).
+  - exec:
+      run: [sh, -c, 'for i in $(seq 120); do curl -fsS --max-time 5 "$1/healthcheck" 2>/dev/null | grep -q true && exit 0; sleep 5; done; echo "ONLYOFFICE Docs did not answer its health check" >&2; exit 1', sh, '${peer.url}']
+      timeout: 660
+  # Fails when the app is already installed (then app:enable below turns it on).
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'app:install', onlyoffice]
+      timeout: 300
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'app:enable', onlyoffice]
+      timeout: 120
+  # The suite's address is a private 10.x connection address; the connector refuses those unless allowed (only for
+  # itself: the system array onlyoffice.allow_local_address).
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:system:set', onlyoffice, allow_local_address, --value=true, --type=boolean]
+  # The suite calls Nextcloud by its connection address: make it a trusted domain (index 20; url-change uses 0 and 1).
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:system:set', trusted_domains, '20', '--value=${self.host}']
+  # The public address of the suite, for the browser. A connect file gets no peer public URL yet, so it is built from
+  # Nextcloud's own name: https://onlyoffice.<box domain>/, the suite's DEFAULT address (a changed subdomain is not
+  # followed). Moves to a typed connection (type: office-onlyoffice) with the peer's public URL when the engine has
+  # them (Notes/for-ceo.md, YE-192).
+  - exec:
+      run: [sh, -c, 'd=$(printf %s "$1" | cut -d. -f2-); exec runuser -u www-data -- php /var/www/html/occ config:app:set onlyoffice DocumentServerUrl --type=string --value="https://onlyoffice.$d/"', sh, '${app.fqdn}']
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', onlyoffice, DocumentServerInternalUrl, --type=string, '--value=${peer.url}/']
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', onlyoffice, StorageUrl, --type=string, '--value=${self.url}/']
+  # The suite's JWT secret (its api_key); the connector stores it as a sensitive value.
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', onlyoffice, jwt_secret, --type=string, --sensitive, '--value=${peer.api_key}']
+  # The connector's own end-to-end check: health, a command with the JWT, and a conversion in which the suite downloads
+  # a file from StorageUrl. It fails the wiring (logged) when either direction does not work.
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'onlyoffice:documentserver', --check]
+      timeout: 180
+# Runs in Nextcloud only (no peer address needed), so it also works while the suite is being removed. Documents stay
+# plain files in Nextcloud.
+remove:
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'app:disable', onlyoffice]
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:delete', onlyoffice, DocumentServerUrl]
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:delete', onlyoffice, DocumentServerInternalUrl]
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:delete', onlyoffice, StorageUrl]
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:delete', onlyoffice, jwt_secret]
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:system:delete', trusted_domains, '20']
+      allow_failure: true
+  - exec:
+      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:system:delete', onlyoffice, allow_local_address]
+      allow_failure: true
