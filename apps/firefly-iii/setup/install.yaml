@@ -1,0 +1,37 @@
+# Runs once, before the app has a route.
+# Firefly III shows /register to the first visitor while it has no users and makes that first user its owner (the
+# administrator role; app/Listeners/Security/System/HandlesNewUserRegistration.php). Its own first-user command
+# (system:create-first-user) refuses outside APP_ENV=testing and prints the password, and the setup runner has no
+# session for the CSRF-protected form. So the owner is created the way that command and /register do it, with
+# Firefly's own classes: UserRepository::store(), the password hash, then the NewUserRegistered event, whose
+# listener makes the first user the owner and creates the user's financial group (memberships) and exchange rates.
+# The password comes as an argument (never in the code). Runs as www-data so cache files stay the app's.
+# It refuses when Firefly already has a user. Registration then closes by itself (single_user_mode, upstream default).
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: {http: /health, timeout: 600}            # 200 only after migrations, once the database answers
+  - exec:
+      run:
+        - runuser
+        - -u
+        - www-data
+        - --
+        - php
+        - -r
+        - >-
+          require "/var/www/html/vendor/autoload.php";
+          $app = require "/var/www/html/bootstrap/app.php";
+          $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+          $repo = app(FireflyIII\Repositories\User\UserRepositoryInterface::class);
+          if ($repo->count() > 0) { fwrite(STDERR, "youeye: Firefly III already has users; no owner created\n"); exit(1); }
+          $user = $repo->store(["blocked" => false, "blocked_code" => null, "email" => $argv[1]]);
+          $user->password = Illuminate\Support\Facades\Hash::make($argv[2]);
+          $user->save();
+          event(new FireflyIII\Events\Security\System\NewUserRegistered(new FireflyIII\Notifications\Notifiables\OwnerNotifiable(), $user));
+          if (!$user->hasRole("owner")) { fwrite(STDERR, "youeye: the new user did not get the owner role\n"); exit(1); }
+          echo "youeye: created the Firefly III owner, user #", $user->id, PHP_EOL;
+        - --
+        - admin@youeye.local
+        - '${secret.admin_password}'
+      timeout: 120

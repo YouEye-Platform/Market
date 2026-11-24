@@ -996,6 +996,27 @@
       "source": "https://raw.githubusercontent.com/sabnzbd/sabnzbd.github.io/c8092ea063567d7afe987cc3cc2355a2c1ea7c90/images/landing/screenshots/night-mode.png",
       "evidence": "exact-source",
       "notes": "Night mode: queue and history with the details of a finished download expanded (all values blurred by upstream). Copied byte for byte from the official SABnzbd website repository sabnzbd/sabnzbd.github.io at commit c8092ea0 (2026-11-18; the repository has no tags), shown on https://sabnzbd.org's landing page; GPL-3.0 (LICENSE.md). The capture dates from 2016 (history dates 06/2016): the Glitter interface, still SABnzbd 5.1's default, with the same layout; details differ in 5.1.3, so the listing does not present it as a 5.1.3 capture. Reviewed visually 2026-11-24 (YouEye Market curator): job names are blurred by upstream; no passwords, API keys, server names, private addresses or personal data."
+    },
+    {
+      "path": "apps/firefly-iii/icon.svg",
+      "sha256": "sha256:cdbee5c4af9c0d27c6780ec6e6c83e967e7f63c20cfcb4e50b672768c6426c65",
+      "source": "https://raw.githubusercontent.com/firefly-iii/firefly-iii/v6.7.9/public/maskable-icon.svg",
+      "evidence": "exact-source",
+      "notes": "Firefly III's own logo (white piggy bank with a flame on the orange square), copied byte for byte from the repo at tag v6.7.9 (public/maskable-icon.svg, the PWA maskable icon; the file carries Firefly III's AGPL-3.0 header, (c) 2022 james@firefly-iii.org; README: the logo is made by Cherie Woo). AGPL-3.0 repository; no separate trademark or branding policy found. Reviewed visually 2026-11-24 (its PNG rendition public/maskable512.png). Used unmodified to identify the application, no endorsement claimed."
+    },
+    {
+      "path": "apps/firefly-iii/screenshots/imac-complete.png",
+      "sha256": "sha256:73e8ed99bc9f56032f34eaaeb122ba3b1d141a4a345a5c73eef001ace559e866",
+      "source": "https://raw.githubusercontent.com/firefly-iii/firefly-iii/v6.7.9/.github/assets/img/imac-complete.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Firefly III repository at tag v6.7.9 (.github/assets/img/imac-complete.png, shown in the README); AGPL-3.0 repository (LICENSE). Shows the dashboard (classic v1 layout, still the default in 6.x) in a laptop mock-up: balance, bills to pay, left to spend and net worth tiles, the account chart and recent transactions of the demo user \"demo@firefly\" (January 2020 sample data). Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/firefly-iii/screenshots/ipad-complete.png",
+      "sha256": "sha256:79faada30e88249dce708c3e44d8d1b52bbd6d95c6ff3bf61c4dff08f78b9190",
+      "source": "https://raw.githubusercontent.com/firefly-iii/firefly-iii/v6.7.9/.github/assets/img/ipad-complete.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the official Firefly III repository at tag v6.7.9 (.github/assets/img/ipad-complete.png, shown in the README); AGPL-3.0 repository (LICENSE). Shows the reports page in a tablet mock-up (demo.firefly-iii.org): account balance over time, expenses by category and by budget (January 2020 sample data). Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
     }
   ]
 }

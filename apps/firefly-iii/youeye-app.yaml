@@ -1,0 +1,96 @@
+schema: youeye.app.v1
+id: firefly-iii
+version: 6.7.9
+name: Firefly III
+# ${app.network_cidr} (TRUSTED_PROXIES) needs YouEye 0.6.15.
+requires: { youeye: ">=0.6.15" }
+listing:
+  tagline: A free and open source personal finance manager
+  description: Personal finances with budgets, bills, rules and reports
+  long_description: |
+    Firefly III is a self-hosted manager for your personal finances. Track your accounts and every transaction with
+    double-entry bookkeeping, and plan with budgets, categories, tags, bills and subscriptions, piggy banks and
+    recurring transactions. Rules file new transactions for you, and many reports show where your money goes.
+
+    Sign-in: Firefly III has its own accounts (an email address and a password; two-factor sign-in is available). It
+    doesn't use YouEye ID. YouEye creates the owner account, admin@youeye.local, when it installs the app; its
+    password is under the app's credentials. Sign in with it and change the email address and password in Options >
+    Profile if you like. To give someone else in your household their own Firefly III, open Administration as the
+    owner and invite them, or turn on registration there. Firefly III's own sign-up is closed once it has an account,
+    as upstream ships it.
+
+    Firefly III installs with public access: anyone on your network can reach its sign-in page, and the Firefly III
+    phone apps (such as Waterfly III or Abacus) and other API clients can connect with a personal access token
+    (Options > Profile > OAuth). To keep it to people with a YouEye account instead, turn public access off in the
+    install dialog or later in the app's access settings (the phone apps then can't connect).
+
+    Recurring transactions, automatic budgets and bill reminders run by themselves once a day. Importing from your
+    bank needs the separate Firefly III Data Importer and a bank-data service of your choice (GoCardless, SimpleFIN,
+    Salt Edge); neither is part of this app. Firefly III doesn't send email in YouEye (messages go to its log).
+  release_notes: |
+    Firefly III 6.7.9, new in the YouEye Market.
+  category: productivity
+  tags: [finance, budget, money, accounting]
+  icon: wallet
+  icon_file: icon.svg
+  screenshots:
+    - {path: screenshots/imac-complete.png, caption: "Dashboard with balance, bills, money left to spend, net worth and account charts"}
+    - {path: screenshots/ipad-complete.png, caption: "Reports on a tablet: account balance over time, expenses by category and budget"}
+  website: https://www.firefly-iii.org
+  developer: James Cole and contributors
+  license: AGPL-3.0
+  source_code: https://github.com/firefly-iii/firefly-iii
+  support: https://github.com/firefly-iii/firefly-iii/discussions
+  docs: https://docs.firefly-iii.org
+# version-6.7.9, multi-arch index (linux/amd64, linux/arm64); upstream rebuilds the tag, the digest is the pin.
+image: docker.io/fireflyiii/core@sha256:10bbe21fbdc68b8fa955d85827aeed197ab46d62c8c745e949d322b9f4b73ff5
+port: 8080
+# OK 200 only when Firefly's database answers (HealthcheckController: User::count()); no login involved.
+health: {path: /health, timeout: 300}
+internet: true          # exchange rates, version check; bank data only through the separate importer
+database: postgres
+data:
+  - /var/www/html/storage/upload        # attachments (the image's only VOLUME); everything else is in PostgreSQL
+# Start-up. The image is serversideup/php with s6-overlay: docker-php-serversideup-entrypoint runs /etc/entrypoint.d
+# (nginx config, then Firefly's entrypoint.sh: wait for the DB, create-database, upgrade-database = migrations,
+# Passport keys, config:cache) and then execs /init. Under Incus only an entrypoint that starts with /init is PID 1,
+# so the image's own chain dies with "s6-overlay-suexec: fatal: can only run as pid 1" (checked live). Here /init is
+# the entrypoint and runs the image's start scripts as its stage-2 hook (S6_STAGE2_HOOK below, before nginx and
+# php-fpm start); "php-fpm -v" as the hook's command makes the entrypoint run every script as for its default command
+# (S6_INITIALIZED=true) and then exit. s6's CMD is the cron loop: firefly-iii:cron runs recurring transactions,
+# auto-budgets, bill warnings, exchange rates and webhooks for all users, each job at most once a day, so an hourly
+# loop is enough (upstream: a daily HTTP cron container; STATIC_CRON_TOKEN stays unset, so that route refuses every
+# token). A loop in command: reaches installed copies on update (a cron sidecar would change the container set).
+# ONE line, no single quotes inside. s6-svscan is PID 1 and stops in seconds.
+command: [/init, /bin/sh, -c, 'while true; do php /var/www/html/artisan firefly-iii:cron; sleep 3600; done']
+env:
+  # The stage-2 hook (s6-overlay rc.init: word-split, no shell). env -C: entrypoint.sh calls "php artisan" relative.
+  S6_STAGE2_HOOK: env -C /var/www/html docker-php-serversideup-entrypoint php-fpm -v
+  APP_ENV: production
+  APP_KEY: ${secret.app_key}            # exactly 32 characters (.env.example); encrypts DB fields, never changes
+  APP_URL: ${app.url}
+  TZ: ${platform.timezone}
+  # Caddy reaches the app from the app's own /27 and is the only peer there (no connects/provides).
+  TRUSTED_PROXIES: ${app.network_cidr}
+  LOG_CHANNEL: stdout
+  DB_CONNECTION: pgsql
+  DB_HOST: ${database.host}
+  DB_PORT: ${database.port}
+  DB_DATABASE: ${database.name}
+  DB_USERNAME: ${database.user}
+  DB_PASSWORD: ${database.password}
+  # Firefly's own accounts (the upstream default guard "web"). Firefly III has no OIDC, and its header guard
+  # (remote_user_guard) would trust a login header; owner 2026-11-24 (YE-175, decisions.md "YouEye ID is convenience,
+  # not a gate"): an app with its own login uses it, public.
+  AUTHENTICATION_GUARD: web
+secrets:
+  app_key: {length: 32}
+  admin_password: {length: 24}
+# Access: Firefly III has its own sign-in, so it installs with public access (owner rules 2026-11-24, "YouEye lives on
+# the LAN; apps behave like upstream" and "YouEye ID is convenience, not a gate"); the phone apps and API clients
+# need it. Firefly opens /register to the first visitor while it has no users and makes that user the owner
+# (HandlesNewUserRegistration); setup/install.yaml creates the owner before the route exists. Registration then
+# stays closed (single_user_mode, upstream default); the owner can open it or invite people in Administration.
+public_access: true
+credentials:
+  - {label: Firefly III owner account (administrator; invites others in Administration), username: admin@youeye.local, password: admin_password}
