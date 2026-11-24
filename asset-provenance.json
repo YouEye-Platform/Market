@@ -1059,6 +1059,34 @@
       "source": "https://raw.githubusercontent.com/ONLYOFFICE/onlyoffice-nextcloud/v10.2.1/screenshots/main.png",
       "evidence": "exact-source",
       "notes": "ONLYOFFICE's own screenshot of its document editor inside Nextcloud (the connector's app-store screenshot), copied byte for byte from ONLYOFFICE/onlyoffice-nextcloud at tag v10.2.1 (1064x580). AGPL-3.0 repository."
+    },
+    {
+      "path": "apps/rallly/icon.svg",
+      "sha256": "sha256:03aaf70e7708f02441d85543c398f128e6e7bb1c21bded32bb81ba2d37572454",
+      "source": "https://raw.githubusercontent.com/lukevella/rallly/v4.17.2/assets/images/app-icon.svg",
+      "evidence": "exact-source",
+      "notes": "Rallly's app icon, copied byte for byte from the repository at tag v4.17.2 (commit ee0603bb), assets/images/app-icon.svg (the icon shown in its README). Rallly's press kit offers its logos for use and asks to use them as provided, without changing colours, proportions or effects; used unmodified. Repository AGPL-3.0 (LICENSE.upstream.txt); no separate trademark policy found."
+    },
+    {
+      "path": "apps/rallly/screenshots/create-poll.png",
+      "sha256": "sha256:7b77632d14feec0f32308fd668fc8a3de66f354a93cc852805f94c22e6e6787f",
+      "source": "https://raw.githubusercontent.com/lukevella/rallly/v4.17.2/apps/landing/public/press/screenshots/create-poll.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from Rallly's official press kit in the repository at tag v4.17.2 (commit ee0603bb), apps/landing/public/press/screenshots/create-poll.png (2560x1920, light theme); the press-kit page offers these screenshots for use. AGPL-3.0 repository (LICENSE.upstream.txt). Shows the new-poll page (title \"Monthly Meetup\", location, a month calendar with two dates and time options). Reviewed visually 2026-11-24 (YouEye Market curator): made-up demo names only (Jessie Smith, Olivia Brown, Liam Nguyen, Emma Davis, \"Joe's Coffee Shop\"), no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/rallly/screenshots/voting.png",
+      "sha256": "sha256:bc3cece0612e50ac8f742fa2122e5945616163e3235d899ecf92b753c0efeeff",
+      "source": "https://raw.githubusercontent.com/lukevella/rallly/v4.17.2/apps/landing/public/press/screenshots/voting.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from Rallly's official press kit in the repository at tag v4.17.2 (commit ee0603bb), apps/landing/public/press/screenshots/voting.png (2560x1920, light theme); the press-kit page offers these screenshots for use. AGPL-3.0 repository (LICENSE.upstream.txt). Shows a participant voting on the poll \"Monthly Meetup\" (Yes / If need be / No per time option, three other participants). Reviewed visually 2026-11-24 (YouEye Market curator): made-up demo names only (Jessie Smith, Olivia Brown, Liam Nguyen, Emma Davis, \"Joe's Coffee Shop\"), no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/rallly/screenshots/review-results.png",
+      "sha256": "sha256:90fc7ffff3ff5d7a2a5d4956e1227721d1068b6214fc8e35f99b83047ad4adc8",
+      "source": "https://raw.githubusercontent.com/lukevella/rallly/v4.17.2/apps/landing/public/press/screenshots/review-results.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from Rallly's official press kit in the repository at tag v4.17.2 (commit ee0603bb), apps/landing/public/press/screenshots/review-results.png (2560x1920, light theme); the press-kit page offers these screenshots for use. AGPL-3.0 repository (LICENSE.upstream.txt). Shows the organiser reviewing the poll's answers in one grid, with Share and Finalize. Reviewed visually 2026-11-24 (YouEye Market curator): made-up demo names only (Jessie Smith, Olivia Brown, Liam Nguyen, Emma Davis, \"Joe's Coffee Shop\"), no passwords, tokens, private addresses or personal data."
     }
   ]
 }

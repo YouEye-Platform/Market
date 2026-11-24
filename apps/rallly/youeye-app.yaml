@@ -1,0 +1,121 @@
+schema: youeye.app.v1
+id: rallly
+version: 4.17.2
+name: Rallly
+listing:
+  tagline: Schedule group meetings, without the back-and-forth
+  description: Doodle-style scheduling polls to find the best time to meet
+  long_description: |
+    Rallly helps you find the best date and time to meet. Create a poll with a few options, share the link, and
+    let everyone vote on when they're available, with no account needed to vote. See everyone's answers in one
+    grid, discuss in comments, get notified when people respond, and finalize the winning date.
+
+    One organiser for free: Rallly is open source (AGPL-3.0), and its makers ask self-hosters with more than one
+    registered account to buy a licence key (Rallly Plus, from $49 for up to 5 accounts, at rallly.co). Without a
+    key, one account creates and manages polls and everyone else votes by link as a guest; guests never count. Once
+    a second person has an account, Rallly shows "You have exceeded the limits of your license", and a shared space
+    (co-organising) takes only one member. A key is entered by Rallly's administrator in its control panel.
+
+    Sign-in: sign in with YouEye ID. The first person who signs in with YouEye ID becomes Rallly's administrator
+    (control panel, licence key) within about a minute. A new app is open only to you until you share it, so sign
+    in once yourself first.
+
+    Rallly has its own sign-in and guests vote without an account, so it installs with public access: anyone on
+    your network (or VPN) can open a poll link and vote; people outside your network can't reach it. To keep it to
+    people with a YouEye account instead, turn public access off in the install dialog or later in the app's access
+    settings.
+
+    Mail: Rallly sends sign-in codes, notifications and invitations with your box's mail settings. Without mail,
+    sign in with YouEye ID; guests can still vote.
+  release_notes: |
+    First Market release of Rallly 4.17.2.
+  category: productivity
+  tags: [scheduling, polls, meetings, calendar]
+  icon: calendar-check
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/create-poll.png
+      caption: "Creating a poll: pick the dates and times to propose"
+    - path: screenshots/voting.png
+      caption: "Voting on a poll by link, no account needed"
+    - path: screenshots/review-results.png
+      caption: "Everyone's answers in one grid, ready to finalize"
+  website: https://rallly.co
+  developer: Luke Vella and contributors
+  license: AGPL-3.0 (more than one account needs a paid licence key)
+  source_code: https://github.com/lukevella/rallly
+  support: https://github.com/lukevella/rallly/discussions
+  docs: https://support.rallly.co/self-hosting/introduction
+# 4.17.2 (= latest on 2026-11-24; upstream has no v-prefixed tag), multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/lukevella/rallly@sha256:e43d8f750728ba500f512c4f3ae2c26d66c2666e68447659825a8ed2618f7ced
+port: 3000
+# 200 once `prisma migrate deploy` finished and the server listens (the image's own HEALTHCHECK route).
+health: {path: /api/status, timeout: 180}
+internet: true                    # licence activation and the update check (api.rallly.co, upstream default), mail
+database: postgres                # all of Rallly's state
+# The image's docker-start.sh runs node without exec, so /bin/sh would stay PID 1 and ignore the stop signal (every
+# update would refuse: writer-stop-timeout). Same steps here, with exec. SUPPORT_EMAIL/NOREPLY_EMAIL become the box's
+# mail sender when it has one (Rallly refuses to start with an empty email value). The background loop makes the
+# first YouEye ID user admin while there is none (YOUEYE_FIRST_ADMIN_SQL below) and ends once an admin exists.
+command: [/bin/sh, -c, 'if [ -n "$YOUEYE_SMTP_FROM" ]; then export SUPPORT_EMAIL="$YOUEYE_SMTP_FROM" NOREPLY_EMAIL="$YOUEYE_SMTP_FROM"; fi; npx prisma migrate deploy --config=./prisma.config.ts || exit 1; ( sleep 20; until printf %s "$YOUEYE_FIRST_ADMIN_SQL" | npx prisma db execute --stdin --config=./prisma.config.ts >/dev/null 2>&1; do sleep 60; done ) & exec node apps/web/server.js']
+env:
+  NEXT_PUBLIC_BASE_URL: ${app.url}
+  AUTH_URL: ${app.url}            # what docker-start.sh exports; better-auth's origin check
+  DATABASE_URL: ${database.url}?sslmode=disable
+  SECRET_PASSWORD: ${secret.secret_password}
+  # Required, and must be an email address; the command replaces it with the box's mail sender when it has one.
+  SUPPORT_EMAIL: rallly@${platform.domain}
+  # Uploads (profile pictures, space logos) go to an S3 store, as in upstream's own stack (rallly-selfhosted bundles
+  # Garage). Garage's image has no shell, which YouEye needs in every container (Notes/for-ceo.md, YE-186), so the
+  # store is `rclone serve s3` in the s3 sidecar. Rallly proxies uploads and downloads (/api/storage/...), so S3
+  # stays on the app network; the client uses path-style requests (lib/storage/s3.ts).
+  S3_ENDPOINT: ${sidecar.s3.url}
+  S3_BUCKET_NAME: rallly
+  S3_REGION: us-east-1            # any region: rclone checks the SigV4 signature with the client's own scope
+  S3_ACCESS_KEY_ID: ${secret.s3_access_key}
+  S3_SECRET_ACCESS_KEY: ${secret.s3_secret_key}
+  # Rallly's only way to an admin is INITIAL_ADMIN_EMAIL + "Make me admin" (admin-setup/actions.ts); YouEye has no
+  # owner email to give it, and Rallly requests no groups claim. So: while no admin exists, the earliest account
+  # that signed in with YouEye ID (provider oidc; never a guest, an email-code account or a banned one) becomes
+  # admin. A new app is owner-only, so that is the owner. Fails (keeps the loop going) until an admin exists.
+  YOUEYE_FIRST_ADMIN_SQL: "DO $$ BEGIN UPDATE users SET role = 'admin', updated_at = now() WHERE NOT EXISTS (SELECT 1 FROM users WHERE role = 'admin') AND id = (SELECT u.id FROM users u JOIN accounts a ON a.user_id = u.id WHERE a.provider = 'oidc' AND NOT u.anonymous AND NOT u.banned AND u.deleted_at IS NULL ORDER BY u.created_at, u.id LIMIT 1); IF NOT EXISTS (SELECT 1 FROM users WHERE role = 'admin') THEN RAISE EXCEPTION 'no admin yet'; END IF; END $$;"
+secrets:                          # formats as upstream's rallly.sh (openssl rand -hex)
+  secret_password: {kind: hex, length: 32}   # better-auth secret, >= 32 chars (env.ts)
+  s3_access_key: {kind: hex, length: 16}
+  s3_secret_key: {kind: hex, length: 32}
+# Access: Rallly has its own sign-in and guests vote by link, so it installs with public access: anyone on the
+# household network (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md
+# "YouEye lives on the LAN; apps behave like upstream"). YouEye ID still refuses tokens to people without access to
+# the app. Registration stays as upstream (open; by email code, so only with the box's mail set).
+public_access: true
+sso:
+  # Rallly registers /api/auth/callback/oidc and redirects it to better-auth's /api/better-auth/callback/oidc.
+  callback: /api/auth/callback/oidc
+  env:
+    OIDC_NAME: ${identity.name}
+    OIDC_DISCOVERY_URL: ${sso.discovery_url}    # HTTP on the app network: better-auth only parses the issuer
+    OIDC_CLIENT_ID: ${sso.client_id}
+    OIDC_CLIENT_SECRET: ${sso.client_secret}
+    # Scopes are fixed upstream (openid profile email): no groups, so no admin mapping (YOUEYE_FIRST_ADMIN_SQL).
+smtp:
+  env:
+    SMTP_HOST: ${smtp.host}
+    SMTP_PORT: ${smtp.port}
+    SMTP_USER: ${smtp.user}
+    SMTP_PWD: ${smtp.password}
+    SMTP_SECURE: 'false'          # YouEye offers STARTTLS or none; 'true' would mean implicit TLS (port 465)
+    YOUEYE_SMTP_FROM: ${smtp.from}
+sidecars:
+  - name: s3
+    # rclone 1.76.0, multi-arch index (linux/amd64, arm64, arm/v7, arm/v6, 386); Alpine with busybox
+    image: docker.io/rclone/rclone@sha256:7cbeec24a44f206067597c0368be4de90ae19a64d5113c7d1938bd737a81e466
+    port: 9000
+    health: /                     # 403 AccessDenied to an unsigned request: the server is up
+    # A bucket is a directory under /data; objects are plain files (their Content-Type comes from the file
+    # extension, so it survives restarts). exec: rclone is PID 1 and ends on the stop signal.
+    command: [/bin/sh, -c, 'mkdir -p /data/rallly && exec rclone serve s3 --addr 0.0.0.0:9000 /data']
+    data:
+      - /data
+    env:
+      # --auth-key as env (CSV, quoted), so the keys are not in the process arguments.
+      RCLONE_AUTH_KEY: '"${secret.s3_access_key},${secret.s3_secret_key}"'
