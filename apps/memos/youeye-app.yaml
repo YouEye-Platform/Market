@@ -11,11 +11,19 @@ listing:
 
     Sign-in: everyone signs in with YouEye ID and is a regular Memos user; Memos cannot take roles from
     YouEye ID. The Memos admin is the setup account shown under Credentials; use it to promote others.
+
+    Memos has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with public
+    access: anyone on your network can reach it, and memo apps and plugins with an access token work, and shared
+    memos open for others. To keep it to people with a YouEye account instead, turn public access off in the
+    install dialog or later in the app's access settings.
   release_notes: |
     Memos 26.11.2 is a fix release: comments are now memos of their own (the timeline can include
     them), compact mode moved to Settings > Preferences, and the timeline can use the full width.
     No data changes. Installed Memos 0.30 still cannot update in place (Memos requires a 0.31
     step first): remove Memos with its data and install it again.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [notes, memo, markdown]
   icon: sticky-note
@@ -45,6 +53,10 @@ env:
   MEMOS_INSTANCE_URL: ${app.url}
 secrets:
   admin_password: {length: 24}
+# Access: Memos has its own sign-in, so it installs with public access: anyone on the household network (LAN/VPN)
+# can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the
+# LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 sso:

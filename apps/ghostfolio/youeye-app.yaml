@@ -16,9 +16,17 @@ listing:
     Market data: Ghostfolio fetches prices and exchange rates from Yahoo Finance, crypto prices from CoinGecko,
     ETF holdings from Trackinsight, and asset logos from Google's favicon service. Your holdings are not sent;
     the symbols you track are.
+
+    Ghostfolio has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can
+    reach it, and it works on every device, and portfolio links you share open for others. To keep it to people
+    with a YouEye account instead, turn public access off in the install dialog or later in the app's access
+    settings.
   release_notes: |
     Ghostfolio 3.100.0 with its cache moved to Valkey 9.1.4, a security fix. Portfolio
     tracking for every member of the household, signed in with YouEye ID.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [finance, investments, portfolio, wealth, budget]
   icon: line-chart
@@ -53,6 +61,11 @@ env:
 secrets:
   access_token_salt: {kind: hex, length: 32}
   jwt_secret: {kind: hex, length: 32}
+# Access: Ghostfolio has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 files:
   - path: /etc/caddy/Caddyfile
     mode: '0600'

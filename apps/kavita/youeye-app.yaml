@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: kavita
-version: 0.9.1.4
+version: 0.9.1.4.1
 name: Kavita
 listing:
   tagline: Your digital reading library, on every device
@@ -10,9 +10,21 @@ listing:
     and ebooks in multiple formats (CBZ, CBR, ZIP, EPUB, PDF). Features include reading
     progress tracking, library management, metadata handling, OPDS support, and a responsive
     web reader for personal reading libraries.
+
+    Kavita has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with public
+    access: anyone on your network can reach it, and OPDS readers, KOReader and reading apps with your API key
+    work. To keep it to people with a YouEye account instead, turn public access off in the install dialog or
+    later in the app's access settings.
   release_notes: |
     Kavita 0.9.1 (build 0.9.1.4) improves reading progress, OPDS and metadata, and uses
     less memory. The front proxy moves to Caddy 2.11.9.
+
+    Email invitations are off: an invited person had a fixed, publicly known password until they
+    accepted. People get an account by signing in with YouEye ID. If you invited someone who never
+    accepted, delete that invite under Users.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: media
   tags: [reading, manga, comics, ebooks, library]
   icon: book-open
@@ -47,6 +59,10 @@ env:
   YOUEYE_KAVITA_HOST: ${sidecar.kavita.host}
 secrets:
   admin_password: {length: 24}
+# Access: Kavita has its own sign-in, so it installs with public access: anyone on the household network (LAN/VPN)
+# can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the
+# LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 files:
@@ -59,6 +75,13 @@ files:
       }
 
       :5000 {
+        # Invitations are off: Kavita creates an invited user with a password that is a constant in its source
+        # (AccountService.DefaultPassword, 0.9.1.4) and keeps it until the invite is accepted, and sign-in never
+        # checks that; a well-known default password (owner, 2026-11-24: generate them, or don't ship them). People
+        # get a Kavita account by signing in with YouEye ID instead. Caddy's path matcher ignores case, as ASP.NET
+        # routing does.
+        @invite path /api/Account/invite /api/Account/invite/*
+        respond @invite "Invitations are off: people get a Kavita account by signing in with YouEye ID." 403
         reverse_proxy {$YOUEYE_KAVITA_HOST}:5000
       }
   - container: kavita

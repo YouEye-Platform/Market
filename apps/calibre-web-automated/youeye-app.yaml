@@ -13,14 +13,22 @@ listing:
 
     Next to Kavita: Kavita is a reader for comics, manga and books you already have; Calibre-Web Automated
     manages and converts an ebook library. Kobo sync, OPDS and KOReader sync need the e-reader to reach the app
-    directly, which YouEye's access gate does not allow, so use the web reader or downloads.
+    directly, so they work only while the app has public access (below).
 
     Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are Calibre-Web admins (admins
     created at their first sign-in tick their own reading and download rights in their profile). Book metadata is
     fetched from ibdb.dev, Google Books and the Deutsche Nationalbibliothek when you ask for it.
+
+    Calibre-Web Automated has its own sign-in (YouEye ID, or the recovery admin password YouEye generates), so
+    it installs with public access: anyone on your network can reach it, and OPDS readers and, once an admin
+    turns them on, Kobo and KOReader sync work. To keep it to people with a YouEye account instead, turn public
+    access off in the install dialog or later in the app's access settings.
   release_notes: |
     Calibre-Web Automated 4.0.8 is the first version in the YouEye Market: automatic import, conversion and
     metadata for your ebook library, with a web reader, signed in with YouEye ID.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: media
   tags: [ebooks, books, library, calibre, reading]
   icon: book-open
@@ -58,6 +66,11 @@ secrets:
   # Calibre-Web's password policy needs upper, lower, digit and a special character: 47 bytes of base64 is 64
   # characters ending in '=' (and has no ':', which `cps.py -s user:password` splits on).
   admin_password: {kind: key, length: 47}
+# Access: Calibre-Web Automated has its own sign-in, so it installs with public access: anyone on the household
+# network (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md
+# "YouEye lives on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without
+# access to the app.
+public_access: true
 credentials:
   - {label: Recovery admin (password sign-in is off while YouEye ID sign-in is on), username: _youeye, password: admin_password}
 # Sign-in settings live in Calibre-Web's database (oauthProvider and settings tables in /config/app.db), so they are

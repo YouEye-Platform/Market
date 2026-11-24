@@ -15,9 +15,9 @@ The amd64 child digest is
 the observed multiarch index is
 `sha256:b3b00047ed20f6ce2b16780145cb6a0acb51c9e28ea6aa6f5dcd33c7034f1797`.
 
-icon.svg is an original geometric radar illustration created for this package
-and dedicated under CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/ .
-It replaces an icon whose exact origin was unresolved. It is not an upstream logo.
+icon.svg is Prowlarr's own logo, copied unmodified from
+https://raw.githubusercontent.com/Prowlarr/Prowlarr/v3.1.0.5799/Logo/Prowlarr.svg
+(GPL-3.0, like the rest of the repository; 2026-11-24).
 
 The two repository screenshots are historical captures of 2.5.2.5491.
 They show Prowlarr's GPL-3.0 interface, credited to its contributors.

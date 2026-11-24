@@ -9,10 +9,18 @@ listing:
     Pingvin Share X is a self-hosted file sharing platform. Create shareable links with
     password protection, expiration dates, and visitor limits. Features include drag-and-drop
     upload, QR code sharing, email notifications, and a clean mobile-friendly interface.
+
+    Pingvin Share X has its own sign-in (its own accounts, and the admin password YouEye generates), so it
+    installs with public access: anyone on your network can reach it, and anyone you send a share link or an
+    upload link to can open it. To keep it to people with a YouEye account instead, turn public access off in
+    the install dialog or later in the app's access settings.
   release_notes: |
     Pingvin Share X 2.1.1 is a new major version: per-user quotas and permissions, a
     password policy, a reorganised configuration menu, security fixes and Next.js 15.
     Shares and accounts are kept.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: utilities
   tags: [files, sharing, upload, transfer]
   icon: share-2
@@ -53,6 +61,11 @@ env:
   PGID: '1000'
 secrets:
   admin_password: {length: 24}
+# Access: Pingvin Share X has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin@example.invalid, password: admin_password}
 files:
@@ -63,7 +76,8 @@ files:
         appName: "Pingvin Share X"
         appUrl: "${app.url}"
       # 2.x keys (1.x had general.secureCookies and share.allowRegistration; 2.x still maps those, with a warning).
-      # Registration is reachable only by people the YouEye access gate admits (the household).
+      # Sign-up stays open as upstream ships it: with public access, anyone on the household network (LAN/VPN) can
+      # make an account (owner, 2026-11-24, decisions.md "YouEye lives on the LAN; apps behave like upstream").
       security:
         secureCookies: "true"
         allowRegistration: "true"

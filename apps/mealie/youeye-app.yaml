@@ -10,6 +10,11 @@ listing:
     from any URL, organize by category and tag, plan weekly meals with a drag-and-drop
     calendar, and generate shopping lists. Features include nutritional info, multi-user
     support, recipe sharing, and a mobile-friendly interface.
+
+    Mealie has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can reach
+    it, and Mealie's phone apps, shared recipe links and API tokens (for example Home Assistant) work. To keep
+    it to people with a YouEye account instead, turn public access off in the install dialog or later in the
+    app's access settings.
   release_notes: |
     Mealie 3.31.0 brings nine releases: recipe PDF export, OIDC avatars, faster search,
     security fixes, and a guard that keeps recipe imports, images and webhooks from
@@ -17,6 +22,9 @@ listing:
     closes a gap in YouEye's Mealie setup: the admin account Mealie creates by itself kept
     Mealie's built-in default password; it now gets a random password nobody knows.
     Admins are still the members of YouEye ID's admin group.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [recipes, cooking, meal-planning, food]
   icon: utensils
@@ -51,6 +59,10 @@ command: [/bin/sh, -c, 'cd /app && (python3 /app/data/youeye-lock-seeded-admin.p
 secrets:
   # Unused since 3.31.0 (was DEFAULT_PASSWORD, which Mealie ignores); kept so installed apps keep their secret set.
   admin_password: {length: 24}
+# Access: Mealie has its own sign-in, so it installs with public access: anyone on the household network (LAN/VPN)
+# can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the
+# LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 files:
   - path: /app/data/youeye-lock-seeded-admin.py
     mode: '0600'

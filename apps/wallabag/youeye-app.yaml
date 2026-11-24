@@ -9,12 +9,20 @@ listing:
     Wallabag is a self-hosted read-it-later application. Save web articles for offline reading,
     organize with tags, and export to EPUB or PDF. Features browser extensions for one-click
     saving, full-text search, reading time estimates, and mobile apps.
+
+    Wallabag has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
+    with public access: anyone on your network can reach it, and wallabag's phone apps, browser extensions and
+    e-readers work. To keep it to people with a YouEye account instead, turn public access off in the install
+    dialog or later in the app's access settings.
   release_notes: |
     wallabag 2.6.18 is a security release: imported tagging rules are checked (invalid stored
     rules are now ignored, so review rules that stop working), shared article pages link only
     to web addresses, ePub exports no longer read files or fetch addresses from an article
     (remote images become links; images wallabag stored are still included), and SVG images
     are checked more strictly. Your articles, tags and settings stay as they are.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [bookmarks, articles, reading, archive]
   icon: bookmark
@@ -52,6 +60,11 @@ env:
 secrets:
   admin_password: {length: 24}
   secret_key: {kind: key}
+# Access: Wallabag has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: wallabag, password: admin_password}
 smtp:

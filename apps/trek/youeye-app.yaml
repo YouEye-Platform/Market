@@ -1,25 +1,37 @@
 schema: youeye.app.v1
 id: trek
-version: 5.1.4
+version: 5.2.0
 name: TREK
 listing:
   tagline: Plan trips together, from the first idea to the packing list
   description: Travel planner for the household
   long_description: |
     TREK plans trips: day-by-day itineraries on a map, places to see, bookings and tickets, a shared budget with
-    cost splitting, packing lists, documents and notes. Trips can be shared with others in your household, and
-    changes show up for everyone at once. It works well on a phone as a web app.
+    cost splitting, packing lists, documents and notes, live status of booked flights, place tags, KML export and a
+    trip PDF. Each trip can turn its parts (lists, costs, documents, road trip, tours) on or off. Trips can be
+    shared with others in your household, and changes show up for everyone at once. It works well on a phone as a
+    web app.
 
     Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are TREK admins.
 
     Outside services: place search, addresses and routing use the TREK project's own servers (places, photon and
     valhalla at liketrek.com, hosted by dataforest cloud in Frankfurt); the install registers itself there on
     the first search and sends search words and map positions, not your trips. Maps come from OpenFreeMap, weather
-    from Open-Meteo, exchange rates from Frankfurter and holidays from Nager.Date. TREK's own phone apps cannot
-    pass YouEye's access gate; use the web app. Plugins are turned off.
+    from Open-Meteo, exchange rates from Frankfurter and holidays from Nager.Date. Live flight status sends a booked
+    flight's callsign to adsb.lol and adsb.fi on the day of the flight (an admin can turn it off). Plugins are
+    turned off.
+
+    TREK has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can reach
+    it, and trip links and calendar feeds work. To keep it to people with a YouEye account
+    instead, turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
-    TREK 5.1.4 is the first version in the YouEye Market: shared trip planning with maps, bookings, budgets and
-    packing lists, signed in with YouEye ID.
+    TREK 5.2.0 follows booked flights live on their day (status, delay and the aircraft on a map), lets a trip
+    owner turn lists, costs, documents, road trip and tours on or off per trip, and adds place tags, KML export,
+    more ways to split costs and a new trip PDF. It fixes two sign-in security issues. The database is updated
+    automatically on the first start (TREK keeps a copy from before).
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: home
   tags: [travel, trips, planning, maps, family]
   icon: plane
@@ -35,8 +47,8 @@ listing:
   source_code: https://github.com/liketrek/TREK
   support: https://github.com/liketrek/TREK/issues
   docs: https://github.com/liketrek/TREK/wiki
-# 5.1.4, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/mauriceboe/trek@sha256:991ff5aa53244b25d5a8ea40361dc286cfc8211638044eabe12b9926729db5cc
+# 5.2.0, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/mauriceboe/trek@sha256:ca317266c71e79bc58123f49e5ddbf2b8549a255f01a73d510b9a18b5ef135b2
 port: 3000
 # 200 only after a database ping; migrations run before it.
 health: {path: /api/health/ready, timeout: 180}
@@ -59,6 +71,10 @@ secrets:
   encryption_key: {kind: hex, length: 32}
   # TREK's password policy needs upper, lower, digit and a special character: 47 bytes of base64 end in '='.
   admin_password: {kind: key, length: 47}
+# Access: TREK has its own sign-in, so it installs with public access: anyone on the household network (LAN/VPN)
+# can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the
+# LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 credentials:
   - {label: Recovery admin (password sign-in is off; YouEye ID admins are TREK admins), username: _youeye@youeye.invalid, password: admin_password}
 # Admin: OIDC_ADMIN_CLAIM/VALUE promote and demote at every sign-in (server auth code, 5.1.4). TREK makes the first

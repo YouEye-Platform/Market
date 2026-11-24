@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: nextcloud
-version: 35.0.3.1
+version: 35.0.3.2
 requires: { youeye: ">=0.6.15" }
 name: Nextcloud
 listing:
@@ -10,11 +10,19 @@ listing:
     Nextcloud is a suite of client-server software for creating and using file hosting services.
     Features file sync, calendars, contacts, mail, talk, office document editing, and hundreds
     of community apps.
+
+    Nextcloud has its own sign-in (YouEye ID; the desktop and phone apps use app passwords; the
+    local admin, password under the app's credentials, at /login?direct=1), so it installs with
+    public access: anyone on your network can reach it, and the Nextcloud desktop and phone apps,
+    calendar and contact sync (CalDAV, CardDAV) and WebDAV work. To keep it to people with a
+    YouEye account instead, turn public access off in the install dialog or later in the app's
+    access settings; Nextcloud's own apps then can't connect.
   release_notes: |
-    Nextcloud 35.0.3 in a fresh image build (PHP 8.5.13). Nextcloud now trusts only its own
-    app network as its reverse proxy, not the whole range YouEye uses for app networks, so
-    sign-in throttling and logs keep seeing the real client address. Its cache moves to
-    Valkey 9.1.4, a security fix. No database migration.
+    Background jobs now run every 5 minutes on their own, not only while someone has Nextcloud
+    open, and Nextcloud calls itself on its local address, so the first sign-in is quick again.
+    New installs are reachable by anyone on your network so the desktop and phone apps can
+    connect; on an installed Nextcloud, turn on public access in the app's access settings for
+    that. The cache moves to Valkey 9.2.0. No database migration.
   category: productivity
   tags: [cloud, storage, files, collaboration, office]
   icon: cloud
@@ -33,6 +41,19 @@ listing:
 # 35.0.3-apache (rebuild of 2026-11, PHP 8.5.13), multi-arch index (linux/386, linux/amd64, linux/arm, linux/arm64, linux/ppc64le, linux/s390x)
 image: docker.io/library/nextcloud@sha256:f22d1dd63844bd15bbf6c2019149653c3d1c775ba48b173b56c3c6ad5f386196
 port: 80
+# At every start (exec'd, so Apache gets SIGTERM on stop; `incus stop` takes ~1 s):
+# - Background jobs: the image's www-data crontab runs cron.php every 5 minutes (/var/spool/cron/crontabs/www-data;
+#   the image's own /cron.sh uses busybox crond too). crond runs in the background next to Apache; the first run of
+#   cron.php switches backgroundjobs_mode from ajax to cron by itself.
+# - Calls to itself: the circles app posts to its own address (overwrite.cli.url, the public https URL behind the
+#   YouEye gate: 307), fails, and then does the work inside the user's request ("Loopback request failed"). Its
+#   system value circles.force_nc_base (circles ConfigService::getLoopbackInstance) points it at http://localhost
+#   (a trusted domain); `occ circles:check` then passes. The dot in the name rules out an env var (NC_*), so a
+#   background loop sets it once Nextcloud is installed and not upgrading.
+# An update applies `command:`, so installed copies get both (a cron sidecar would change the container set,
+# which updates refuse; setup files don't run on update). Keep it ONE line with no single quotes: Incus cannot run
+# a multi-line oci.entrypoint ("/bin/sh: 0: -c requires an argument", the update rolled back; VM 156, 2026-11-23).
+command: [/bin/sh, -c, 'busybox crond -b -L /dev/null; o() { runuser -u www-data -- php /var/www/html/occ "$@"; }; (until o status --output=json 2>/dev/null | grep -q "\"installed\":true,.*\"maintenance\":false,\"needsDbUpgrade\":false"; do sleep 10; done; o config:system:set circles.force_nc_base --value=http://localhost >/dev/null) & exec /entrypoint.sh apache2-foreground']
 health: {path: /status.php, timeout: 300}
 internet: true
 database: postgres
@@ -57,6 +78,11 @@ env:
   REDIS_HOST_PORT: '6379'
 secrets:
   admin_password: {length: 24}
+# Access: Nextcloud has its own sign-in (YouEye ID, app passwords for clients, the generated local admin), and its
+# own clients (desktop, phone, CalDAV/CardDAV, WebDAV, login flow v2) cannot pass the YouEye gate, so it installs
+# with public access: anyone on the household network (LAN/VPN) can reach it (owner rules 2026-11-13 and 2026-11-24,
+# YE-133/YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 sso:
@@ -74,5 +100,5 @@ smtp:
     SMTP_SECURE: tls
 sidecars:
   - name: valkey
-    # 9.1.4, multi-arch index (linux/amd64, linux/arm, linux/arm64, linux/ppc64le)
-    image: docker.io/valkey/valkey@sha256:3ab0eca823ebbf0fe352476ebac330ac9e5f14b592b9a954eab296d341e81b0e
+    # 9.2.0, multi-arch index (linux/amd64, linux/arm/v7, linux/arm64, linux/ppc64le)
+    image: docker.io/valkey/valkey@sha256:1c2b25b09f354c66fe994733acdf12fcfd4bdf6f3bd92b88a93a70378d884056

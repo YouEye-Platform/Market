@@ -9,12 +9,20 @@ listing:
     Stirling-PDF is a powerful, locally-hosted PDF manipulation tool. Merge, split, rotate,
     convert, compress, and edit PDFs without uploading anything to the cloud. Supports OCR,
     watermarking, page extraction, image-to-PDF, and many more operations.
+
+    Stirling-PDF has its own sign-in (its own accounts, and the admin password YouEye generates), so it installs
+    with public access: anyone on your network can reach it, and scripts with an API key and the phone scanner
+    upload work. To keep it to people with a YouEye account instead, turn public access off in the install
+    dialog or later in the app's access settings.
   release_notes: |
     Stirling-PDF 3.5.0 replaces LibreOffice and Calibre with Stirling's own office
     converter inside the app. Some old formats are gone: saving as Word 97-2003 (.doc),
     reading WordPerfect, Works, Lotus, AbiWord, Hangul and XPS files, and the PostScript
     conversions. Fonts for the text editor can be added to the custom files folder.
     Accounts stay Stirling's own.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: utilities
   tags: [pdf, documents, tools, converter]
   icon: file-text
@@ -63,5 +71,10 @@ env:
   # markProvisionedServerSetUp; settings.yml beats env, so SYSTEM_SETUPCOMPLETED would do nothing).
 secrets:
   admin_password: {length: 24}
+# Access: Stirling-PDF has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}

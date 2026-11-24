@@ -10,12 +10,20 @@ listing:
     progress tracking, chapter support, bookmarks, sleep timer, playback speed control,
     and companion apps for Android and iOS. Import your audiobook collection and listen from
     anywhere.
+
+    Audiobookshelf has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with
+    public access: anyone on your network can reach it, and the Audiobookshelf phone apps and podcast feeds
+    work. To keep it to people with a YouEye account instead, turn public access off in the install dialog or
+    later in the app's access settings.
   release_notes: |
     Audiobookshelf 2.38.0 is a security and fix release: listeners only see the books, sessions,
     progress, collections and feeds they have access to, uploads need a sign-in, and podcast
     descriptions are cleaned. Library scans no longer crash on duplicate authors or series or
     on emoji in series names. Removing a book from a collection now needs the "update"
     permission instead of "delete".
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: media
   tags: [audiobooks, podcasts, media, streaming]
   icon: headphones
@@ -43,6 +51,11 @@ data:
   - /metadata
 secrets:
   admin_password: {length: 24}
+# Access: Audiobookshelf has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 sso:

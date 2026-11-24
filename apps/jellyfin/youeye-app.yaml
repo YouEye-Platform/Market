@@ -11,6 +11,11 @@ listing:
     your own server with no strings attached. No premium licenses, no tracking, fully
     open source. Supports hardware-accelerated transcoding, live TV & DVR, and a rich
     ecosystem of clients for every platform.
+
+    Jellyfin has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with public
+    access: anyone on your network can reach it, and Jellyfin's TV, phone and desktop apps work (sign in there
+    with Quick Connect). To keep it to people with a YouEye account instead, turn public access off in the
+    install dialog or later in the app's access settings.
   release_notes: |
     Jellyfin 12.4 is a new major version (10.12 was renumbered 12): a new database
     layer, faster library scans, and the end of old Emby-style client authorization.
@@ -18,6 +23,9 @@ listing:
     one-way and old plugins cannot be carried over, so installed Jellyfin 10.11 must be
     reinstalled: remove Jellyfin with its data (your media folder stays) and install it
     again, then scan the library.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: media
   tags: [media, streaming, movies, music, tv, video]
   icon: film
@@ -47,6 +55,11 @@ env:
   JELLYFIN_PublishedServerUrl: ${app.url}
 secrets:
   admin_password: {length: 24}
+# Access: Jellyfin has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: YouEye Admin, password: admin_password}
 sso:

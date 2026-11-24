@@ -15,6 +15,10 @@ listing:
     Sign-in: everyone signs in with YouEye ID. YouEye ID admins are Gramps owners (they manage users and the
     tree); everyone else can view and edit the tree. With AI on, the Gramps assistant answers questions about
     your tree through YouEye's AI.
+
+    Gramps Web has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can
+    reach it, and anniversary calendar subscriptions work. To keep it to people with a YouEye account instead,
+    turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     Gramps Web 26.11.3 (with Gramps Web API 3.26): the AI assistant can propose changes to the
     tree for people with edit rights to review (an option, off unless an admin turns it on),
@@ -22,6 +26,9 @@ listing:
     registration only when the server accepts new accounts. Your tree and users stay as they
     are; the user database updates itself on first start. Its cache moves to Valkey 8.1.12, a
     security fix.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: home
   tags: [genealogy, family, history, family-tree]
   icon: git-fork
@@ -64,6 +71,11 @@ env:
   GRAMPSWEB_CELERY_CONFIG__broker_url: redis://${sidecar.valkey.host}:6379/0
   GRAMPSWEB_CELERY_CONFIG__result_backend: redis://${sidecar.valkey.host}:6379/0
   GRAMPSWEB_RATELIMIT_STORAGE_URI: redis://${sidecar.valkey.host}:6379/1
+# Access: Gramps Web has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sidecars:
   # Sidecars start in order, before main: Valkey, then the worker (which creates the tree on first start, as main
   # would).

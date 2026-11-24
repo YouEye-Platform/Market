@@ -14,12 +14,19 @@ listing:
     Sign-in: everyone signs in with YouEye ID as a regular Vikunja user; Vikunja cannot take roles from
     YouEye ID. Instance admin (the admin panel) is a paid licence feature of Vikunja, so this install has none;
     whoever creates a project owns it and shares it with others.
+
+    Vikunja has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can reach
+    it, and calendar apps (CalDAV) and Vikunja's apps with a token work. To keep it to people with a YouEye
+    account instead, turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     Vikunja 2.8.0 fixes 19 security issues and adds a trash bin (deleted projects and
     tasks are kept for 30 days) and an account lockout after repeated failed sign-ins.
     2.6 and 2.7 brought many fixes to task views, reminders and sharing. A few features
     of the optional paid Vikunja licence (admin panel, time tracking, audit logs, user
     invites) stay off; everything else is free as before.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [tasks, todo, kanban, project-management]
   icon: check-square
@@ -48,6 +55,11 @@ env:
   VIKUNJA_SERVICE_TIMEZONE: ${platform.timezone}
   # No local sign-up (the /register route is not registered); YouEye ID still creates accounts.
   VIKUNJA_SERVICE_ENABLEREGISTRATION: 'false'
+# Access: Vikunja has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /auth/openid/authentik
   env:

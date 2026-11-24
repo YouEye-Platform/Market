@@ -9,10 +9,17 @@ listing:
     Paperless-NGX is a document management system that transforms your physical documents
     into a searchable online archive. Features automatic OCR, smart tagging, full-text search,
     and a modern web interface.
+
+    Paperless-NGX has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can
+    reach it, and Paperless phone apps (with an API token) and share links work. To keep it to people with a
+    YouEye account instead, turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     Paperless-ngx 3.5.1 fixes AI chat answers that did not stream, keeps your selection after a
     bulk edit, and fixes background tasks when the audit log is off. No database changes. Its
     cache moves to Valkey 9.1.4, a security fix.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [documents, ocr, archival, scanning]
   icon: file-text
@@ -65,6 +72,11 @@ env:
   PAPERLESS_ACCOUNT_DEFAULT_HTTP_PROTOCOL: https
 secrets:
   secret_key: {kind: key, length: 50}
+# Access: Paperless-NGX has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /accounts/oidc/authentik/login/callback/
   env:

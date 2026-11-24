@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: prowlarr
-version: 3.0.2.5780
+version: 3.1.0.5799
 name: Prowlarr
 listing:
   tagline: One place to manage every indexer
@@ -11,8 +11,9 @@ listing:
     add an indexer once in Prowlarr and it syncs automatically to every connected app. No
     more configuring the same trackers over and over in each application.
   release_notes: |
-    Prowlarr 3.0.2 is a new major version on .NET 10, with indexer fixes and better
-    handling of releases qBittorrent already has. Indexers and app connections are kept.
+    Prowlarr 3.1.0 adds a search timeout per indexer, supports several categories in
+    indexer definitions and fixes MyAnonamouse results with numeric titles. Indexers and
+    app connections are kept; no database migration.
   category: media
   tags: [media, indexer, automation, arr, torrent, usenet]
   icon: radar
@@ -28,8 +29,8 @@ listing:
   source_code: https://github.com/Prowlarr/Prowlarr
   support: https://wiki.servarr.com/prowlarr
   docs: https://wiki.servarr.com/prowlarr
-# 3.0.2.5780-ls169, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/linuxserver/prowlarr@sha256:45117ba8439e2337a92ffe38a451a4dafc0be771754d05d88cdf102419d09646
+# 3.1.0.5799-ls170, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/prowlarr@sha256:2806c9b763810589c42157730d547c293639e55c7610e9f5069314854639ec48
 port: 9696
 health: /ping
 internet: true

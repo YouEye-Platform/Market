@@ -8,11 +8,19 @@ listing:
   long_description: |
     Vaultwarden is an alternative implementation of the Bitwarden server API written in Rust.
     Compatible with all official Bitwarden clients. Lightweight, fast, and self-hosted.
+
+    Vaultwarden has its own sign-in (YouEye ID and your master password; the admin page needs the token YouEye
+    generates), so it installs with public access: anyone on your network can reach it, and the Bitwarden phone
+    and desktop apps, browser extensions and the command line work. To keep it to people with a YouEye account
+    instead, turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     Vaultwarden 1.37.5 is a security release: it fixes two advisories (website icon
     fetching and emergency access) and ships web vault 2026.10.1. It is needed for the
     two-step login settings of newer web vaults and fixes email two-step login after
     YouEye ID sign-in on phones.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: utilities
   tags: [passwords, security, bitwarden]
   icon: lock
@@ -54,6 +62,11 @@ env:
   REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
 secrets:
   admin_token: {kind: key, length: 48}
+# Access: Vaultwarden has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /identity/connect/oidc-signin
   env:

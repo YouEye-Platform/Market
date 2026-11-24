@@ -14,11 +14,19 @@ listing:
     Sign-in: the first person who signs in with YouEye ID becomes the owner (admin) of this budget server;
     Actual cannot take roles from YouEye ID. A new app is open only to you until you share it, so sign in
     once yourself before sharing it. Further admins are set in Actual's User Directory.
+
+    Actual Budget has its own sign-in (only people you give access in YouEye ID can sign in), so it installs
+    with public access: anyone on your network can reach it, and the app and its sync work on every device. To
+    keep it to people with a YouEye account instead, turn public access off in the install dialog or later in
+    the app's access settings.
   release_notes: |
     Actual 26.11.0 brings three monthly releases of fixes and improvements to budgeting,
     reports and bank sync. The server now runs on Node 24, can read its secrets from
     files, and only lets a SimpleFIN bridge on a private network through when the server
     allows it.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [budget, finance, money, personal-finance]
   icon: wallet
@@ -46,6 +54,11 @@ data:
 # role claims, so additional admins are assigned manually in its User Directory.
 env:
   ACTUAL_USER_CREATION_MODE: login
+# Access: Actual Budget has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /openid/callback
   env:

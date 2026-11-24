@@ -10,10 +10,17 @@ listing:
     your team in real-time, see changes instantly, and present slides directly from your
     notes. Features include syntax highlighting, math equations, diagrams, multiple
     export formats, and collaborative writing workflows.
+
+    HedgeDoc has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can
+    reach it, and notes you share by link open for others. To keep it to people with a YouEye account instead,
+    turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     HedgeDoc 1.12.0 fixes real-time reconnection issues that could lose edits,
     restores opening links in new tabs and simplifies single-provider login.
     The official container includes the required Node runtime (20.17 or newer).
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [markdown, collaboration, notes, documents]
   icon: file-edit
@@ -48,6 +55,11 @@ env:
   CMD_ALLOW_EMAIL_REGISTER: 'false'
 secrets:
   session_secret: {kind: key}
+# Access: HedgeDoc has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /auth/oauth2/callback
   env:

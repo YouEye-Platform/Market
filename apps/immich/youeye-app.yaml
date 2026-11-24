@@ -8,10 +8,18 @@ listing:
   long_description: |
     High performance self-hosted photo and video management solution with automatic backup,
     intelligent search, facial recognition, and shared albums.
+
+    Immich has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with public
+    access: anyone on your network can reach it, and the Immich phone app and its background backup work, and
+    shared albums open for others. To keep it to people with a YouEye account instead, turn public access off in
+    the install dialog or later in the app's access settings.
   release_notes: |
     Immich 3.4.2 is a fix release: slideshows, file names in the timeline, integrity report
     downloads and hardware video transcoding colours work properly again. Your photos, albums
     and database stay as they are. Its cache moves to Valkey 9.1.4, a security fix.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: media
   tags: [photos, videos, gallery, machine-learning]
   icon: camera
@@ -49,6 +57,10 @@ secrets:
   admin_password: {length: 24}
 # Created at install (setup/install.yaml). While YouEye ID sign-in is on, password login is off and this
 # account is kept for setup re-runs and recovery (`immich-admin enable-password-login`).
+# Access: Immich has its own sign-in, so it installs with public access: anyone on the household network (LAN/VPN)
+# can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives on the
+# LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the app.
+public_access: true
 credentials:
   - {label: Admin Account (password login is off while YouEye ID sign-in is on), username: admin@youeye.local, password: admin_password}
 sso:

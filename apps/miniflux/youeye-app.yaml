@@ -13,11 +13,19 @@ listing:
 
     Sign-in: everyone signs in with YouEye ID. Members of YouEye ID's admin group are Miniflux admins;
     everyone else is a regular user. The setup account shown under Credentials stays as a recovery admin.
+
+    Miniflux has its own sign-in (YouEye ID, or the admin password YouEye generates), so it installs with public
+    access: anyone on your network can reach it, and feed reader apps (Fever, Google Reader and Miniflux API)
+    work. To keep it to people with a YouEye account instead, turn public access off in the install dialog or
+    later in the app's access settings.
   release_notes: |
     Miniflux 2.3.5 gives YouEye ID admins Miniflux admin rights at every sign-in (and
     takes them away when they leave the admin group). Sign-in settings have their own
     page, changing a password needs the current one, and the protection against feeds
     pointing at private addresses is stricter.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [rss, news, feeds, minimalist]
   icon: rss
@@ -48,6 +56,11 @@ env:
   BASE_URL: ${app.url}
 secrets:
   admin_password: {length: 24}
+# Access: Miniflux has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: Admin Account, username: admin, password: admin_password}
 sso:

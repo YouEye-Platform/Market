@@ -9,11 +9,19 @@ listing:
     FreshRSS is a self-hosted RSS and Atom feed aggregator. Lightweight, easy to set up,
     and packed with features: multi-user support, OPML import/export, full-text search,
     keyboard shortcuts, mobile-friendly responsive design, and a rich extension system.
+
+    FreshRSS has its own sign-in (YouEye ID; feed apps use an API password each person sets in their profile),
+    so it installs with public access: anyone on your network can reach it, and feed reader apps (Google Reader
+    and Fever API) work. To keep it to people with a YouEye account instead, turn public access off in the
+    install dialog or later in the app's access settings.
   release_notes: |
     FreshRSS 1.31.0 is a security release with about twenty fixes (feed fetching, cached
     data, HTML filtering, safer sign-in) plus faster mark-as-read. Feeds read from local
     files are no longer supported; web feeds work as before. Feeds on private network
     addresses still need an admin to allow them in the system settings.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: productivity
   tags: [rss, news, feeds, reader]
   icon: rss
@@ -53,6 +61,11 @@ env:
   FRESHRSS_USER: --user _youeye --language ${platform.locale}
 secrets:
   oidc_crypto_key: {kind: key}
+# Access: FreshRSS has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 files:
   - path: /run/apache2/.keep
     dir_mode: '0755'

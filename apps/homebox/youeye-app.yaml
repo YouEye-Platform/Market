@@ -13,9 +13,16 @@ listing:
     Sign-in: everyone signs in with YouEye ID. Each person starts with their own collection ("Home"); share a
     collection with someone in your household by inviting them from the collection settings. Homebox has no
     admin role: whoever owns a collection manages it.
+
+    Homebox has its own sign-in (YouEye ID), so it installs with public access: anyone on your network can reach
+    it, and QR labels open on any phone, and API keys work for scripts. To keep it to people with a YouEye
+    account instead, turn public access off in the install dialog or later in the app's access settings.
   release_notes: |
     Homebox 0.27.1 is the first version in the YouEye Market: home inventory with locations, tags, attachments,
     warranty and maintenance tracking, QR labels and per-person collections, signed in with YouEye ID.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: home
   tags: [inventory, home, warranty, household, organisation]
   icon: package
@@ -57,6 +64,11 @@ secrets:
 # Homebox (backend/app/api/providers/oidc.go, 0.27.1) creates every new OIDC user with their own collection; it has
 # no admin role at all (IsSuperuser is never set and has no UI), so there is nothing to map: "no mapping".
 # Local login and registration are off, so there is no first-visitor window and no bootstrap account.
+# Access: Homebox has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 sso:
   callback: /api/v1/users/login/oidc/callback
   env:

@@ -488,10 +488,10 @@
     },
     {
       "path": "apps/prowlarr/icon.svg",
-      "sha256": "sha256:7ec359bbca79b5343ddc0236aeaee5b31e6df3217933401254c66f00fb55710f",
-      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
-      "evidence": "local-capture",
-      "notes": "Original geometric radar symbol created for Market, CC0-1.0; no upstream logo copied. See app notices."
+      "sha256": "sha256:a8ed9073263696dcaec3c6dc477c82dae4fc83dd13914899def26388758784f0",
+      "source": "https://raw.githubusercontent.com/Prowlarr/Prowlarr/v3.1.0.5799/Logo/Prowlarr.svg",
+      "evidence": "exact-source",
+      "notes": "Prowlarr's logo, copied byte for byte from the repo at tag v3.1.0.5799 (Logo/Prowlarr.svg). Licence: GPL-3.0 (LICENSE.upstream.txt); no separate trademark or branding policy in the repo. Replaces the CC0 radar placeholder (YE-155, 2026-11-24)."
     },
     {
       "path": "apps/prowlarr/screenshots/indexers.png",

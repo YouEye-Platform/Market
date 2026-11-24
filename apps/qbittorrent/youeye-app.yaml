@@ -12,10 +12,18 @@ listing:
     them into shared storage, so your media apps can import finished downloads with instant
     hardlinks. YouEye generates the first WebUI administrator password and writes
     only qBittorrent's supported salted PBKDF2 hash before the service starts.
+
+    qBittorrent has its own sign-in (the WebUI password YouEye generates), so it installs with public access:
+    anyone on your network can reach it, and remote-control apps for qBittorrent work. To keep it to people with
+    a YouEye account instead, turn public access off in the install dialog or later in the app's access
+    settings.
   release_notes: |
     qBittorrent 5.3.0 with libtorrent 2.1.2 in a fresh LinuxServer build (ls488) with
     updated system packages. Settings, downloads and shared media paths are kept. The
     WebUI uses one shared generated credential.
+
+    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
+    copy, turn on public access in the app's access settings if you want that.
   category: downloaders
   tags: [downloader, torrent, bittorrent, arr]
   icon: download
@@ -51,6 +59,11 @@ env:
   YOUEYE_QBITTORRENT_URL: ${app.url}
 secrets:
   admin_password: {length: 24}
+# Access: qBittorrent has its own sign-in, so it installs with public access: anyone on the household network
+# (LAN/VPN) can reach it, protected by the app (owner rules 2026-11-13 and 2026-11-24, decisions.md "YouEye lives
+# on the LAN; apps behave like upstream"; YE-153). YouEye ID still refuses tokens to people without access to the
+# app.
+public_access: true
 credentials:
   - {label: WebUI Administrator, username: admin, password: admin_password}
 files:
