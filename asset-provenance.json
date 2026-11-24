@@ -898,6 +898,27 @@
       "source": "https://raw.githubusercontent.com/karakeep-app/karakeep/v0.35.0/docs/static/img/screenshots/bookmark-preview.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official Karakeep repository at tag v0.35.0 (docs/static/img/screenshots/bookmark-preview.png, shown on docs.karakeep.com's screenshots page); AGPL-3.0 repository (LICENSE). Shows a saved article open in Reader View with AI tags, attachments (banner, full-page archive, screenshot) and the note field (Karakeep v0.32.0 in its footer): public TechCrunch article text, user shown as \"D\". Reviewed visually 2026-11-24 (YouEye Market curator): demo content only, no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/lidarr/icon.svg",
+      "sha256": "sha256:21655693baccd6d69169f5429d7ca360be31796cc343624acb578751eb639fc7",
+      "source": "https://raw.githubusercontent.com/Lidarr/Lidarr/v3.1.6.5079/Logo/Lidarr.svg",
+      "evidence": "exact-source",
+      "notes": "Lidarr's own logo, copied byte for byte from the Lidarr repository at tag v3.1.6.5079 (Logo/Lidarr.svg). Repository licence GPL-3.0 (LICENSE.md at the tag); no separate trademark policy found. Identifies the application; no endorsement implied. See ASSET-NOTICES.md."
+    },
+    {
+      "path": "apps/lidarr/screenshots/lidarr-artists.png",
+      "sha256": "sha256:911f37a770bb7a4dd87e99a7392a370758114eed577bfeb7d9722fa4471e6ca2",
+      "source": "https://github.com/Lidarr/Lidarr",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone VM 164, destroyed afterwards) at Lidarr 3.1.6.5079 (LinuxServer ls49), 1280x800, through YouEye's gate: the library in Table view with one demo artist, Kevin MacLeod (royalty-free composer, added unmonitored from Lidarr's metadata server; 81 albums listed). Own capture because the Lidarr repository at the tag has no screenshots and the website's slider images (lidarr.github.io) carry no licence. Table view keeps third-party artist photos out. UI GPL-3.0 (Team Lidarr). No passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/lidarr/screenshots/lidarr-artist-details.png",
+      "sha256": "sha256:e58fb59d8e173e35b372cc449982ca6158d242ef91cb5baf3f946f5e46bf7817",
+      "source": "https://github.com/Lidarr/Lidarr",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on the same throw-away test box at Lidarr 3.1.6.5079, 1280x800: the artist page of the demo artist Kevin MacLeod with the album list expanded (titles and dates from MusicBrainz via Lidarr's metadata server, CC0 data). The fanart backdrop (third-party photo, rights unestablished) was hidden by a stylesheet before the capture, so the header shows a plain dark background; nothing else changed. UI GPL-3.0 (Team Lidarr). No passwords, tokens, private addresses or personal data."
     }
   ]
 }

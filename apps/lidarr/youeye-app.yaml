@@ -1,0 +1,92 @@
+schema: youeye.app.v1
+id: lidarr
+version: 3.1.6.5079
+name: Lidarr
+listing:
+  tagline: Your music library, automated
+  description: Music collection manager for Usenet and BitTorrent
+  long_description: |
+    Lidarr watches for new albums from the artists you follow, finds them through your
+    indexers (via Prowlarr), sends them to your download client and files them into your
+    music library with tags and artwork, automatically. Quality profiles, metadata
+    profiles, upgrades and failed-download handling are built in.
+
+    Your music goes to the shared media folder (media/music), where Jellyfin can play it.
+
+    Sign-in: Lidarr has no sign-in of its own here. YouEye ID decides who may open it, so
+    it stays reachable only for the people you allow.
+  release_notes: |
+    First Market release of Lidarr 3.1.6.5079 (LinuxServer build ls49).
+  category: media
+  tags: [media, music, pvr, automation, arr]
+  icon: music
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/lidarr-artists.png
+      caption: "The music library (table view)"
+    - path: screenshots/lidarr-artist-details.png
+      caption: "An artist's albums from the metadata server"
+  website: https://lidarr.audio
+  developer: Team Lidarr
+  license: GPL-3.0-only
+  source_code: https://github.com/Lidarr/Lidarr
+  support: https://wiki.servarr.com/lidarr
+  docs: https://wiki.servarr.com/lidarr
+# 3.1.6.5079-ls49, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/linuxserver/lidarr@sha256:8fb40ada166dd1880cb1b166df5bcbb081107523f20ab60df05c313e2052a467
+port: 8686
+health: /ping
+# The metadata server (api.lidarr.audio) and indexers are on the internet.
+internet: true
+data:
+  - {path: /config, kind: config}
+  - {path: /custom-cont-init.d, kind: config}
+shared:
+  media: /data
+env:
+  PUID: '0'
+  PGID: '0'
+  TZ: Etc/UTC
+secrets:
+  api_key: {kind: key}
+# External: no login of its own (src/NzbDrone.Core/Authentication/AuthenticationType.cs); YouEye's gate is the
+# only door (locked on). The API keeps its key for the wiring.
+files:
+  - path: /config/config.xml
+    mode: '0600'
+    template: |
+      <Config>
+        <BindAddress>*</BindAddress>
+        <Port>8686</Port>
+        <SslPort>6868</SslPort>
+        <EnableSsl>False</EnableSsl>
+        <LaunchBrowser>False</LaunchBrowser>
+        <ApiKey>${secret.api_key}</ApiKey>
+        <AuthenticationMethod>External</AuthenticationMethod>
+        <AuthenticationRequired>Enabled</AuthenticationRequired>
+        <Branch>master</Branch>
+        <LogLevel>info</LogLevel>
+        <UrlBase></UrlBase>
+        <InstanceName>Lidarr</InstanceName>
+      </Config>
+  - path: /custom-cont-init.d/10-youeye-media-paths
+    mode: '0700'
+    template: |
+      #!/usr/bin/with-contenv bash
+      set -euo pipefail
+      install -d -m 0775 /data/torrents /data/torrents/incomplete /data/media/music
+provides:
+  - {type: pvr, description: Music PVR (Lidarr), port: 8686, scope: service}
+connects:
+  - app: prowlarr
+    name: Prowlarr
+    description: Manage indexers for Lidarr in Prowlarr
+    scope: service
+    setup: setup/connect-prowlarr.yaml
+  - app: qbittorrent
+    name: qBittorrent
+    description: Send music downloads to qBittorrent
+    scope: service
+    setup: setup/connect-qbittorrent.yaml
+# How connected apps read this app's API key (${peer.api_key} in their connect setup).
+api_key: {secret: api_key}

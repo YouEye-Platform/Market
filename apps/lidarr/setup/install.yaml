@@ -1,0 +1,22 @@
+# The music root folder belongs to Lidarr itself, not to the downloader connection
+# (src/Lidarr.Api.V1/RootFolders/RootFolderController.cs). A fresh database seeds the metadata profile
+# "Standard" first (id 1) and the quality profile "Any" first (id 1): MetadataProfileService.cs and
+# QualityProfileService.cs at v3.1.6.5079, confirmed on a fresh install (YE-180). /data/media/music is made by
+# /custom-cont-init.d/10-youeye-media-paths before Lidarr starts.
+schema: youeye.setup.v1
+for: install
+steps:
+  - wait: { http: /ping, timeout: 180 }
+  - http:
+      method: POST
+      path: /api/v1/rootfolder
+      headers:
+        X-Api-Key: ${secret.api_key}
+      body:
+        name: Music
+        path: /data/media/music
+        defaultMetadataProfileId: 1
+        defaultQualityProfileId: 1
+        defaultMonitorOption: all
+        defaultNewItemMonitorOption: all
+        defaultTags: []

@@ -1,0 +1,38 @@
+schema: youeye.setup.v1
+for: connect:qbittorrent
+steps:
+  # The app's API may still be starting right after install.
+  - wait: { http: /ping, timeout: 180 }
+  - http:
+      method: DELETE
+      path: /api/v1/downloadclient/${item.id}
+      headers:
+        X-Api-Key: ${self.api_key}
+      for_each:
+        path: /api/v1/downloadclient
+        where: {name: qBittorrent}
+  - http:
+      method: POST
+      path: /api/v1/downloadclient
+      headers:
+        X-Api-Key: ${self.api_key}
+      body:
+        enable: true
+        protocol: torrent
+        priority: 1
+        name: qBittorrent
+        implementation: QBittorrent
+        configContract: QBittorrentSettings
+        tags: []
+        fields:
+          - name: host
+            value: ${peer.host}
+          - name: port
+            value: 8080
+          - name: username
+            value: admin
+          - name: password
+            value: ${peer.api_key}
+          - name: musicCategory
+            value: lidarr
+      allow_failure: true
