@@ -835,6 +835,27 @@
       "source": "https://raw.githubusercontent.com/rommapp/docs/0333d84e593a6274e4ba9f7d886ccc2d9ce43d98/docs/resources/quickstart/upload_roms.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the official RomM docs repository (rommapp/docs, CC0-1.0, LICENSE; no tags, pinned at commit 0333d84e), docs/resources/quickstart/upload_roms.png, used in the Quick Start guide. Reviewed visually 2026-11-24 (YouEye Market curator): the upload dialog with four demo file names for PlayStation; no passwords, tokens or private addresses."
+    },
+    {
+      "path": "apps/changedetection/icon.svg",
+      "sha256": "sha256:9e05a3dd4b7cf805987b6a564e87e11c58f0974157a609e4190dc01e1372e34c",
+      "source": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "evidence": "project-reference",
+      "notes": "Original Market illustration (a watched page with a clock marker) authored 2026-11-24, CC0-1.0; no upstream logo copied. changedetection.io's NOTICE reserves its name, logo and brand assets (not licensed under Apache-2.0), so the listing uses a neutral mark (YE-87 decision). See ASSET-NOTICES.md."
+    },
+    {
+      "path": "apps/changedetection/screenshots/watch-list.png",
+      "sha256": "sha256:7a7b137b7a54edc1603f4a209eb4e66ab550b0c728409c7b59880f483db70820",
+      "source": "https://raw.githubusercontent.com/dgtlmoon/changedetection.io/0.70.4/docs/screenshot.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the changedetection.io repository at tag 0.70.4 (docs/screenshot.png, the README's main picture; the UI of v0.60.10, the current design). Licence: Apache-2.0 (the UI; the small CD IO wordmark in the corner is upstream's brand asset, shown as the app shows it). Reviewed visually 2026-11-24 (YouEye Market curator): three demo watches of public pages (a ministry press page, a shop product, a property search) with a price chart and AI summaries; no passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/changedetection/screenshots/conditions.png",
+      "sha256": "sha256:820f19de6d9045cbea64781bc2fb3ce247145cd21a63d56382134a6d829202f5",
+      "source": "https://raw.githubusercontent.com/dgtlmoon/changedetection.io/0.70.4/docs/web-page-change-conditions.png",
+      "evidence": "exact-source",
+      "notes": "Copied byte for byte from the changedetection.io repository at tag 0.70.4 (docs/web-page-change-conditions.png, used in the README's Conditions section). Licence: Apache-2.0. Reviewed visually 2026-11-24 (YouEye Market curator): the Conditions tab of a watch with two numeric rules; no passwords, tokens or private addresses."
     }
   ]
 }

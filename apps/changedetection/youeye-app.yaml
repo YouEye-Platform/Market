@@ -1,0 +1,66 @@
+schema: youeye.app.v1
+id: changedetection
+version: 0.70.4
+name: changedetection.io
+listing:
+  tagline: Website change detection, monitoring and notifications
+  description: Get alerts when web pages, prices or stock change
+  long_description: |
+    changedetection.io watches web pages for you and tells you when they change: a news page, a price, a
+    "back in stock" label, a job listing, a council notice. Pick the part of a page to watch with CSS, XPath or
+    JSON filters, ignore text that always changes, set conditions (only when a price falls below a limit), see
+    every version and the differences between them, and get notified by mail, Discord, Telegram, ntfy, Matrix and
+    many more (Apprise notification URLs, set in Settings). RSS feeds and an API are included.
+
+    No browser on YouEye: changedetection.io checks pages with plain web requests, so it sees the page as the
+    server sends it. Pages built in the browser by JavaScript (many shops and web apps) may show little or no
+    text, and the Visual Selector, Browser Steps and page screenshots are not available. Pages on your own
+    network (LAN addresses) can't be watched, as in changedetection.io's defaults.
+
+    Outside contacts: as upstream ships it, changedetection.io asks changedetection.io's website now and then
+    whether a newer version exists, sending its version, a random id of this installation and the number of
+    watches. Updates themselves come through YouEye. The AI summaries need your own key for an AI service
+    (Settings → AI / LLM / MCP).
+
+    changedetection.io has no sign-in of its own (only an optional password in Settings), so it stays behind
+    YouEye's sign-in: only people you give access to can open it.
+  release_notes: |
+    First release in the YouEye Market: changedetection.io 0.70.4, behind YouEye's sign-in, checking pages with
+    plain web requests.
+  category: utilities
+  tags: [monitoring, website, alerts, price-tracking]
+  icon: eye
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/watch-list.png
+      caption: "Watch list with a price history and change summaries"
+    - path: screenshots/conditions.png
+      caption: "Alert only when a value crosses a limit"
+  website: https://changedetection.io
+  developer: Leigh Morresi and contributors
+  license: Apache-2.0
+  source_code: https://github.com/dgtlmoon/changedetection.io
+  support: https://github.com/dgtlmoon/changedetection.io/issues
+  docs: https://github.com/dgtlmoon/changedetection.io/wiki
+# 0.70.4, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7, linux/arm/v8). docker-entrypoint.sh execs
+# "python ./changedetection.py -d /datastore", so Python is PID 1 and saves the datastore on SIGTERM.
+image: ghcr.io/dgtlmoon/changedetection.io@sha256:b6aae2572a0bf1a671b1b202365ddcfe16a31fa8a60be89df606705731b55f8b
+port: 5000
+# No readiness route upstream; / is the watch list (200 without a password, 302 to its login with one).
+health: /
+internet: true
+data:
+  # Watches, history snapshots, settings and the API key (JSON files and folders; no database).
+  - /datastore
+env:
+  # The {{base_url}} of notification texts (also settable in Settings).
+  BASE_URL: ${app.url}
+  # Werkzeug ProxyFix for Caddy's X-Forwarded-Proto/Host/For: HTTPS links and the PWA. Addresses and scheme only,
+  # never a sign-in decision (changedetectionio/__init__.py).
+  USE_X_SETTINGS: '1'
+  TZ: ${platform.timezone}
+  # The version check (and its anonymous count) stays at upstream's default; the listing says so (YE-87 decision).
+# Access: no sign-in of its own by default (an optional single password), so no sso, credentials or public_access:
+# it stays behind YouEye's gate (owner rule 2026-11-24).
+# No browser sidecar (sockpuppetbrowser/Chrome) in this release: the listing says JavaScript-heavy pages aren't
+# supported. A sidecar can only be added later by a reinstall.
