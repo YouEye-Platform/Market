@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: wallabag
-version: 2.6.18
+version: 2.6.19
 name: wallabag
 listing:
   tagline: Save web pages now and read them later
@@ -15,11 +15,12 @@ listing:
     e-readers work. To keep it to people with a YouEye account instead, turn public access off in the install
     dialog or later in the app's access settings.
   release_notes: |
-    wallabag 2.6.18 is a security release: imported tagging rules are checked (invalid stored
-    rules are now ignored, so review rules that stop working), shared article pages link only
-    to web addresses, ePub exports no longer read files or fetch addresses from an article
-    (remote images become links; images wallabag stored are still included), and SVG images
-    are checked more strictly. Your articles, tags and settings stay as they are.
+    wallabag 2.6.19 fixes three crashes and slowdowns: importing a Pocket HTML export no longer fails
+    when an article has no date, an ePub export no longer fails on a very large article element, and
+    long article lists and feeds (in the app and through the API used by the phone apps and browser
+    extensions) load faster. An ePub export now also downloads the article's cover picture when
+    wallabag hasn't stored it. The app now runs on PHP 8.3. Your articles, tags and settings stay as
+    they are.
 
     New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
     copy, turn on public access in the app's access settings if you want that.
@@ -38,8 +39,8 @@ listing:
   source_code: https://github.com/wallabag/wallabag
   support: https://github.com/wallabag/wallabag/discussions
   docs: https://doc.wallabag.org/
-# 2.6.18, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7)
-image: docker.io/wallabag/wallabag@sha256:098392c764402eed720bb0e1b9a0649d0bf8d3f5b071b054c9495e7ae44dc15d
+# 2.6.19, multi-arch index (linux/amd64, linux/arm64, linux/arm/v7)
+image: docker.io/wallabag/wallabag@sha256:957dd984804462367132482c37d7bd1512cabe8a9503ec22e06efddc2872942b
 port: 80
 health: {path: /api/version, timeout: 180}
 internet: true

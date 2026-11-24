@@ -699,16 +699,16 @@
     {
       "path": "apps/wallabag/icon.svg",
       "sha256": "sha256:77a39db470f4402e2bfe34d9068b7dbc561437ba26893e986771f06185a960a9",
-      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.18/web/img/logo-square.svg",
+      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.19/web/img/logo-square.svg",
       "evidence": "exact-source",
-      "notes": "Official unmodified wallabag logo (unchanged at 2.6.18), MIT source licence COPYING.md; identification only, no endorsement. Verified 2026-10-23."
+      "notes": "Official unmodified wallabag logo (unchanged at 2.6.19), MIT source licence COPYING.md; identification only, no endorsement. Verified 2026-10-23."
     },
     {
       "path": "apps/wallabag/screenshots/reading-list.png",
       "sha256": "sha256:927d59013a3fce3a3c60b420aa0a58a396e98ab8c9a9bc67ecf7f57ca4fd5888",
-      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.18/.github/images/screenshot.png",
+      "source": "https://raw.githubusercontent.com/wallabag/wallabag/2.6.19/.github/images/screenshot.png",
       "evidence": "exact-source",
-      "notes": "Copied byte for byte from https://github.com/wallabag/wallabag/blob/2.6.18/README.md. Licence: MIT (wallabag/wallabag). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+      "notes": "Copied byte for byte from https://github.com/wallabag/wallabag/blob/2.6.19/README.md. Licence: MIT (wallabag/wallabag). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/wallabag/screenshots/website-saved-articles.png",
