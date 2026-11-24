@@ -856,6 +856,27 @@
       "source": "https://raw.githubusercontent.com/dgtlmoon/changedetection.io/0.70.4/docs/web-page-change-conditions.png",
       "evidence": "exact-source",
       "notes": "Copied byte for byte from the changedetection.io repository at tag 0.70.4 (docs/web-page-change-conditions.png, used in the README's Conditions section). Licence: Apache-2.0. Reviewed visually 2026-11-24 (YouEye Market curator): the Conditions tab of a watch with two numeric rules; no passwords, tokens or private addresses."
+    },
+    {
+      "path": "apps/kiwix/icon.svg",
+      "sha256": "sha256:1b572af98071e133a9dae4523e00925cb00d8fac5924cffa65c4d5e8a6de9c7b",
+      "source": "https://raw.githubusercontent.com/kiwix/kiwix-desktop/2.5.1/resources/icons/kiwix-app-icons-square.svg",
+      "evidence": "exact-source",
+      "notes": "Kiwix's app icon (the kiwi), copied byte for byte from the official Kiwix desktop app repository at tag 2.5.1 (resources/icons/kiwix-app-icons-square.svg). Repository licence GPL-3.0 (kiwix/kiwix-desktop COPYING); no separate brand rules found. Identifies the application; no endorsement implied. See ASSET-NOTICES.md."
+    },
+    {
+      "path": "apps/kiwix/screenshots/library.png",
+      "sha256": "sha256:a49aed366d74eec91974a29e0023ff8140b46614d11b4812afd898db583239dd",
+      "source": "https://github.com/kiwix/kiwix-tools",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on a throw-away YouEye test box (template clone VM 167, destroyed afterwards) at kiwix-serve 3.8.2 (libkiwix 14.x UI): the library page with one ZIM, Kiwix's own sample wikipedia_en_ray-charles_maxi_2026-10 from download.kiwix.org, placed in the shared Media folder. Own capture because upstream's only screenshots (kiwix-tools docker/server/pictures) show the old 2.x library page. UI GPL-3.0 (libkiwix); the tile picture is the public-domain 1969 photo below. No passwords, tokens, private addresses or personal data."
+    },
+    {
+      "path": "apps/kiwix/screenshots/article.png",
+      "sha256": "sha256:e89673b7e9899c4492a5d5a609d0ba594c511e09c0d048e3d2ab517d13ff3371",
+      "source": "https://github.com/kiwix/kiwix-tools",
+      "evidence": "local-capture",
+      "notes": "Captured 2026-11-24 by Andrew (YouEye Market curator) on the same throw-away test box at kiwix-serve 3.8.2: the Wikipedia article Ray Charles served offline from the ZIM wikipedia_en_ray-charles_maxi_2026-10 (Kiwix viewer). Article text from English Wikipedia, CC BY-SA 4.0 (Wikipedia contributors); infobox photo Ray_Charles_classic_piano_pose.jpg (Maurice Seymour, 1969), public domain per Wikimedia Commons. No passwords, tokens, private addresses or personal data."
     }
   ]
 }

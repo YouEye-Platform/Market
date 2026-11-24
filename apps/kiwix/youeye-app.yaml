@@ -1,0 +1,85 @@
+schema: youeye.app.v1
+id: kiwix
+version: 3.8.2
+name: Kiwix
+listing:
+  tagline: Wikipedia and other knowledge, offline
+  description: Serve offline copies of Wikipedia, Stack Exchange, Project Gutenberg and more
+  long_description: |
+    Kiwix serves ZIM files: compressed offline copies of Wikipedia, Wiktionary, Wikivoyage, Stack Exchange,
+    Project Gutenberg, TED talks and much more, with full-text search, to every browser in your home. It keeps
+    working when the internet doesn't.
+
+    Adding content: Kiwix reads the ZIM files in your YouEye's shared Media folder (the one qBittorrent, Jellyfin,
+    Sonarr, Radarr and FileBrowser use). The easy way is qBittorrent: find a ZIM on https://library.kiwix.org
+    (every entry has a torrent and a magnet link) and add that link in qBittorrent; it saves to the torrents
+    folder of the Media folder, and Kiwix lists the file about a minute after the download has finished. A ZIM
+    file copied anywhere else in the Media folder (with FileBrowser, for example) is found the same way; files
+    still downloading are left out until they are complete.
+
+    Sizes, English Wikipedia: with pictures about 119 GB, without pictures 49 GB, introductions only 13 GB, the
+    top articles 283 MB. A 29 MB sample (the Ray Charles articles) is good for a first try. Check that your YouEye
+    has the space first.
+
+    Kiwix has no sign-in of its own, so it stays behind YouEye's sign-in: only people you give access to can open
+    it.
+  release_notes: |
+    First release in the YouEye Market: kiwix-serve 3.8.2, serving the ZIM files of the shared Media folder.
+  category: search
+  tags: [wikipedia, offline, reference, education]
+  icon: book-open
+  icon_file: icon.svg
+  screenshots:
+    - path: screenshots/library.png
+      caption: "The library, here with the Ray Charles sample"
+    - path: screenshots/article.png
+      caption: "A Wikipedia article served offline"
+  website: https://kiwix.org
+  developer: Kiwix
+  license: GPL-3.0
+  source_code: https://github.com/kiwix/kiwix-tools
+  support: https://github.com/kiwix/kiwix-tools/issues
+  docs: https://kiwix-tools.readthedocs.io/
+# 3.8.2, multi-arch index (linux/386, linux/amd64, linux/arm64, linux/arm/v6, linux/arm/v7); the tag is rebuilt
+# (2026-09-11), so the digest is the pin. Runs as "user" (uid 1001).
+image: ghcr.io/kiwix/kiwix-serve@sha256:e478554a9920412eeb5ce1d73f24e4b28445ebed233187cdd03c623c32be46a5
+port: 8080
+# The welcome page (the library; 200 with an empty library too).
+health: /
+# Serves local files only; downloads happen in qBittorrent.
+internet: false
+data:
+  # Holds only the start script; the library is rebuilt in /tmp at every start.
+  - {path: /kiwix, kind: config}
+shared:
+  # The household Media folder; qBittorrent saves torrents to /data/torrents/ (incomplete ones in incomplete/).
+  media: /data
+# kiwix-serve reads ZIM paths given as arguments once (and won't start without one), but follows a library.xml
+# with --monitorLibrary (src/server/kiwix-serve.cpp); the script keeps /tmp/library.xml equal to the complete ZIM
+# files under /data. dumb-init stays PID 1 (forwards SIGTERM to the whole group, reaps the scan loop), as in
+# upstream's ENTRYPOINT.
+command: [/usr/bin/dumb-init, --, /bin/sh, /kiwix/youeye-start.sh]
+files:
+  - path: /kiwix/youeye-start.sh
+    mode: '0644'
+    dir_mode: '0755'
+    template: |
+      #!/bin/sh
+      # Serve every complete ZIM file in the shared Media folder; look for new, changed or removed ones every 60 s.
+      LIB=/tmp/library.xml
+      zims() { find /data -type f -name '*.zim' ! -path '/data/torrents/incomplete/*' 2>/dev/null | sort; }
+      # Name, size and time: a file still being copied changes, so it is tried again once it is complete.
+      sig() { zims | while IFS= read -r f; do stat -c '%s %Y %n' "$f" 2>/dev/null; done; }
+      build() {
+        tmp=/tmp/library.new.xml
+        printf '<library version="20110515">\n</library>\n' > "$tmp"
+        zims | while IFS= read -r zim; do
+          kiwix-manage "$tmp" add "$zim" >/dev/null 2>&1 || echo "kiwix: skipping $zim (not a complete ZIM file)"
+        done
+        mv -f "$tmp" "$LIB"
+        echo "kiwix: the library has $(grep -c '<book ' "$LIB") ZIM file(s)"
+      }
+      seen=$(sig)
+      build
+      ( while sleep 60; do cur=$(sig); if [ "$cur" != "$seen" ]; then build; seen=$cur; fi; done ) &
+      exec kiwix-serve --port=8080 --library --monitorLibrary "$LIB"
