@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: open-webui
-version: 0.13.4.1
+version: 0.13.5
 name: Open WebUI
 listing:
   tagline: Chat with the model group selected in YouEye AI Settings
@@ -16,17 +16,13 @@ listing:
     phone too. To keep it to people with a YouEye account instead, turn public access off in the install dialog
     or later in the app's access settings.
   release_notes: |
-    Open WebUI 0.13.4 brings faster chats, better sign-in session handling and many fixes.
-    Personal "Direct connections" and "Direct tool servers" in a user's own settings were
-    removed upstream (they moved to the separate Tether app), so a model connection someone
-    added there for themselves is gone. Models from YouEye AI are not affected.
-    No database migration.
+    Open WebUI 0.13.5 adds folder workspaces, project instructions (AGENTS.md) and note tags, and
+    makes sending a message in a long chat much faster. Terminal connections are now called Machines.
 
-    New installs create Open WebUI's admin account themselves (its password is under the
-    app's credentials), so the first person to open the app no longer becomes its admin.
-
-    New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
-    copy, turn on public access in the app's access settings if you want that.
+    Database migration: on its first start the new version converts every chat's history to a new
+    storage format (each message stored separately). YouEye keeps a checkpoint of the app's data
+    during the update and restores it if the new version doesn't start, so nothing needs to be done
+    by hand; the first start may take a little longer on a box with many chats.
   category: ai
   tags: [ai, chat, openai-compatible, models]
   icon: message-circle
@@ -38,14 +34,14 @@ listing:
       caption: "Admin panel: general settings"
   website: https://openwebui.com
   developer: Open WebUI Inc. and contributors
-  # The selected v0.13.4 release uses the Open WebUI License, including branding conditions (LICENSE.upstream.txt).
-  # https://github.com/open-webui/open-webui/blob/v0.13.4/LICENSE
+  # The selected v0.13.5 release uses the Open WebUI License, including branding conditions (LICENSE.upstream.txt).
+  # https://github.com/open-webui/open-webui/blob/v0.13.5/LICENSE
   license: Open WebUI License
   source_code: https://github.com/open-webui/open-webui
   support: https://github.com/open-webui/open-webui/discussions
   docs: https://docs.openwebui.com
-# v0.13.4, multi-arch index (linux/amd64, linux/arm64)
-image: ghcr.io/open-webui/open-webui@sha256:d5168bfbc28609eff5bea1b438dd864cf64d185cf6582c02244865e18385b901
+# v0.13.5, multi-arch index (linux/amd64, linux/arm64)
+image: ghcr.io/open-webui/open-webui@sha256:e0dc5a8bf5c71cadf339d1e7b9408b357da75fb2854f82cad57a1609fadf2a22
 port: 8080
 health: {path: /health, timeout: 300}
 internet: true

@@ -1,6 +1,6 @@
 # The admin account, before the app has a route: while Open WebUI has no users, POST /api/v1/auths/signup takes
 # anyone's sign-up whatever ENABLE_SIGNUP says and makes that account admin (backend/open_webui/routers/auths.py,
-# signup(), 0.13.4). So the install makes the first account itself, with a generated password (owner, 2026-11-24:
+# signup(), 0.13.4 and 0.13.5). So the install makes the first account itself, with a generated password (owner, 2026-11-24:
 # the install creates the admin where the app would hand it to its first visitor). After that, sign-up follows
 # ENABLE_SIGNUP (off) and people come in with YouEye ID. `@localhost` passes Open WebUI's email check
 # (utils/misc.py validate_email_format) and can't belong to a YouEye ID user.
