@@ -1,7 +1,9 @@
 schema: youeye.app.v1
 id: changedetection
-version: 0.70.4
+version: 0.70.4.1
 name: changedetection.io
+# Adds a secret to installed copies on update and refreshes their credentials (YE-208): YouEye 0.6.20 and newer.
+requires: { youeye: ">=0.6.20" }
 listing:
   tagline: Website change detection, monitoring and notifications
   description: Get alerts when web pages, prices or stock change
@@ -22,11 +24,17 @@ listing:
     watches. Updates themselves come through YouEye. The AI summaries need your own key for an AI service
     (Settings → AI / LLM / MCP).
 
-    changedetection.io has no sign-in of its own (only an optional password in Settings), so it stays behind
-    YouEye's sign-in: only people you give access to can open it.
+    changedetection.io protects itself with its own password: the password is shown under Credentials on the
+    app's page (there is no user name). It installs open to everyone on your home network, who see its login
+    page. You can change or remove the password in changedetection.io's Settings, as upstream allows; the
+    password under Credentials then no longer applies.
   release_notes: |
-    First release in the YouEye Market: changedetection.io 0.70.4, behind YouEye's sign-in, checking pages with
-    plain web requests.
+    changedetection.io now has its own password instead of YouEye's access gate: it is shown
+    under Credentials on the app's page (no user name). If you had already set a password in
+    changedetection.io's Settings, yours is kept and the one under Credentials doesn't apply.
+    You can change or remove the password in Settings, as upstream allows; YouEye keeps your
+    change. Your watches, history and settings are kept. To let everyone on your home network
+    open it, turn on public access in the app's access settings. Same changedetection.io 0.70.4.
   category: utilities
   tags: [monitoring, website, alerts, price-tracking]
   icon: eye
@@ -46,7 +54,8 @@ listing:
 # "python ./changedetection.py -d /datastore", so Python is PID 1 and saves the datastore on SIGTERM.
 image: ghcr.io/dgtlmoon/changedetection.io@sha256:b6aae2572a0bf1a671b1b202365ddcfe16a31fa8a60be89df606705731b55f8b
 port: 5000
-# No readiness route upstream; / is the watch list (200 without a password, 302 to its login with one).
+# No readiness route upstream; / is the watch list (200 without a password, 302 to its login with one; both answer
+# without a sign-in, so the check works whether or not the household keeps the password).
 health: /
 internet: true
 data:
@@ -60,7 +69,77 @@ env:
   USE_X_SETTINGS: '1'
   TZ: ${platform.timezone}
   # The version check (and its anonymous count) stays at upstream's default; the listing says so (YE-87 decision).
-# Access: no sign-in of its own by default (an optional single password), so no sso, credentials or public_access:
-# it stays behind YouEye's gate (owner rule 2026-11-24).
+  # The generated password, read once by youeye-start.sh (below), which removes it from the environment before it
+  # starts changedetection.io, so the app's process never holds it in plain text.
+  YOUEYE_ADMIN_PASSWORD: ${secret.admin_password}
+secrets:
+  # Added by 0.70.4.1; YouEye 0.6.20 generates it for copies installed before (YE-208).
+  admin_password: {length: 24}
+# Access: changedetection.io has its own login (one password, no user name), so it uses it and is public on the
+# household network (owner rule 2026-11-24, decisions.md "YouEye ID is convenience, not a gate"; YE-204). The API
+# (/api/v1, its own api_access_token, on by default) and RSS (rss_access_token) keep their own tokens.
+public_access: true
+credentials:
+  - {label: Password (changedetection.io has no user name), username: not needed, password: admin_password}
+# The password. Upstream keeps it in /datastore/changedetection.json, settings.application.password, as
+# base64(32-byte random salt + PBKDF2-HMAC-SHA256(password, salt, 100000 iterations)) (0.70.4 forms.py
+# SaltyPasswordField.build_password; checked by flask_app.py User.check_password). The SALTED_PASS env (same format)
+# overrides it and locks it, so Settings could no longer change or remove it (blueprint/settings/__init__.py): not
+# used permanently. Instead the container starts as /bin/bash /datastore/youeye-start.sh, which once (until the
+# marker /datastore/.youeye-password-set exists) writes the hash into changedetection.json, only if no password is
+# set there, before the app starts (the app isn't running, so it can't overwrite the file). On a fresh install's
+# first start the file doesn't exist yet and a hand-written one would skip upstream's init_fresh_install, so that
+# one run gets SALTED_PASS (the hash) instead and the next start writes it into the file. A password the household
+# changes or removes later in Settings is kept. Recovery: delete the marker (and set no password) and restart.
+# The script then execs the image's own ENTRYPOINT and CMD (/docker-entrypoint.sh python ./changedetection.py -d
+# /datastore in /app), so Python is PID 1 again and stops cleanly on SIGTERM.
+command: [/bin/bash, /datastore/youeye-start.sh]
+files:
+  - path: /datastore/youeye-start.sh
+    mode: '0700'
+    template: |
+      #!/bin/bash
+      d=/datastore
+      j="$d/changedetection.json"
+      m="$d/.youeye-password-set"
+      p="$YOUEYE_ADMIN_PASSWORD"
+      unset YOUEYE_ADMIN_PASSWORD
+      if [ ! -e "$m" ] && [ -n "$p" ]; then
+        if [ -e "$j" ]; then
+          if YE_P="$p" python3 - "$j" <<'PY'
+      import base64, hashlib, json, os, secrets, sys, tempfile
+      path = sys.argv[1]
+      with open(path, encoding='utf-8') as f:
+          data = json.load(f)
+      application = data.setdefault('settings', {}).setdefault('application', {})
+      if application.get('password'):
+          print('youeye: changedetection.io already has a password, left unchanged')
+      else:
+          salt = secrets.token_bytes(32)
+          key = hashlib.pbkdf2_hmac('sha256', os.environ['YE_P'].encode('utf-8'), salt, 100000)
+          application['password'] = base64.b64encode(salt + key).decode('ascii')
+          fd, tmp = tempfile.mkstemp(prefix='json-', suffix='.tmp', dir=os.path.dirname(path))
+          with os.fdopen(fd, 'w', encoding='utf-8') as f:
+              json.dump(data, f, indent=2)
+              f.flush()
+              os.fsync(f.fileno())
+          os.chmod(tmp, os.stat(path).st_mode & 0o7777)
+          os.replace(tmp, path)
+          print('youeye: set the changedetection.io password')
+      PY
+          then
+            touch "$m"
+          else
+            echo "youeye: could not set the password, trying again at the next start"
+          fi
+        else
+          SALTED_PASS=$(YE_P="$p" python3 -c "import base64, hashlib, os, secrets; s = secrets.token_bytes(32); print(base64.b64encode(s + hashlib.pbkdf2_hmac('sha256', os.environ['YE_P'].encode('utf-8'), s, 100000)).decode('ascii'))")
+          export SALTED_PASS
+          echo "youeye: first start, password set for this run; it moves into changedetection.json at the next start"
+        fi
+      fi
+      unset p
+      cd /app
+      exec /docker-entrypoint.sh python ./changedetection.py -d /datastore
 # No browser sidecar (sockpuppetbrowser/Chrome) in this release: the listing says JavaScript-heavy pages aren't
 # supported. A sidecar can only be added later by a reinstall.
