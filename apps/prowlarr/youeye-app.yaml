@@ -1,7 +1,10 @@
 schema: youeye.app.v1
 id: prowlarr
-version: 3.1.0.5799
+version: 3.1.0.5799.1
 name: Prowlarr
+# 0.6.20: an update writes the new credentials: entry into the installed record (YE-208), so updated boxes show the
+# admin account too.
+requires: { youeye: ">=0.6.20" }
 listing:
   tagline: One place to manage every indexer
   description: Indexer manager and proxy for the *arr media stack
@@ -10,10 +13,19 @@ listing:
     with Sonarr and Radarr to manage all of your torrent and Usenet indexers in one place —
     add an indexer once in Prowlarr and it syncs automatically to every connected app. No
     more configuring the same trackers over and over in each application.
+
+    Prowlarr signs you in with its own login: user admin, with the password shown under
+    Credentials on the app's page. It installs open to everyone on your home network, who see
+    its login page. Change the password in Prowlarr's settings (General, Security) if you like;
+    YouEye keeps your change.
   release_notes: |
-    Prowlarr 3.1.0 adds a search timeout per indexer, supports several categories in
-    indexer definitions and fixes MyAnonamouse results with numeric titles. Indexers and
-    app connections are kept; no database migration.
+    Prowlarr now has its own sign-in instead of YouEye's access gate: user admin, with the
+    password shown under Credentials on the app's page (it is also Prowlarr's API key). You
+    can change it in Prowlarr's settings (General, Security); YouEye keeps your change.
+    Indexers and the links to Sonarr, Radarr and Lidarr keep working through the API key.
+    Your indexers, settings and connections are kept, and settings such as the theme now
+    also survive updates. To let everyone on your home network open it, turn on public
+    access in the app's access settings. Same Prowlarr 3.1.0.5799 (LinuxServer ls170).
   category: media
   tags: [media, indexer, automation, arr, torrent, usenet]
   icon: radar
@@ -40,32 +52,74 @@ env:
   PUID: '0'
   PGID: '0'
   TZ: Etc/UTC
+  # The settings YouEye owns, as Prowlarr's own environment overrides (PROWLARR__<SECTION>__<KEY>, read before
+  # config.xml: Bootstrap.cs AddEnvironmentVariables, ConfigFileProvider.cs, v3.1.0.5799). config.xml is no longer a
+  # files: template, which reset the household's settings (theme, log level, instance name ...) on every update.
+  # Forms login whatever config.xml says (an installed copy still has External there); Prowlarr itself turns Basic
+  # into Forms, so Forms is the only login it offers. AuthenticationRequired stays the household's choice.
+  PROWLARR__AUTH__METHOD: Forms
+  PROWLARR__AUTH__APIKEY: ${secret.api_key}
+  PROWLARR__SERVER__BINDADDRESS: '*'
+  PROWLARR__SERVER__PORT: '9696'
+  PROWLARR__SERVER__ENABLESSL: 'False'
+  PROWLARR__SERVER__URLBASE: ''
 secrets:
   # Hex, not base64 (kind: key): Sonarr, Radarr and Lidarr put Prowlarr's key unencoded in ?apikey=, so a key with '+'
   # reads as a space and every call gets 401 (about half of base64 keys; YE-197, 2026-11-24). Only new installs get a
   # hex key; an installed copy keeps the key it was given (an update never regenerates a secret).
   api_key: {kind: hex, length: 32}
-# Prowlarr's External authentication mode delegates interactive access to the
-# platform's forward-auth boundary while preserving its API-key authentication
-# for service wiring with Sonarr and Radarr.
+# Access: Prowlarr has its own login, so it uses it and is public on the household network (owner rule 2026-11-24,
+# decisions.md "YouEye ID is convenience, not a gate"; YE-204). Its account is user admin with the generated api_key
+# as password (the key exists on every box; hex on new installs, base64 on copies installed before YE-197, both fine
+# as a password). The API keeps taking the X-Api-Key header whatever the login method is, so indexer feeds
+# (/{id}/api?apikey=) and the app sync to Sonarr, Radarr and Lidarr keep working, and /ping (health) is anonymous.
+public_access: true
+credentials:
+  - {label: Admin Account, username: admin, password: api_key}
+# The admin account. Unlike Sonarr, Prowlarr 3.1.0.5799 never seeds a user from config.xml (its UserService has no
+# start hook), and an update can't add a /custom-cont-init.d data path. So the container starts as
+# /init /bin/bash /config/youeye-start.sh: the image's own s6-overlay /init stays PID 1 (Incus runs only an entrypoint
+# named /init, /sbin/init, /s6-init or /usr/bin/init as PID 1; driver_lxc.go) and runs the script as its CMD once
+# Prowlarr's services are up. On every start it waits for /ping and makes config.xml say Forms (External/None or no
+# entry; the env already enforces it). Once, until /config/.youeye-admin-ready exists, it reads the
+# host settings through the API and, only if Prowlarr has no user yet, PUTs them back with username admin and the
+# api_key as password (HostConfigController.SaveHostConfig -> UserService.Upsert). It never replaces a user, so a
+# password the household changes later is kept. Recovery: delete the marker and restart the app. The script never
+# exits (s6 stops the container when its CMD ends): it ends in sleep, which s6 stops on shutdown.
+command: [/init, /bin/bash, /config/youeye-start.sh]
 files:
-  - path: /config/config.xml
-    mode: '0600'
+  - path: /config/youeye-start.sh
+    mode: '0700'
     template: |
-      <Config>
-        <BindAddress>*</BindAddress>
-        <Port>9696</Port>
-        <SslPort>9697</SslPort>
-        <EnableSsl>False</EnableSsl>
-        <LaunchBrowser>False</LaunchBrowser>
-        <ApiKey>${secret.api_key}</ApiKey>
-        <AuthenticationMethod>External</AuthenticationMethod>
-        <AuthenticationRequired>Enabled</AuthenticationRequired>
-        <Branch>master</Branch>
-        <LogLevel>info</LogLevel>
-        <UrlBase></UrlBase>
-        <InstanceName>Prowlarr</InstanceName>
-      </Config>
+      #!/bin/bash
+      # Runs as s6-overlay's CMD (after Prowlarr's own services started); it must never exit, or the container stops.
+      m=/config/.youeye-admin-ready
+      f=/config/config.xml
+      until curl -fsS -o /dev/null http://127.0.0.1:9696/ping 2>/dev/null; do sleep 2; done
+      # config.xml says the login the env enforces (Forms instead of the old External, or no entry on a new install),
+      # so the file never opens the app should the env go away. Once Prowlarr is up, so it isn't writing the file.
+      if grep -q '<AuthenticationMethod>' "$f"; then
+        sed -i -E 's#<AuthenticationMethod>(External|None)</AuthenticationMethod>#<AuthenticationMethod>Forms</AuthenticationMethod>#' "$f"
+      else
+        sed -i 's#</Config>#  <AuthenticationMethod>Forms</AuthenticationMethod>\n</Config>#' "$f"
+      fi
+      if [ ! -e "$m" ]; then
+        k='${secret.api_key}'
+        while :; do
+          if h=$(curl -fsS -K <(printf 'header = "X-Api-Key: %s"\n' "$k") http://127.0.0.1:9696/api/v1/config/host); then
+            if [ -n "$(printf '%s' "$h" | jq -r '.username // empty')" ]; then
+              echo "youeye: Prowlarr already has a user, left unchanged"
+            elif printf '%s' "$h" | YE_KEY="$k" jq -c '.username = "admin" | .password = env.YE_KEY | .passwordConfirmation = env.YE_KEY' | curl -fsS -o /dev/null -K <(printf 'header = "X-Api-Key: %s"\n' "$k") -X PUT -H 'Content-Type: application/json' --data-binary @- http://127.0.0.1:9696/api/v1/config/host/1; then
+              echo "youeye: created Prowlarr user admin"
+            else
+              echo "youeye: creating the admin user failed, retrying in 30 s"; sleep 30; continue
+            fi
+            touch "$m"; break
+          fi
+          echo "youeye: host settings not readable yet, retrying in 30 s"; sleep 30
+        done
+      fi
+      exec sleep infinity
 provides:
   - {type: indexer, description: Torrent/Usenet indexer management and search, port: 9696, scope: service}
 # How connected apps read this app's API key (${peer.api_key} in their connect setup).
