@@ -1,7 +1,10 @@
 schema: youeye.app.v1
 id: radarr
-version: 7.0.3.10918
+version: 7.0.3.10918.1
 name: Radarr
+# 0.6.20: an update writes the new credentials: entry into the installed record (YE-208), so updated boxes show the
+# admin account too.
+requires: { youeye: ">=0.6.20" }
 listing:
   tagline: Your movie library, automated
   description: Smart PVR for your movie collection
@@ -10,11 +13,19 @@ listing:
     indexers (via Prowlarr) for the films on your wanted list, grabs them through your
     download client, then renames and organises them into your library — automatically.
     Quality profiles, custom formats, and release-upgrade handling are all built in.
+
+    Radarr signs you in with its own login: user admin, with the password shown under Credentials
+    on the app's page. It installs open to everyone on your home network, who see its login page.
+    Change the password in Radarr's settings (General, Security) if you like; YouEye keeps your
+    change.
   release_notes: |
-    Radarr 7.0.3 is a new major version on .NET 10. The first start migrates the
-    database, which can take a while on a big library and cannot be undone. Movies,
-    settings and connections are kept. Radarr 7's own OIDC sign-in admits a single
-    user, so Radarr stays behind YouEye's access gate as before.
+    Radarr now has its own sign-in instead of YouEye's access gate: user admin, with the
+    password shown under Credentials on the app's page (it is also Radarr's API key). You
+    can change it in Radarr's settings (General, Security); YouEye keeps your change. Apps
+    connected to Radarr keep working through its API key. Your movies, settings and
+    connections are kept, and settings such as the theme now also survive updates. To let
+    everyone on your home network open it, turn on public access in the app's access
+    settings. Same Radarr 7.0.3 (LinuxServer ls328).
   category: media
   tags: [media, movies, pvr, automation, arr]
   icon: film
@@ -46,30 +57,72 @@ env:
   TZ: Etc/UTC
 secrets:
   api_key: {kind: key}
+# Access: Radarr has its own login, so it uses it and is public on the household network (owner rule 2026-11-24,
+# decisions.md "YouEye ID is convenience, not a gate"; YE-204). Its account is user admin with the generated api_key
+# as password (an update can't add a secret, and the key exists on every box).
+# The API keeps taking the X-Api-Key header whatever the login method is (Startup.cs fallback policy, API scheme), so
+# the connect files and Prowlarr/Bazarr keep working, and /ping (the health route) is [AllowAnonymous].
+public_access: true
+credentials:
+  - {label: Admin Account, username: admin, password: api_key}
 files:
-  - path: /config/config.xml
-    mode: '0600'
-    template: |
-      <Config>
-        <BindAddress>*</BindAddress>
-        <Port>7878</Port>
-        <SslPort>9898</SslPort>
-        <EnableSsl>False</EnableSsl>
-        <LaunchBrowser>False</LaunchBrowser>
-        <ApiKey>${secret.api_key}</ApiKey>
-        <AuthenticationMethod>External</AuthenticationMethod>
-        <AuthenticationRequired>Enabled</AuthenticationRequired>
-        <Branch>master</Branch>
-        <LogLevel>info</LogLevel>
-        <UrlBase></UrlBase>
-        <InstanceName>Radarr</InstanceName>
-      </Config>
   - path: /custom-cont-init.d/10-youeye-media-paths
     mode: '0700'
     template: |
       #!/usr/bin/with-contenv bash
       set -euo pipefail
       install -d -m 0775 /data/torrents /data/torrents/incomplete /data/media/tv /data/media/movies
+  # Radarr keeps its host settings in /config/config.xml and rewrites it itself (Settings, General: theme, log level,
+  # instance name, login method, trusted networks), so a files: template would reset them on every update. This
+  # per-start script edits only the keys YouEye owns: bind address, port, no TLS, no URL base, the API key, and a
+  # login (Forms unless the household picked Forms/Basic/OIDC; Enabled unless it picked DisabledForLocalAddresses).
+  # It also writes <Username>admin</Username> and <Password>, which Radarr reads only while its Users table is empty
+  # (UserService.cs Handle(ApplicationStartedEvent), v7.0.3.10918) and then deletes from config.xml
+  # (ConfigFileProvider.cs DeleteOldValues). So the account is created once, and a password or user the household
+  # changes later is kept.
+  - path: /custom-cont-init.d/20-youeye-radarr-config
+    mode: '0700'
+    template: |
+      #!/usr/bin/with-contenv bash
+      set -euo pipefail
+      f=/config/config.xml
+      if [ ! -s "$f" ]; then
+        printf '<Config>\n  <LaunchBrowser>False</LaunchBrowser>\n  <Branch>master</Branch>\n  <LogLevel>info</LogLevel>\n  <InstanceName>Radarr</InstanceName>\n</Config>\n' > "$f"
+      fi
+      YE_KEY='${secret.api_key}' YE_PORT=7878 awk '
+      function tag(line) { if (match(line, /<[A-Za-z]+/)) return substr(line, RSTART + 1, RLENGTH - 1); return "" }
+      function val(line,  s) { s = line; sub(/^[^>]*>/, "", s); sub(/<.*$/, "", s); return s }
+      function put(n, v) { print "  <" n ">" v "</" n ">" }
+      BEGIN {
+        k = ENVIRON["YE_KEY"]
+        force["BindAddress"] = "*"; force["Port"] = ENVIRON["YE_PORT"]; force["EnableSsl"] = "False"
+        force["UrlBase"] = ""; force["ApiKey"] = k
+      }
+      /<\/Config>/ {
+        for (n in force) if (!(n in seen)) put(n, force[n])
+        if (!("AuthenticationMethod" in seen)) put("AuthenticationMethod", "Forms")
+        if (!("AuthenticationRequired" in seen)) put("AuthenticationRequired", "Enabled")
+        put("Username", "admin"); put("Password", k)
+        print; next
+      }
+      { t = tag($0) }
+      t == "Username" || t == "Password" { next }
+      t in force { seen[t] = 1; put(t, force[t]); next }
+      t == "AuthenticationMethod" {
+        seen[t] = 1; v = val($0); l = tolower(v)
+        put(t, (l == "forms" || l == "basic" || l == "oidc") ? v : "Forms"); next
+      }
+      t == "AuthenticationRequired" {
+        seen[t] = 1; v = val($0); l = tolower(v)
+        put(t, (l == "enabled" || l == "disabledforlocaladdresses") ? v : "Enabled"); next
+      }
+      { print }
+      ' "$f" > "$f.youeye"
+      grep -q '<ApiKey>' "$f.youeye"
+      grep -q '</Config>' "$f.youeye"
+      cat "$f.youeye" > "$f"
+      rm -f "$f.youeye"
+      chmod 0600 "$f"
 provides:
   - {type: pvr, description: Movie PVR (Radarr), port: 7878, scope: service}
 connects:
