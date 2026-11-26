@@ -552,23 +552,23 @@
     {
       "path": "apps/razzia/icon.svg",
       "sha256": "sha256:7594a69ec11c73e9f8c04d189bd3ac6d5533bfe00f65dedb4d420478ea4bcadb",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.0/packages/web/public/icon.svg",
+      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.1/packages/web/public/icon.svg",
       "evidence": "exact-source",
-      "notes": "Exact bytes of the app's own icon (unchanged at tag 4.1.0) (MIT-licensed repository); brand rights still require review."
+      "notes": "Exact bytes of the app's own icon (unchanged at tags 4.1.0 and 4.1.1) (MIT-licensed repository); brand rights still require review."
     },
     {
       "path": "apps/razzia/screenshots/manager-room.png",
       "sha256": "sha256:2936087462830118ad45a479bfa4f3d016cdfd7f00017ab776dab7fe060d2e70",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.0/.github/previews/2.png",
+      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.1/.github/previews/2.png",
       "evidence": "exact-source",
-      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.0/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.1/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/razzia/screenshots/question-screen.png",
       "sha256": "sha256:408416fe45c63463153b07ba986cd7c95e4c3960b22814358485c9a0f4ee569f",
-      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.0/.github/previews/3.png",
+      "source": "https://raw.githubusercontent.com/Ralex91/Razzia/4.1.1/.github/previews/3.png",
       "evidence": "exact-source",
-      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.0/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
+      "notes": "Copied byte for byte from https://github.com/Ralex91/Razzia/blob/4.1.1/README.md. Licence: MIT (Ralex91/Razzia). README image at tag. Caption taken from upstream alt text, file name or page context; the image itself was not opened (untrusted-download rule). Reviewed visually 2026-11-17 (YouEye Market curator)."
     },
     {
       "path": "apps/searxng/icon.svg",

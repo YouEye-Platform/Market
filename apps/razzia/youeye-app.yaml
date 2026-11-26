@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: razzia
-version: 4.1.0
+version: 4.1.1
 name: Razzia
 listing:
   tagline: Host live quiz games for a room full of players
@@ -22,8 +22,12 @@ listing:
     Razzia's access settings. Quizzes, uploaded media and results are kept with the app. A
     running game lives in memory, so restarting or updating the app ends it.
   release_notes: |
-    Razzia 4.1.0 is a security release (zlib, Node and web framework fixes) and no longer
-    runs the game server as root.
+    Razzia 4.1.1 is a security and fix release. The image now uses Wolfi instead of Alpine
+    and fixes 17 known vulnerabilities, 5 of them critical (nginx). A manager who logs out
+    really loses access to running games, and API request bodies are limited in size. Question
+    display time is no longer capped at 15 seconds, the answers music keeps playing while
+    others answer, two players can no longer take the same name, and big games (thousands of
+    players) run much more smoothly. Your quizzes, media and results stay as they are.
   category: social
   tags: [quiz, game, party, trivia, events]
   icon: gamepad-2
@@ -33,12 +37,12 @@ listing:
       caption: "Host screen waiting for players, with the game PIN and QR code"
     - path: screenshots/question-screen.png
       caption: "A question with four answers"
-  website: https://github.com/Ralex91/Razzia
+  website: https://razzia.app
   developer: Ralex and contributors
   license: MIT
   source_code: https://github.com/Ralex91/Razzia
   support: https://github.com/Ralex91/Razzia/issues
-  docs: https://github.com/Ralex91/Razzia/tree/4.1.0/docs
+  docs: https://github.com/Ralex91/Razzia/tree/4.1.1/docs
 # Research at 4.0.2 (commit 8345663):
 # - One image (alpine + s6): nginx on :3000 serves the web build and proxies /api and /ws (Socket.IO) to the
 #   Node socket server on 127.0.0.1:3001. Caddy's plain reverse_proxy carries the WebSocket upgrade.
@@ -52,9 +56,13 @@ listing:
 # - Access: the app has its own protection (manager password, game PIN), so it installs with public access
 #   (owner rule 2026-11-13). The manager login has no rate limit upstream; the 24-character generated
 #   password makes guessing impractical.
-# - Screenshots: the official README previews at tag 4.1.0 (.github/previews/2-3.png, MIT repository).
-# 4.1.0, multi-arch index (linux/amd64, linux/arm64)
-image: docker.io/ralex91/razzia@sha256:c7e63ded6bc4f6878bbfd5052a69663175f6ae32e663ac8168039d91094c2e4c
+# - Screenshots: the official README previews (.github/previews/2-3.png, MIT repository), byte-identical at
+#   tags 4.1.0 and 4.1.1.
+# 4.1.1 (2026-11-25): runtime image moved from Alpine to Wolfi (nginx-mainline, nodejs-26, su-exec). Same s6
+#   layout (/etc/s6, s6-svscan CMD), nginx pid now /run/nginx/nginx.pid, still PUID/PGID 1000 on /app/config,
+#   so the command below and the data volume carry over unchanged. No data format change.
+# 4.1.1, multi-arch index (linux/amd64, linux/arm64)
+image: docker.io/ralex91/razzia@sha256:cb00ddad694222e72d97bddfba3e165e405c75213710117f775120c8a4fb6c0c
 port: 3000
 health: /api/health
 # Incus mounts an empty tmpfs on /run, so the image's /run/nginx is gone and nginx cannot write its pid file
