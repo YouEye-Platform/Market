@@ -1,9 +1,10 @@
 schema: youeye.app.v1
 id: bazarr
-version: 1.6.2.373
+version: 1.6.2.373.1
 name: Bazarr
-# Its connect files post form data (form:), which YouEye reads from 0.6.9.
-requires: { youeye: ">=0.6.9" }
+# Its connect files post form data (form:), which YouEye reads from 0.6.9. 0.6.20: an update writes the new
+# credentials: entry into the installed record (YE-208), so updated boxes show the admin account too.
+requires: { youeye: ">=0.6.20" }
 listing:
   tagline: Subtitles for your movies and series, found automatically
   description: Subtitle manager for Sonarr and Radarr
@@ -14,11 +15,16 @@ listing:
 
     Connect it to Sonarr and Radarr from their connection cards. A fresh Bazarr downloads nothing until you pick
     your languages and at least one subtitle provider in its settings (many providers need a free account of
-    their own). Bazarr has no accounts: YouEye's access gate decides who can open it.
+    their own). Bazarr signs you in with its own login: user admin, with the password shown under Credentials on
+    the app's page. It installs open to everyone on your home network, who see its login page. Change the
+    password in Bazarr's settings (Security) if you like; YouEye keeps your change.
   release_notes: |
-    Bazarr 1.6.2 in a fresh LinuxServer build (ls373) with updated system packages. The
-    app is unchanged: subtitle search, upgrades and language profiles for Sonarr and
-    Radarr, writing into the shared media folder.
+    Bazarr now has its own sign-in instead of YouEye's access gate: user admin, with the
+    password shown under Credentials on the app's page (it is also Bazarr's API key). You
+    can change it in Bazarr's settings (Security); YouEye keeps your change. Apps
+    connected to Bazarr keep working through its API key. Your settings, languages and
+    subtitles are kept. To let everyone on your home network open it, turn on public
+    access in the app's access settings. Same Bazarr 1.6.2 (LinuxServer ls373).
   category: media
   tags: [media, subtitles, tv, movies, arr, automation]
   icon: captions
@@ -54,9 +60,20 @@ env:
 secrets:
   # Bazarr's own key format (32 hex characters); hex keeps it URL-safe.
   api_key: {kind: hex, length: 16}
+# Access: Bazarr has its own login, so it uses it and is public on the household network (owner rule 2026-11-24,
+# decisions.md "YouEye ID is convenience, not a gate"; YE-204). Its account is user admin with the generated api_key
+# as password (no update can add a secret on boxes before 0.6.20, and the key is already generated on every box).
+# Bazarr's API always accepts the API key whatever auth.type is (bazarr/api/utils.py authenticate), so the connect
+# files keep working, and /api/system/ping (the health route) needs no sign-in.
+public_access: true
+credentials:
+  - {label: Admin Account, username: admin, password: api_key}
 # Bazarr keeps every setting in /config/config/config.yaml and rewrites it on each save, so a files: template for it
 # would wipe the user's settings on every update. Instead this per-start script edits only the keys YouEye owns:
-# auth.type None (the YouEye gate is the only login, like the arr apps' External), the API key, and the bind address.
+# the API key, the bind address, a login (auth.type form unless the household picked form or basic), and once (the
+# marker file) the account admin with the password stored as upstream stores it: unsalted MD5 hex
+# (bazarr/app/config.py settings-auth-password, utilities/helper.py check_credentials). A password or user the
+# household changes later in Bazarr's settings is kept.
 files:
   - path: /custom-cont-init.d/10-youeye-bazarr
     mode: '0700'
@@ -67,12 +84,19 @@ files:
       install -d /config/config
       # PyYAML is vendored in Bazarr's libs folder, not installed in the image's Python (live test, 1.6.2).
       YOUEYE_API_KEY='${secret.api_key}' PYTHONPATH=/app/bazarr/bin/libs python3 - <<'PY'
-      import os, yaml
+      import hashlib, os, yaml
       p = '/config/config/config.yaml'
+      marker = '/config/.youeye-admin-ready'
+      key = os.environ['YOUEYE_API_KEY']
       c = (yaml.safe_load(open(p)) if os.path.exists(p) else None) or {}
       auth = c.setdefault('auth', {})
-      auth['apikey'] = os.environ['YOUEYE_API_KEY']
-      auth['type'] = None
+      auth['apikey'] = key
+      if auth.get('type') not in ('form', 'basic'):
+          auth['type'] = 'form'
+      first = not os.path.exists(marker)
+      if first:
+          auth['username'] = 'admin'
+          auth['password'] = hashlib.md5(key.encode()).hexdigest()
       g = c.setdefault('general', {})
       g['ip'] = '*'
       g['port'] = 6767
@@ -80,6 +104,8 @@ files:
       with open(p + '.tmp', 'w') as f:
           yaml.safe_dump(c, f, default_flow_style=False)
       os.replace(p + '.tmp', p)
+      if first:
+          open(marker, 'w').close()
       PY
 provides:
   - {type: subtitles, description: Subtitle manager (Bazarr), port: 6767, scope: service}
