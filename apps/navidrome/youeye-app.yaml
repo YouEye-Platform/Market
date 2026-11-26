@@ -1,7 +1,9 @@
 schema: youeye.app.v1
 id: navidrome
-version: 0.64.2.1
-requires: { youeye: ">=0.6.15" }
+version: 0.64.2.2
+# 0.6.20: an update generates the new admin_password secret for copies installed before and writes the new
+# credentials: entry into the installed record (YE-208), so updated boxes show the admin account too.
+requires: { youeye: ">=0.6.20" }
 name: Navidrome
 listing:
   tagline: Your music, your server, everywhere
@@ -11,11 +13,23 @@ listing:
     from anywhere using any Subsonic-compatible client. Features include multi-user support,
     smart playlists, album art, lyrics, and fast transcoding. Works with DSub, Symfonium,
     play:Sub, and many more clients for your personal library.
+
+    Navidrome signs you in with its own login. The administrator is user admin, with the
+    password shown under Credentials on the app's page; the admin adds an account for each
+    household member in Settings, Users. It installs open to everyone on your home network,
+    who see its login page. Phone and desktop music apps (Subsonic clients) connect with
+    each person's Navidrome user name and password. Sharing links work as in upstream
+    Navidrome.
   release_notes: |
-    Navidrome 0.64.2 now trusts only its own app network for the YouEye sign-in header,
-    not the whole range YouEye uses for app networks. Nothing changes for listeners. The
-    app itself is unchanged (scanning on slow storage, administrator creation and
-    download filename fixes, the 0.64.1 security fixes).
+    Navidrome now uses its own sign-in instead of your YouEye login. Sign in as admin with
+    the password shown under Credentials on the app's page, then set a password for each
+    household member in Settings, Users: their accounts, playlists, favourites and play
+    counts are kept, but they can't sign in until you do. Phone and desktop music apps
+    (Subsonic clients) can now connect with those user names and passwords. Sharing links
+    are back on, as in upstream Navidrome. If someone's YouEye user name was admin, their
+    Navidrome account is renamed admin-old (set its password the same way). To let everyone
+    on your home network open it, turn on public access in the app's access settings.
+    Same Navidrome 0.64.2.
   category: media
   tags: [music, streaming, subsonic, audio]
   icon: music
@@ -39,19 +53,91 @@ internet: true
 data:
   - /data
   - {path: /music, kind: media}
-# Navidrome has no native OIDC. The platform forward-auth handler removes untrusted
-# identity headers and injects X-YouEye-Username after authentication; Navidrome's
-# current ExtAuth contract trusts only the platform proxy network. The first user to
-# arrive becomes the Navidrome administrator, and subsequent users are regular users.
-# Caddy reaches the app from its NIC on the app's own bridge: trust exactly that /27
-# (${app.network_cidr}, YouEye 0.6.15; never empty, a missing lease fails the install or update).
-# Navidrome has no connects/provides, so Caddy is the only other address in it.
+# Access: Navidrome has no OIDC (0.64.2, the latest release: no OIDC code; its ExtAuth trusts a login header), so it
+# uses its own login and is public on the household network (owner rule 2026-11-24, decisions.md "YouEye ID is
+# convenience, not a gate"; YE-204). No ND_EXTAUTH_* at all: with TrustedSources empty ExtAuth is off
+# (server/auth.go); set, the default UserHeader Remote-User would be trusted from Caddy, which strips only
+# X-YouEye-*, so anyone could sign in as admin. Sharing is upstream's default (EnableSharing true; LAN rule).
+public_access: true
+credentials:
+  - {label: Admin Account, username: admin, password: admin_password}
+secrets:
+  # Added by 0.64.2.2; YouEye 0.6.20 generates it for copies installed before (YE-208).
+  admin_password: {length: 24}
 env:
   ND_BASEURL: ''
   ND_DATAFOLDER: /data
   ND_MUSICFOLDER: /music
   ND_DEFAULTLANGUAGE: ${platform.locale}
-  ND_EXTAUTH_USERHEADER: X-YouEye-Username
-  ND_EXTAUTH_TRUSTEDSOURCES: ${app.network_cidr}
-  # Public share URLs cannot bypass YouEye forward-auth in this integration.
-  ND_ENABLESHARING: 'false'
+  # Read once by youeye-start.sh (below), which removes it from the environment before Navidrome starts.
+  YOUEYE_ADMIN_PASSWORD: ${secret.admin_password}
+# The admin account. Navidrome stores passwords reversibly encrypted (AES-GCM, persistence/user_repository.go, for
+# Subsonic token auth), so a script can't write one, and its user CLI prompts on a TTY. Navidrome's own initial setup
+# creates user admin (is_admin) with DevAutoCreateAdminPassword, only while the property InitialSetup is absent
+# (server/initial_setup.go), and logs that password at Warn unredacted. So the container starts as
+# /bin/sh /data/youeye-start.sh, which once (until the marker /data/.youeye-admin-ready exists):
+#  - on a copy installed before (header sign-in), renames a household account named admin (a YouEye user admin)
+#    to admin-old, keeping its data (all references use the user id), and deletes the InitialSetup row so that
+#    Navidrome runs its initial setup again (it only stores the music folder, creates admin and sets the flag;
+#    migrations read the flag only when some are pending, and none are within one version);
+#  - runs Navidrome once on 127.0.0.1:4599 at log level error with DevAutoCreateAdminPassword, without the start-up
+#    scan, until InitialSetup is set (at most 120 s), then stops it, so the password never reaches the log and the
+#    running Navidrome never holds it;
+#  - writes the marker once user admin is an administrator (else it tries again at the next start, and with no user
+#    at all it exits, so Navidrome never offers its first visitor to create the admin), and names the account
+#    Administrator instead of upstream's "Dev Admin".
+# The household's own accounts made by the header sign-in keep their data but have random passwords; the admin
+# sets them in Settings, Users (release notes). Then it execs /app/navidrome (the image's ENTRYPOINT), so Navidrome
+# is PID 1 and stops cleanly on SIGTERM. Recovery: delete the marker and restart.
+command: [/bin/sh, /data/youeye-start.sh]
+files:
+  - path: /data/youeye-start.sh
+    mode: '0700'
+    template: |
+      #!/bin/sh
+      db=/data/navidrome.db
+      m=/data/.youeye-admin-ready
+      p="$YOUEYE_ADMIN_PASSWORD"
+      unset YOUEYE_ADMIN_PASSWORD
+      q() { sqlite3 -cmd ".timeout 10000" "$db" "$1" 2>/dev/null; }
+      if [ ! -e "$m" ] && [ -n "$p" ]; then
+        if [ -e "$db" ]; then
+          if [ "$(q "select count(*) from user where lower(user_name)='admin' and name<>'Dev Admin'")" = 1 ]; then
+            if [ "$(q "select count(*) from user where lower(user_name)='admin-old'")" = 0 ]; then
+              q "update user set user_name='admin-old' where lower(user_name)='admin'"
+              echo "youeye: renamed the household account admin to admin-old (its data is kept)"
+            else
+              echo "youeye: accounts admin and admin-old both exist, no administrator admin created"
+            fi
+          fi
+          if [ "$(q "select count(*) from user where lower(user_name)='admin'")" = 0 ]; then
+            q "delete from property where id='InitialSetup'"
+          fi
+        fi
+        if [ "$(q "select count(*) from property where id='InitialSetup'")" != 1 ]; then
+          ND_DEVAUTOCREATEADMINPASSWORD="$p" ND_LOGLEVEL=error ND_ADDRESS=127.0.0.1 ND_PORT=4599 ND_SCANNER_SCANONSTARTUP=false /app/navidrome &
+          k=$!
+          trap 'kill $k 2>/dev/null; wait $k; exit 143' TERM INT
+          i=0
+          while [ $i -lt 120 ] && kill -0 $k 2>/dev/null; do
+            [ "$(q "select count(*) from property where id='InitialSetup'")" = 1 ] && break
+            sleep 1
+            i=$((i+1))
+          done
+          kill $k 2>/dev/null
+          wait $k
+          trap - TERM INT
+        fi
+        if [ "$(q "select count(*) from user where user_name='admin' and is_admin in (1,'1','true')")" = 1 ]; then
+          touch "$m"
+          q "update user set name='Administrator' where user_name='admin' and name='Dev Admin'"
+          echo "youeye: Navidrome administrator admin is ready"
+        else
+          echo "youeye: could not create the Navidrome administrator admin, trying again at the next start"
+          case "$(q "select count(*) from user")" in
+            ''|0) echo "youeye: not starting Navidrome without users, so its first visitor can't make themselves admin"; exit 1;;
+          esac
+        fi
+      fi
+      unset p
+      exec /app/navidrome
