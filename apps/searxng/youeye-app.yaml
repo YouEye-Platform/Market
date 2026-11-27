@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: searxng
-version: 2026.11.23
+version: 2026.11.26
 name: SearXNG
 listing:
   tagline: Private metasearch across more than 200 search services
@@ -10,10 +10,8 @@ listing:
     results from more than 200 search services. It does not profile
     users, and supports web, image, news, map, video, JSON, and RSS results.
   release_notes: |
-    This SearXNG build (2026-11-23) turns the Brave web search engine off by default (it hides
-    the real result addresses; Brave images, news and videos stay), fixes DuckDuckGo and image
-    loading, and adds new engines you can switch on in the preferences. Its cache moves to
-    Valkey 8.1.12, a security fix.
+    This SearXNG build (2026-11-26) fixes the calculator: results are rounded to 15
+    significant digits, so sums such as 0.1 + 0.2 show 0.3 instead of a long tail of digits.
   category: search
   tags: [search, privacy, metasearch]
   icon: search
@@ -29,8 +27,8 @@ listing:
   source_code: https://github.com/searxng/searxng
   support: https://github.com/searxng/searxng/issues
   docs: https://docs.searxng.org
-# 2026.11.23-a7163d091, multi-arch index (linux/amd64, linux/arm, linux/arm64)
-image: docker.io/searxng/searxng@sha256:a7fc607aa6723f5a8982105bcc5ffba4d1b9fc7c6922a31a88d6e4cba49ef12a
+# 2026.11.26-b5605b8f2, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/searxng/searxng@sha256:462d8dbeadd7c7c304be08d47084f5caba70f47a9145a01fd25990a7944e61b7
 port: 8080
 health: /
 internet: true
