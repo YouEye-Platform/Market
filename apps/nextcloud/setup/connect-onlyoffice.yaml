@@ -44,10 +44,16 @@ steps:
   - exec:
       run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'config:app:set', onlyoffice, jwt_secret, --type=string, --sensitive, '--value=${peer.api_key}']
   # The connector's own end-to-end check: health, a command with the JWT, and a conversion in which the suite downloads
-  # a file from StorageUrl. It fails the wiring (logged) when either direction does not work.
+  # a file from StorageUrl (/apps/onlyoffice/empty). The check stores its result in the connector's settings_error,
+  # and while that holds an error the connector turns its editors off (no new-file options; office files only
+  # download); its background check never runs again after a failure. Right after the connection is made the check
+  # can fail for a while: Nextcloud answered 404 on /apps/onlyoffice/empty for 5 minutes on one box, and on a test box
+  # the suite could not download the file 9 s after the connection NIC came up and passed later. One check that came
+  # too early left the editors off for good (YE-251). So: retry for up to 8 minutes; a passing check clears the error.
+  # It fails the wiring (logged) when either direction still does not work.
   - exec:
-      run: [runuser, -u, www-data, --, php, /var/www/html/occ, 'onlyoffice:documentserver', --check]
-      timeout: 180
+      run: [sh, -c, 'for i in $(seq 16); do runuser -u www-data -- php /var/www/html/occ onlyoffice:documentserver --check && exit 0; [ "$i" -lt 16 ] && sleep 30; done; exit 1']
+      timeout: 660
 # Runs in Nextcloud only (no peer address needed), so it also works while the suite is being removed. Documents stay
 # plain files in Nextcloud.
 remove:

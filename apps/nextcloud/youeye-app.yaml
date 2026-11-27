@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: nextcloud
-version: 35.0.3.4
+version: 35.0.3.5
 requires: { youeye: ">=0.6.15" }
 name: Nextcloud
 listing:
@@ -24,8 +24,10 @@ listing:
     YouEye account instead, turn public access off in the install dialog or later in the app's
     access settings; Nextcloud's own apps then can't connect.
   release_notes: |
-    Nextcloud can now connect to ONLYOFFICE Docs from the Market: approve the connection and
-    office documents open and save in the editor. Nothing changes until you approve it. Since
+    Approving the connection to ONLYOFFICE Docs now waits until Nextcloud serves its ONLYOFFICE app
+    (up to 8 minutes) instead of checking once: a check that came too early turned the editors off
+    until an admin saved the ONLYOFFICE settings. Nextcloud can connect to ONLYOFFICE Docs from the
+    Market: approve the connection and office documents open and save in the editor. Since
     35.0.3.3, Nextcloud's own setup checks are clean (maintenance window at 01:00 UTC, database
     indices, HSTS), and background jobs run every 5 minutes on their own. No database migration.
   category: productivity
