@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: firefly-iii
-version: 6.7.9
+version: 6.7.12
 name: Firefly III
 # ${app.network_cidr} (TRUSTED_PROXIES) needs YouEye 0.6.15.
 requires: { youeye: ">=0.6.15" }
@@ -28,7 +28,13 @@ listing:
     bank needs the separate Firefly III Data Importer and a bank-data service of your choice (GoCardless, SimpleFIN,
     Salt Edge); neither is part of this app. Firefly III doesn't send email in YouEye (messages go to its log).
   release_notes: |
-    Firefly III 6.7.9, new in the YouEye Market.
+    Firefly III 6.7.12 (upstream released 6.7.10, 6.7.11 and 6.7.12 together). Security fixes: email-change undo
+    codes now expire, admin settings can no longer be saved before the two-factor check, some protected preferences
+    are no longer readable, and default values are refused. New: a rule action that changes a transaction's date,
+    inline renaming of accounts, groups for accounts and categories, and available budgets that account for spending
+    before their period. Many fixes, among them a split-transaction update that could delete the whole transaction,
+    wrong balances in the account header, recurring transactions that couldn't be created, and several API errors.
+    The image now runs PHP 8.6. No database change; your accounts, transactions and attachments stay as they are.
   category: productivity
   tags: [finance, budget, money, accounting]
   icon: wallet
@@ -42,8 +48,8 @@ listing:
   source_code: https://github.com/firefly-iii/firefly-iii
   support: https://github.com/firefly-iii/firefly-iii/discussions
   docs: https://docs.firefly-iii.org
-# version-6.7.9, multi-arch index (linux/amd64, linux/arm64); upstream rebuilds the tag, the digest is the pin.
-image: docker.io/fireflyiii/core@sha256:10bbe21fbdc68b8fa955d85827aeed197ab46d62c8c745e949d322b9f4b73ff5
+# version-6.7.12, multi-arch index (linux/amd64, linux/arm64); upstream rebuilds the tag, the digest is the pin.
+image: docker.io/fireflyiii/core@sha256:99319a6ce1370eba9e85f78e4d506e76267af0e7acc40fb4189b34d5fe83c874
 port: 8080
 # OK 200 only when Firefly's database answers (HealthcheckController: User::count()); no login involved.
 health: {path: /health, timeout: 300}
