@@ -1,6 +1,6 @@
 schema: youeye.app.v1
 id: memos
-version: 26.11.2
+version: 26.11.3
 name: Memos
 listing:
   # Tagline, description and the first three paragraphs are upstream's copy, used as written
@@ -28,10 +28,12 @@ listing:
     memos open for others. To keep it to people with a YouEye account instead, turn public access off in the
     install dialog or later in the app's access settings.
   release_notes: |
-    Memos 26.11.2 is a fix release: comments are now memos of their own (the timeline can include
-    them), compact mode moved to Settings > Preferences, and the timeline can use the full width.
-    No data changes. Installed Memos 0.30 still cannot update in place (Memos requires a 0.31
-    step first): remove Memos with its data and install it again.
+    Memos 26.11.3: each Space has one shared timeline, right-click a memo for its actions, the calendar
+    lists every memo of a day, longer snippets of linked memos, Bengali, and many fixes for the editor,
+    attachments and imports. AI tag suggestions and a new Settings > AI arrive for admins who add an AI
+    provider themselves (YouEye does not connect Memos to Pointer). YouEye ID sign-in now accepts only
+    this app's own address. No data changes. Installed Memos 0.30 still cannot update in place (Memos
+    requires a 0.31 step first): remove Memos with its data and install it again.
 
     New installs are reachable by anyone on your network, because the app has its own sign-in; on an installed
     copy, turn on public access in the app's access settings if you want that.
@@ -50,8 +52,8 @@ listing:
   source_code: https://github.com/usememos/memos
   support: https://github.com/usememos/memos/issues
   docs: https://www.usememos.com/docs
-# 26.11.2, multi-arch index (linux/amd64, linux/arm, linux/arm64)
-image: docker.io/neosmemo/memos@sha256:3c7bd779510403350465ecabb7e6fbc0887206f9d55b8decf51a205613fa5616
+# 26.11.3, multi-arch index (linux/amd64, linux/arm, linux/arm64)
+image: docker.io/neosmemo/memos@sha256:544d36b5f2a0747addb16e320bd601fddf626e29d71ddcbd371c3443c2636274
 port: 5230
 health: /healthz
 internet: true
